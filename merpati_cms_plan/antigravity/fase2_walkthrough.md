@@ -41,6 +41,18 @@ Built out the complete administrative UI (11 pages) using the established design
 | `/settings` | ✅ | Multi-tab configuration |
 | `/themes` | ✅ | Theme cards |
 | `/profile` | ✅ | User bio |
+| `/(public)` | ✅ | Public theme wrapper (`layout.tsx`) with Header & Footer |
+| `/(public)/page.tsx` | ✅ | News homepage with Laporan Utama & Terbaru |
+| `/(public)/[slug]` | ✅ | Single Article View |
+| `/(public)/category/[slug]`| ✅ | Category Feed |
+
+## Visual Verification (Fase 2.5 - Public Theme)
+
+````carousel
+![Public Homepage - News Portal Layout](/home/arinadi/.gemini/antigravity/brain/6516c42a-28c3-4fd3-a5b7-ff8144e5263b/homepage_top_1772264061690.png)
+<!-- slide -->
+![Category View Component](/home/arinadi/.gemini/antigravity/brain/6516c42a-28c3-4fd3-a5b7-ff8144e5263b/category_ekonomi_1772264152984.png)
+````
 
 ## Next: Fase 3
 Backend implementation! Setting up the database schema, configuring Auth.js, and building out the API routes to connect this UI to real data.

@@ -16,7 +16,8 @@
 - [x] 2.2 — Dashboard (stats, quick draft) + Post Management (list, classic editor)
 - [x] 2.3 — Pages, Media (grid/dropzone), Categories, Tags UI
 - [x] 2.4 — Users (invites), Settings (tabs), Themes, Profile UI
-- [x] 2.5 — Verify all 11 admin routes
+- [x] 2.5 — Public Pages (Default Theme) with dummy posts
+- [x] 2.6 — Verify all admin & public routes running properly
 
 ## Fase 3: Backend
 - [ ] DB schema + migrations (Neon + Drizzle)
