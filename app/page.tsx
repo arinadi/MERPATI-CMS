@@ -1,66 +1,60 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #1D2327 0%, #2271B1 100%)",
+      color: "#fff",
+      fontFamily: "system-ui, -apple-system, sans-serif",
+      textAlign: "center",
+      padding: "24px",
+    }}>
+      <h1 style={{ fontSize: "48px", fontWeight: 700, marginBottom: "8px" }}>
+        🕊️ MERPATI-CMS
+      </h1>
+      <p style={{ fontSize: "18px", opacity: 0.85, marginBottom: "32px", maxWidth: "500px" }}>
+        Media Editorial Ringkas, Praktis, Aman, Tetap Independen
+      </p>
+      <p style={{ fontSize: "14px", opacity: 0.65, fontStyle: "italic", marginBottom: "48px" }}>
+        &quot;Kebebasan pers dimulai dari kemandirian infrastrukturnya.&quot;
+      </p>
+      <div style={{ display: "flex", gap: "16px" }}>
+        <Link
+          href="/login"
+          style={{
+            padding: "12px 32px",
+            background: "#fff",
+            color: "#2271B1",
+            borderRadius: "6px",
+            fontWeight: 600,
+            fontSize: "15px",
+            textDecoration: "none",
+            transition: "transform 150ms ease",
+          }}
+        >
+          Login
+        </Link>
+        <Link
+          href="/dashboard"
+          style={{
+            padding: "12px 32px",
+            background: "rgba(255,255,255,0.15)",
+            color: "#fff",
+            borderRadius: "6px",
+            fontWeight: 600,
+            fontSize: "15px",
+            textDecoration: "none",
+            border: "1px solid rgba(255,255,255,0.3)",
+          }}
+        >
+          Dashboard →
+        </Link>
+      </div>
     </div>
   );
 }
