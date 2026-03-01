@@ -1,23 +1,36 @@
-"use client";
-
 import Link from "next/link";
+import { db } from "@/db";
+import { posts, users, media } from "@/db/schema";
+import { count, eq, desc } from "drizzle-orm";
+import QuickDraftForm from "./quick-draft-form";
+import { formatDate } from "@/lib/utils";
 
-const stats = {
-    posts: 12,
-    pages: 3,
-    media: 45,
-    users: 2,
-};
+export const dynamic = "force-dynamic";
 
-const recentPosts = [
-    { id: "1", title: "Breaking: Kebijakan Energi Baru Diumumkan Pemerintah", author: "Rina Sari", date: "28 Feb 2026", status: "published" },
-    { id: "2", title: "Ekonomi Digital Indonesia Tumbuh 30% di Kuartal Pertama", author: "Budi Santoso", date: "27 Feb 2026", status: "published" },
-    { id: "3", title: "Wawancara Eksklusif: Menteri Pendidikan tentang Kurikulum Baru", author: "Rina Sari", date: "27 Feb 2026", status: "draft" },
-    { id: "4", title: "Analisis: Dampak Perubahan Iklim terhadap Pertanian Jawa", author: "Dewi Lestari", date: "26 Feb 2026", status: "published" },
-    { id: "5", title: "Tech Review: Smartphone Terbaru untuk Jurnalis Lapangan", author: "Budi Santoso", date: "25 Feb 2026", status: "draft" },
-];
+export default async function DashboardPage() {
+    // 1. Fetch counts
+    const [postsCount] = await db.select({ value: count() }).from(posts).where(eq(posts.type, "post"));
+    const [pagesCount] = await db.select({ value: count() }).from(posts).where(eq(posts.type, "page"));
+    const [mediaCount] = await db.select({ value: count() }).from(media);
+    const [usersCount] = await db.select({ value: count() }).from(users);
 
-export default function DashboardPage() {
+    const stats = {
+        posts: postsCount.value,
+        pages: pagesCount.value,
+        media: mediaCount.value,
+        users: usersCount.value,
+    };
+
+    // 2. Fetch recent posts
+    const recentPosts = await db.query.posts.findMany({
+        where: eq(posts.type, "post"),
+        orderBy: [desc(posts.createdAt)],
+        limit: 5,
+        with: {
+            author: true
+        }
+    });
+
     return (
         <div>
             <div className="page-header">
@@ -66,13 +79,7 @@ export default function DashboardPage() {
                 <div className="card">
                     <div className="card-header"><h2>Quick Draft</h2></div>
                     <div className="card-body">
-                        <div className="quick-draft-form">
-                            <input type="text" placeholder="Judul" />
-                            <textarea placeholder="Tulis sesuatu..." />
-                            <div>
-                                <button className="btn btn-primary">Save Draft</button>
-                            </div>
-                        </div>
+                        <QuickDraftForm />
                     </div>
                 </div>
 
@@ -81,12 +88,19 @@ export default function DashboardPage() {
                     <div className="card-header"><h2>Post Terbaru</h2></div>
                     <div className="card-body" style={{ padding: 0 }}>
                         <ul className="recent-posts-list">
+                            {recentPosts.length === 0 ? (
+                                <li className="recent-post-item" style={{ padding: "16px", color: "var(--admin-text-muted)" }}>
+                                    Belum ada post. Mulai menulis!
+                                </li>
+                            ) : null}
                             {recentPosts.map((post) => (
                                 <li key={post.id} className="recent-post-item" style={{ padding: "10px 12px" }}>
-                                    <span className="recent-post-title">{post.title}</span>
+                                    <span className="recent-post-title">
+                                        <Link href={`/posts/${post.id}/edit`} style={{ color: "inherit", textDecoration: "none" }}>{post.title}</Link>
+                                    </span>
                                     <div className="recent-post-meta">
-                                        <span>{post.author}</span>
-                                        <span>{post.date}</span>
+                                        <span>{post.author?.name || "Unknown"}</span>
+                                        <span>{formatDate(post.createdAt)}</span>
                                         <span className={`badge badge-${post.status}`}>
                                             {post.status === "published" ? "Published" : "Draft"}
                                         </span>

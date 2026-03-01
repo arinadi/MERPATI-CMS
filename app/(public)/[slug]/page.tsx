@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 // Ini data dummy. Di Fase 3, query database lewat Drizzle.
-const dummyPosts: Record<string, any> = {
+const dummyPosts: Record<string, Record<string, string>> = {
     "kebijakan-energi-baru": {
         title: "Breaking: Kebijakan Energi Baru Diumumkan Pemerintah",
         author: "Rina Sari",

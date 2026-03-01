@@ -132,6 +132,13 @@ export const usersRelations = relations(users, ({ many }) => ({
     media: many(media),
 }));
 
+export const mediaRelations = relations(media, ({ one }) => ({
+    author: one(users, {
+        fields: [media.uploadedBy],
+        references: [users.id],
+    })
+}));
+
 export const postsRelations = relations(posts, ({ one, many }) => ({
     author: one(users, {
         fields: [posts.authorId],

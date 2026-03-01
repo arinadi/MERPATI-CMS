@@ -1,5 +1,5 @@
-import NewPostPage from "../../posts/new/page";
+import EditorClient from "../../posts/editor-client";
 
-export default function NewPageEditor() {
-    return <NewPostPage />;
+export default function NewPage() {
+    return <EditorClient initialData={{ type: "page" }} />;
 }

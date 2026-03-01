@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { db } from "@/db";
+import { redirect } from "next/navigation";
 
 const dummyPosts = [
     { slug: "kebijakan-energi-baru", title: "Breaking: Kebijakan Energi Baru Diumumkan Pemerintah", category: "Politik", date: "28 Feb 2026", excerpt: "Pemerintah secara resmi mengumumkan peta jalan transisi energi menuju emisi nol bersih pada tahun 2050...", image: "#667eea" },
@@ -8,7 +10,17 @@ const dummyPosts = [
     { slug: "festival-batik-nasional", title: "Budaya: Festival Batik Nasional Digelar di Solo", category: "Budaya", date: "23 Feb 2026", excerpt: "Ribuan pengrajin dari seluruh Indonesia berkumpul merayakan hari batik dengan karya-karya inovatif kombinasi motif modern...", image: "#a18cd1" },
 ];
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+    try {
+        const firstUser = await db.query.users.findFirst();
+        if (!firstUser) {
+            redirect("/setup");
+        }
+    } catch {
+        // fail silently if DB isn't init
+    }
     const featuredPost = dummyPosts[0];
     const regularPosts = dummyPosts.slice(1);
 
