@@ -14,40 +14,42 @@ WordPress familiarity is the primary goal. Journalists should feel at home withi
 
 ## Color Palette & Typography
 
-### Admin Theme: "WordPress Modern"
+### Admin Theme: "WordPress Modern" (shadcn/ui + Tailwind CSS)
 
-| Token | Hex | Usage |
+The admin interface utilizes `shadcn/ui` and Tailwind CSS. The following custom properties should be configured in `globals.css` (or `tailwind.config`) to achieve the WP-like dark sidebar and gray content area:
+
+| Tailwind Class / Token | Hex | Usage |
 |---|---|---|
-| `--admin-sidebar-bg` | `#1D2327` | Sidebar background (WP dark) |
-| `--admin-sidebar-text` | `#C3C4C7` | Sidebar text |
-| `--admin-sidebar-hover` | `#2271B1` | Sidebar hover/active |
-| `--admin-topbar-bg` | `#1D2327` | Top admin bar |
-| `--admin-body-bg` | `#F0F0F1` | Main content background |
-| `--admin-card-bg` | `#FFFFFF` | Card/panel background |
-| `--admin-primary` | `#2271B1` | Primary buttons, links |
-| `--admin-primary-hover` | `#135E96` | Primary hover state |
-| `--admin-text` | `#1E1E1E` | Body text |
-| `--admin-text-muted` | `#646970` | Secondary text |
-| `--admin-border` | `#C3C4C7` | Borders, dividers |
-| `--admin-success` | `#00A32A` | Published status, success toasts |
-| `--admin-warning` | `#DBA617` | Draft status, warnings |
-| `--admin-error` | `#D63638` | Error states, delete actions |
-| `--admin-info` | `#72AAEA` | Info badges |
+| `bg-sidebar` (`--sidebar-bg`) | `#1D2327` | Sidebar background (WP dark) |
+| `text-sidebar-foreground` (`--sidebar-text`) | `#C3C4C7` | Sidebar text |
+| `hover:bg-sidebar-accent` | `#2271B1` | Sidebar hover/active |
+| `bg-background` (`--background`) | `#F0F0F1` | Main content background |
+| `bg-card` (`--card`) | `#FFFFFF` | Card/panel background |
+| `bg-primary` (`--primary`) | `#2271B1` | Primary buttons, links |
+| `hover:bg-primary/90` | `#135E96` | Primary hover state |
+| `text-foreground` (`--foreground`) | `#1E1E1E` | Body text |
+| `text-muted-foreground` (`--muted-foreground`)| `#646970` | Secondary text |
+| `border-border` (`--border`) | `#C3C4C7` | Borders, dividers |
+| `bg-success` | `#00A32A` | Published status, success toasts |
+| `bg-warning` | `#DBA617` | Draft status, warnings |
+| `bg-destructive` (`--destructive`) | `#D63638` | Error states, delete actions |
+| `bg-info` | `#72AAEA` | Info badges |
 
-### Public Theme (Default — defined in theme.json)
+### Public Theme (Pure Tailwind CSS)
 
-| Token | Hex | Usage |
+The public pages use pure Tailwind CSS utility classes without complex UI components.
+
+| Tailwind Class | Hex | Usage |
 |---|---|---|
-| `--pub-bg` | `#FFFFFF` | Page background |
-| `--pub-text` | `#1A1A1A` | Body text |
-| `--pub-heading` | `#0F172A` | Headings |
-| `--pub-accent` | `#2271B1` | Links, CTAs |
-| `--pub-accent-hover` | `#135E96` | Link hover |
-| `--pub-muted` | `#6B7280` | Meta text (dates, author) |
-| `--pub-surface` | `#F9FAFB` | Card backgrounds |
-| `--pub-border` | `#E5E7EB` | Borders |
-| `--pub-code-bg` | `#1E293B` | Code block background |
-| `--pub-code-text` | `#E2E8F0` | Code block text |
+| `bg-background` | `#FFFFFF` | Page background |
+| `text-foreground` | `#1A1A1A` | Body text |
+| `text-slate-900` | `#0F172A` | Headings |
+| `text-blue-600` | `#2271B1` | Links, CTAs |
+| `text-gray-500` | `#6B7280` | Meta text (dates, author) |
+| `bg-gray-50` | `#F9FAFB` | Card backgrounds |
+| `border-gray-200` | `#E5E7EB` | Borders |
+| `bg-slate-800` | `#1E293B` | Code block background |
+| `text-slate-200` | `#E2E8F0` | Code block text |
 
 ### Typography
 
@@ -100,6 +102,41 @@ WordPress familiarity is the primary goal. Journalists should feel at home withi
 
 > [!NOTE]
 > WordPress breakpoints (782px, 960px) are used intentionally for familiarity.
+
+---
+
+### Page: Setup / Initialization
+
+**Structure**: Centered card, fullscreen gradient background.
+
+```
+┌────────────────────────────────────────┐
+│                                        │
+│          MERPATI-CMS                   │
+│          Setup Installation            │
+│                                        │
+│     Site Title:                        │
+│     [___________________________]      │
+│     Description:                       │
+│     [___________________________]      │
+│     Super User Gmail:                  │
+│     [___________________________]      │
+│                                        │
+│     [🚀 Run Database Setup]            │
+│                                        │
+│     "Press freedom begins with         │
+│      infrastructure independence."     │
+│                                        │
+└────────────────────────────────────────┘
+```
+
+- **Data Points**: `site_title`, `description`, `super_user_email`
+- **States**:
+  - Default: Empty form fields + Run Setup button
+  - Validation: Inline errors if fields are empty or email is invalid
+  - Loading / Initializing: Button shows spinner and text "Creating tables & seeding data..."
+  - Success: Green badge "Setup Complete!" + Button changes to "Continue to Login"
+  - Error: Red alert card with raw SQL error message
 
 ---
 

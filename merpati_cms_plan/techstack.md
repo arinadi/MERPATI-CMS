@@ -19,7 +19,7 @@
 | **Image Storage** | `@vercel/blob` | Vercel-native, CDN-backed, simple put/del API, 500MB free |
 | **Template Engine** | Handlebars | Logic-less, WordPress-familiar, fast precompiled render |
 | **Editor** | Custom (contenteditable + execCommand) | No heavy deps, WP classic editor feel, full control |
-| **CSS** | Vanilla CSS + Custom Properties | No build tool needed for themes, maximum flexibility |
+| **CSS** | Tailwind CSS + shadcn/ui (admin) / Pure Tailwind (public) | Rapid UI development, responsive utilities, accessible components |
 | **Notifications** | Telegram Bot API (fetch) | Zero dependencies, HTTP POST only, no library needed |
 | **Linting** | ESLint + Prettier | Standard Next.js setup |
 | **Package Manager** | pnpm | Fast, efficient disk usage |
@@ -306,6 +306,8 @@ All requests to `/api/rpc` must be `POST` requests with a JSON body following th
 
 | Action | Auth Role | Payload Example | Returns |
 |---|---|---|---|
+| **System** |
+| `system.setup` | none | `{ "site_title": "...", "description": "...", "super_user_email": "..." }` | Success boolean |
 | **Posts** |
 | `posts.list` | any | `{ "status": "draft", "page": 1 }` | Paginated post list |
 | `posts.get` | any | `{ "id": "uuid" }` | Single post object |
@@ -452,7 +454,7 @@ export const config = {
 
 | Framework | Target |
 |---|---|
-| **Vitest + test DB** | Database schema migrations |
+| **Vitest + test DB** | Database schema initialization |
 | **Vitest + test DB** | API endpoints with real DB queries |
 | **Vitest** | Auth flow (mocked Google OAuth) |
 
@@ -558,7 +560,6 @@ merpati-cms/
 ├── themes/
 │   └── default/                # Built-in default theme
 ├── public/                     # Static assets (favicons, etc.)
-├── drizzle/                    # Generated migrations
 ├── drizzle.config.ts           # Drizzle ORM config
 ├── middleware.ts               # Auth + rate limiting middleware
 ├── auth.ts                     # Auth.js export
@@ -587,11 +588,16 @@ merpati-cms/
     "@vercel/blob": "^0.27.0",
     "handlebars": "^4.7.8",
     "dompurify": "^3.1.0",
-    "zod": "^3.23.0"
+    "zod": "^3.23.0",
+    "lucide-react": "^0.450.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
     "typescript": "^5.6.0",
-    "drizzle-kit": "^0.28.0",
+    "tailwindcss": "^3.4.1",
+    "postcss": "^8.4.31",
+    "autoprefixer": "^10.4.19",
     "vitest": "^2.1.0",
     "@playwright/test": "^1.48.0",
     "eslint": "^9.0.0",
@@ -602,7 +608,7 @@ merpati-cms/
 ```
 
 > [!NOTE]
-> Total production dependencies: **9 packages**. Kept intentionally minimal to avoid cold-start bloat in serverless functions.
+> Kept components and dependencies minimal to avoid cold-start bloat while leveraging shadcn/ui for rapid admin component development.
 
 ---
 
