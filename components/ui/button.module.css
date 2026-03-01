@@ -1,0 +1,58 @@
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    height: 32px;
+    font-family: var(--font-admin-body);
+    font-size: 13px;
+    font-weight: 400;
+    border-radius: 3px;
+    border: 1px solid var(--admin-primary);
+    background-color: var(--admin-primary);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+    background-color: var(--admin-primary-hover);
+    border-color: var(--admin-primary-hover);
+}
+
+.btn:active:not(:disabled) {
+    background-color: #0A4B78;
+    border-color: #0A4B78;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.btn:disabled {
+    background-color: var(--admin-border);
+    border-color: var(--admin-border);
+    color: #A7AAAD;
+    cursor: not-allowed;
+}
+
+.secondary {
+    background-color: transparent;
+    color: var(--admin-primary);
+    border-color: var(--admin-primary);
+}
+
+.secondary:hover:not(:disabled) {
+    background-color: #F0F0F1;
+    color: var(--admin-primary-hover);
+}
+
+.danger {
+    background-color: transparent;
+    color: var(--admin-error);
+    border-color: var(--admin-error);
+}
+
+.danger:hover:not(:disabled) {
+    background-color: #FDF2F2;
+    color: #B32D2E;
+    border-color: #B32D2E;
+}

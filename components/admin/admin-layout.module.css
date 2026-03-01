@@ -1,0 +1,140 @@
+.layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--admin-body-bg);
+}
+
+.mainWrapper {
+    display: flex;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    transition: padding-left 0.2s;
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: 160px;
+    background-color: var(--admin-sidebar-bg);
+    color: var(--admin-sidebar-text);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.2s ease;
+    z-index: 50;
+    overflow-y: auto;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+}
+
+.link {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    color: var(--admin-sidebar-text);
+    text-decoration: none;
+    font-family: var(--font-admin-body);
+    font-size: 13px;
+    transition: all 0.1s;
+}
+
+.link:hover,
+.link.active {
+    background-color: var(--admin-sidebar-hover);
+    color: #fff;
+}
+
+.linkIcon {
+    margin-right: 8px;
+    width: 20px;
+    text-align: center;
+}
+
+/* TopBar styling */
+.topbar {
+    height: 32px;
+    background-color: var(--admin-topbar-bg);
+    color: var(--admin-sidebar-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-family: var(--font-admin-body);
+    font-size: 13px;
+    z-index: 60;
+}
+
+.topbarLeft,
+.topbarRight {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.topbarLink {
+    color: var(--admin-sidebar-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.topbarLink:hover {
+    color: #fff;
+}
+
+/* Responsive */
+@media screen and (max-width: 960px) {
+    .sidebar {
+        width: 36px;
+    }
+
+    .sidebar:hover {
+        width: 160px;
+        position: absolute;
+        height: 100%;
+    }
+
+    .linkLabel {
+        display: none;
+    }
+
+    .sidebar:hover .linkLabel {
+        display: inline;
+    }
+
+    .content {
+        margin-left: 36px;
+    }
+}
+
+@media screen and (max-width: 782px) {
+    .sidebar {
+        position: absolute;
+        height: 100%;
+        transform: translateX(-100%);
+        width: 160px;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .linkLabel {
+        display: inline;
+    }
+
+    .content {
+        margin-left: 0;
+    }
+}

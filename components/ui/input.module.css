@@ -1,0 +1,30 @@
+.input {
+    width: 100%;
+    padding: 0 8px;
+    height: 32px;
+    border: 1px solid #8C8F94;
+    border-radius: 4px;
+    font-family: var(--font-admin-body);
+    font-size: 14px;
+    color: var(--admin-text);
+    box-shadow: 0 0 0 transparent;
+    transition: box-shadow 0.1s linear;
+}
+
+.input:focus {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 1px var(--admin-primary);
+    outline: 2px solid transparent;
+}
+
+.input.error {
+    border-color: var(--admin-error);
+}
+
+.label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--admin-text);
+    margin-bottom: 4px;
+}
