@@ -429,21 +429,44 @@ class ThemeEngine {
 
 ---
 
+## Installation & Initialization Flow (WordPress-Style)
+
+Since MERPATI-CMS is designed for lay users who do not use the terminal, **database migrations via CLI are completely bypassed**. The application self-initializes on the first run.
+
+```
+1. User deploys to Vercel and connects Neon DB (e.g., via Vercel integration).
+2. User opens the application URL.
+3. System checks DB state (e.g., checks if the `users` table exists).
+   ├── Exists → Proceed to normal System / Authentication Flow.
+   └── Empty → Trigger Initialization:
+       1. Execute a raw SQL query (`init.sql`) to create all tables and enums.
+       2. Seed default data for all tables to demonstrate features:
+          - **Settings**: Default site title, tagline, SEO configuration, and active theme.
+          - **Categories**: A default category (e.g., "Uncategorized") and a feature category (e.g., "Pers").
+          - **Tags**: A few sample tags (e.g., "Jurnalisme", "Independen").
+          - **Media**: A sample image (e.g., MERPATI logo) with an external placeholder URL or seeded asset to serve as the featured image for the welcome post.
+          - **Posts**: A published welcome post themed around **MERPATI** (*Media Editorial Ringkas, Praktis, Aman, Tetap Independen*) and quotes on press freedom (*"Kebebasan pers dimulai dari kemandirian infrastrukturnya."*). This post will be linked to the seeded categories and tags in `post_categories` and `post_tags`.
+          - **Pages**: A sample published "About" page containing information about the CMS.
+       3. Proceed to login. First user to log in becomes the Super User. (The `users` and linked relationships like `author_id` in the seeded posts/pages will be updated or assigned when this first user is created, or they can initially be seeded with a system placeholder user that gets replaced).
+```
+
+---
+
 ## User Flow
 
-### Admin Flow
+### Admin Flow (Single API Endpoint)
 ```
 Google Login → Dashboard
-  ├── Posts → All Posts / Add New → Classic Editor → Save Draft / Publish
-  │           → On Publish → Telegram notification sent
-  ├── Pages → All Pages / Add New → Editor → Save Draft / Publish
-  ├── Media → Library → Upload / Delete
-  ├── Categories → CRUD (super_user only)
-  ├── Tags → CRUD (super_user only)
-  ├── Themes → Select active theme (super_user only)
-  ├── Settings → Site config + Telegram bot setup (super_user only)
-  ├── Users → Invite / Manage roles (super_user only)
-  └── Profile → Edit bio, view own info
+  ├── Posts → All Posts / Add New → Classic Editor → Save (via RPC `posts.create`/`posts.update`)
+  │           → On Publish (via RPC `posts.publish`) → Telegram notification sent
+  ├── Pages → All Pages / Add New → Editor → Save Draft / Publish (via RPC)
+  ├── Media → Library → Upload (via `/api/media`) / Delete (via RPC `media.delete`)
+  ├── Categories → CRUD (via RPC, super_user only)
+  ├── Tags → CRUD (via RPC, super_user only)
+  ├── Themes → Select active theme (via RPC, super_user only)
+  ├── Settings → Site config + Telegram bot setup (via RPC, super_user only)
+  ├── Users → Invite / Manage roles (via RPC, super_user only)
+  └── Profile → Edit bio, view own info (via RPC `users.me`/`users.updateMe`)
 ```
 
 ### Public Flow

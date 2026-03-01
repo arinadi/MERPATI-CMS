@@ -59,22 +59,8 @@ app/
 
   api/                          # API Routes (serverless functions)
     auth/[...nextauth]/route.ts # Auth.js handler
-    posts/route.ts              # GET (list), POST (create)
-    posts/[id]/route.ts         # GET, PUT, DELETE
-    posts/[id]/publish/route.ts # POST (publish action)
-    pages/route.ts              # GET, POST
-    pages/[id]/route.ts         # GET, PUT, DELETE
-    media/route.ts              # GET (list), POST (upload)
-    media/[id]/route.ts         # GET, DELETE
-    categories/route.ts         # GET, POST
-    categories/[id]/route.ts    # PUT, DELETE
-    tags/route.ts               # GET, POST
-    tags/[id]/route.ts          # PUT, DELETE
-    users/route.ts              # GET (list)
-    users/[id]/route.ts         # PUT (role, active status)
-    users/invite/route.ts       # POST (send invitation)
-    settings/route.ts           # GET, PUT
-    themes/route.ts             # GET (list), PUT (activate)
+    rpc/route.ts                # Single Serverless API Endpoint (POST)
+    media/route.ts              # GET (list), POST (upload) - kept separate for Blob uploads
 
 components/
   admin/
@@ -290,144 +276,73 @@ export const db = drizzle(sql, { schema });
 
 ---
 
-## API Endpoints
+## Single API Endpoint (RPC Style)
 
-### Authentication
+To optimize for serverless execution and simplify the architecture, the CMS utilizes a **Single API Endpoint** pattern (RPC-style) for all data operations, reducing the number of serverless functions deployed.
+
+### Core Endpoint
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
+| POST | `/api/rpc` | ✅ | Handles all CRUD operations via an `action` payload |
 | GET/POST | `/api/auth/[...nextauth]` | — | Auth.js handler (Google OAuth flow) |
+| POST | `/api/media` | ✅ | Vercel Blob direct upload handler (kept separate for multipart/form-data) |
 
-### Posts
+### RPC Payload Structure
 
-| Method | Path | Auth | Role | Description |
-|---|---|---|---|---|
-| GET | `/api/posts` | ✅ | any | List posts (filterable: status, category, search, page) |
-| POST | `/api/posts` | ✅ | any | Create post (draft) |
-| GET | `/api/posts/[id]` | ✅ | any | Get single post |
-| PUT | `/api/posts/[id]` | ✅ | own or super_user | Update post |
-| DELETE | `/api/posts/[id]` | ✅ | own or super_user | Trash/delete post |
-| POST | `/api/posts/[id]/publish` | ✅ | any | Publish post (sets `published_by`, `published_at`) → triggers Telegram notification |
+All requests to `/api/rpc` must be `POST` requests with a JSON body following this envelope:
 
-#### POST `/api/posts` — Request Body
 ```json
 {
-  "title": "string (required)",
-  "content": "string (HTML)",
-  "excerpt": "string",
-  "featured_image": "string (URL)",
-  "category_ids": ["uuid"],
-  "tag_ids": ["uuid"],
-  "seo_title": "string",
-  "seo_description": "string",
-  "canonical_url": "string",
-  "is_indexable": true
+  "action": "posts.list",
+  "payload": {
+    "status": "published",
+    "page": 1
+  }
 }
 ```
 
-#### GET `/api/posts` — Query Parameters
-| Param | Type | Default | Description |
+### Available Actions
+
+| Action | Auth Role | Payload Example | Returns |
 |---|---|---|---|
-| `status` | string | `all` | Filter: `draft`, `published`, `trash`, `all` |
-| `category` | uuid | — | Filter by category ID |
-| `search` | string | — | Search in title and content |
-| `page` | number | 1 | Pagination |
-| `per_page` | number | 20 | Items per page |
-| `order_by` | string | `created_at` | Sort field |
-| `order` | string | `desc` | Sort direction |
-
-#### GET `/api/posts` — Response Shape
-```json
-{
-  "posts": [
-    {
-      "id": "uuid",
-      "title": "string",
-      "slug": "string",
-      "excerpt": "string",
-      "featured_image": "string",
-      "status": "draft|published|trash",
-      "author": { "id": "uuid", "name": "string", "avatar_url": "string" },
-      "published_by": { "id": "uuid", "name": "string" },
-      "categories": [{ "id": "uuid", "name": "string", "slug": "string" }],
-      "tags": [{ "id": "uuid", "name": "string", "slug": "string" }],
-      "published_at": "ISO8601",
-      "created_at": "ISO8601",
-      "updated_at": "ISO8601"
-    }
-  ],
-  "total": 42,
-  "page": 1,
-  "per_page": 20,
-  "total_pages": 3
-}
-```
-
-### Pages
-
-| Method | Path | Auth | Role | Description |
-|---|---|---|---|---|
-| GET | `/api/pages` | ✅ | any | List pages |
-| POST | `/api/pages` | ✅ | super_user | Create page |
-| GET | `/api/pages/[id]` | ✅ | any | Get single page |
-| PUT | `/api/pages/[id]` | ✅ | super_user | Update page |
-| DELETE | `/api/pages/[id]` | ✅ | super_user | Delete page |
-
-### Media
-
-| Method | Path | Auth | Role | Description |
-|---|---|---|---|---|
-| GET | `/api/media` | ✅ | any | List media (paginated) |
-| POST | `/api/media` | ✅ | any | Upload file to Vercel Blob |
-| GET | `/api/media/[id]` | ✅ | any | Get media details |
-| DELETE | `/api/media/[id]` | ✅ | own or super_user | Delete from Blob + DB |
-
-#### POST `/api/media` — Multipart Form Data
-- `file`: Binary file (max 4.5MB for Vercel free tier)
-- `alt_text`: Optional string
-- Returns: `{ id, filename, blob_url, mime_type, size_bytes }`
-
-### Categories
-
-| Method | Path | Auth | Role | Description |
-|---|---|---|---|---|
-| GET | `/api/categories` | ✅ | any | List all categories (hierarchical) |
-| POST | `/api/categories` | ✅ | super_user | Create category |
-| PUT | `/api/categories/[id]` | ✅ | super_user | Update category |
-| DELETE | `/api/categories/[id]` | ✅ | super_user | Delete category |
-
-### Tags
-
-| Method | Path | Auth | Role | Description |
-|---|---|---|---|---|
-| GET | `/api/tags` | ✅ | any | List all tags |
-| POST | `/api/tags` | ✅ | super_user | Create tag |
-| PUT | `/api/tags/[id]` | ✅ | super_user | Update tag |
-| DELETE | `/api/tags/[id]` | ✅ | super_user | Delete tag |
-
-### Users
-
-| Method | Path | Auth | Role | Description |
-|---|---|---|---|---|
-| GET | `/api/users` | ✅ | super_user | List all users |
-| PUT | `/api/users/[id]` | ✅ | super_user | Update role, activate/deactivate |
-| POST | `/api/users/invite` | ✅ | super_user | Create invitation |
-| GET | `/api/users/me` | ✅ | any | Get current user profile |
-| PUT | `/api/users/me` | ✅ | any | Update own profile (bio) |
-
-### Settings
-
-| Method | Path | Auth | Role | Description |
-|---|---|---|---|---|
-| GET | `/api/settings` | ✅ | any | Get all settings (non-sensitive) |
-| PUT | `/api/settings` | ✅ | super_user | Update settings (batch key-value) |
-
-### Themes
-
-| Method | Path | Auth | Role | Description |
-|---|---|---|---|---|
-| GET | `/api/themes` | ✅ | super_user | List available themes |
-| PUT | `/api/themes/active` | ✅ | super_user | Set active theme |
+| **Posts** |
+| `posts.list` | any | `{ "status": "draft", "page": 1 }` | Paginated post list |
+| `posts.get` | any | `{ "id": "uuid" }` | Single post object |
+| `posts.create` | any | `{ "title": "New", "content": "..." }` | New post object |
+| `posts.update` | own/super | `{ "id": "uuid", "title": "Updated" }`| Updated post |
+| `posts.delete` | own/super | `{ "id": "uuid" }` | Success boolean |
+| `posts.publish`| any | `{ "id": "uuid" }` | Success boolean |
+| **Pages** |
+| `pages.list` | any | `{}` | List pages |
+| `pages.get` | any | `{ "id": "uuid" }` | Single page |
+| `pages.create` | super_user | `{ "title": "..." }` | New page |
+| `pages.update` | super_user | `{ "id": "uuid", "title": "..." }` | Updated page |
+| `pages.delete` | super_user | `{ "id": "uuid" }` | Success boolean |
+| **Categories/Tags** |
+| `categories.list` | any | `{}` | List categories |
+| `categories.create` | super_user | `{ "name": "..." }` | New category |
+| `categories.update` | super_user | `{ "id": "uuid", "name": "..." }`| Updated category |
+| `categories.delete` | super_user | `{ "id": "uuid" }` | Success boolean |
+| `tags.list` | any | `{}` | List tags |
+| `tags.create` | super_user | `{ "name": "..." }` | New tag |
+| `tags.update` | super_user | `{ "id": "uuid", "name": "..." }` | Updated tag |
+| `tags.delete` | super_user | `{ "id": "uuid" }` | Success boolean |
+| **Users** |
+| `users.list` | super_user | `{}` | List users |
+| `users.update` | super_user | `{ "id": "uuid", "role": "..." }` | Updated user |
+| `users.invite` | super_user | `{ "email": "..." }` | Success boolean |
+| `users.me` | any | `{}` | Current user profile |
+| `users.updateMe`| any | `{ "bio": "..." }` | Updated profile |
+| **Settings/Themes** |
+| `settings.get` | any | `{}` | Key-value settings |
+| `settings.update` | super_user | `{ "settings": [...] }` | Success boolean |
+| `themes.list` | super_user | `{}` | List themes |
+| `themes.activate` | super_user | `{ "theme": "..." }` | Success boolean |
+| **Media** (Read/Delete only, upload is via `/api/media`) |
+| `media.list` | any | `{ "page": 1 }` | Paginated media list |
+| `media.get` | any | `{ "id": "uuid" }` | Media details |
+| `media.delete` | own/super | `{ "id": "uuid" }` | Success boolean |
 
 ---
 
@@ -607,18 +522,14 @@ Push to main
       └── Deploy to preview URL
 ```
 
-### Database Migrations
+### Database Initialization (No CLI Migrations)
 
-```bash
-# Generate migration from schema changes
-pnpm drizzle-kit generate
+To ensure exactly a WordPress-like experience for non-technical users, **CLI-based database migrations are not used in production deployment.** Instead, the application features an automatic self-initialization mechanism:
 
-# Apply migrations
-pnpm drizzle-kit migrate
-
-# View current schema (Drizzle Studio) 
-pnpm drizzle-kit studio
-```
+1. **Raw SQL Execution**: The schema (`CREATE TABLE`, `CREATE ENUM`, etc.) is stored in a raw SQL string or file (e.g., `/lib/db/init.sql.ts`).
+2. **Auto-Detection**: A setup routine or middleware checks if the database is populated.
+3. **Execution**: If the database connection succeeds but the DB is empty, the application automatically executes the raw SQL using the Neon HTTP driver to initialize the schema and seed initial data.
+4. **ORM Role**: Drizzle ORM is utilized strictly for querying and typing *after* the raw initialization is complete.
 
 ---
 
