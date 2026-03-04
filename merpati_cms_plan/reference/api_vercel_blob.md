@@ -1,85 +1,54 @@
-# API Reference: Vercel Blob Storage
+# Reference: Vercel Blob SDK
 
 ## Overview
-- **Service**: Vercel Blob — CDN-backed file storage
-- **Free Tier**: 500MB storage, 1000 put/copy/del operations per month
-- **CDN**: Files served from Vercel's global edge network
-- **SDK**: `@vercel/blob`
+Vercel Blob provides a fast, edge-optimized storage solution for media files without setting up an external S3 bucket manually.
 
 ## Installation
 ```bash
-pnpm add @vercel/blob
+pnpm install @vercel/blob
 ```
 
-## Environment Variable
-```bash
-BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxx
-```
-Generated in Vercel Dashboard → Storage → Blob → Create Store.
+## Setup
+Ensure `BLOB_READ_WRITE_TOKEN` is present in `.env.local` (Vercel automatically provisions this when you connect the Blob store).
 
-## Core API
+## Direct Server Upload
+Ideal for Server Actions receiving `FormData`.
 
-### Upload (Put)
 ```typescript
+'use server'
 import { put } from '@vercel/blob';
 
-const blob = await put('articles/hero.jpg', file, {
-  access: 'public',
-  contentType: file.type,
-});
-// blob.url → "https://xxx.public.blob.vercel-storage.com/articles/hero-abc123.jpg"
-```
-
-### Delete
-```typescript
-import { del } from '@vercel/blob';
-
-await del('https://xxx.public.blob.vercel-storage.com/articles/hero-abc123.jpg');
-```
-
-### List
-```typescript
-import { list } from '@vercel/blob';
-
-const { blobs, cursor } = await list({ prefix: 'articles/', limit: 100 });
-```
-
-### Server-Side Upload (Next.js API Route)
-```typescript
-// app/api/media/route.ts
-import { put } from '@vercel/blob';
-import { NextResponse } from 'next/server';
-
-export async function POST(request: Request) {
-  const formData = await request.formData();
+export async function uploadImage(formData: FormData) {
   const file = formData.get('file') as File;
+  
+  if (!file) throw new Error("No file provided");
 
-  const blob = await put(file.name, file, {
+  const blob = await put(file.name, file, { 
     access: 'public',
-    contentType: file.type,
+    // token is automatically picked up from env
   });
 
-  return NextResponse.json({ url: blob.url, size: file.size });
+  return blob; // { url, downloadUrl, pathname, size, uploadedAt }
 }
 ```
 
-## Rate Limits
-| Operation | Free Tier |
-|---|---|
-| Put / Copy / Delete | 1,000 / month |
-| Total storage | 500 MB |
-| File size limit | 500 MB per file (but we restrict to 4.5MB) |
+## Client Uploads (Direct to Blob)
+If files are large (Vercel serverless has a 4.5MB request body limit), you must use client uploads.
+```bash
+pnpm install @vercel/blob/client
+```
 
-## Error Codes
-| Error | Description |
-|---|---|
-| `BlobAccessError` | Invalid or expired token |
-| `BlobServiceNotAvailable` | Service temporarily down |
-| `BlobContentTypeNotAllowed` | Invalid content type |
-| `BlobFileTooLarge` | Exceeds size limit |
+*Create Route Handler (`app/api/upload/route.ts`):*
+```typescript
+import { handleUpload } from '@vercel/blob/client';
+// Read Vercel documentation for the specific handleUpload boilerplate
+```
+
+*Use `upload` hook in client component:*
+```typescript
+import { upload } from '@vercel/blob/client';
+// usage: await upload(file.name, file, { access: 'public', handleUploadUrl: '/api/upload' });
+```
 
 ## Caveats
-- **Token must be server-side only** — never expose `BLOB_READ_WRITE_TOKEN` to client
-- **URLs are permanent** — once uploaded, URL doesn't change (can cache forever)
-- **No folder structure** — paths are just key prefixes, not real folders
-- **Max 4.5MB for free tier serverless** — Vercel serverless body size limit is 4.5MB
+* The 4.5MB payload limit on Next.js Serverless functions applies if routing the file through a Server Action `FormData`. For images, it's usually fine, but client direct uploads bypass this limit safely.
