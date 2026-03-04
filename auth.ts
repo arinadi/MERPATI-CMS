@@ -1,0 +1,127 @@
+import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
+import { db } from "@/db";
+import { users, accounts } from "@/db/schema";
+import { eq } from "drizzle-orm";
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+    providers: [
+        Google({
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
+    ],
+    session: { strategy: "jwt" },
+    pages: {
+        signIn: "/login",
+    },
+    callbacks: {
+        async signIn({ user, account }) {
+            if (!user.email || !account) return false;
+
+            // Check if user already exists
+            const existingUsers = await db
+                .select()
+                .from(users)
+                .where(eq(users.email, user.email));
+
+            if (existingUsers.length > 0) {
+                // Existing user — allow sign in
+                return true;
+            }
+
+            // Check if this is the very first user (Super User claim)
+            const allUsers = await db.select({ id: users.id }).from(users);
+
+            if (allUsers.length === 0) {
+                // First user → Super User
+                const userId = crypto.randomUUID();
+                await db.insert(users).values({
+                    id: userId,
+                    name: user.name,
+                    email: user.email,
+                    image: user.image,
+                    role: "super_user",
+                });
+                await db.insert(accounts).values({
+                    userId,
+                    type: account.type,
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    refresh_token: account.refresh_token ?? null,
+                    access_token: account.access_token ?? null,
+                    expires_at: account.expires_at ?? null,
+                    token_type: account.token_type ?? null,
+                    scope: account.scope ?? null,
+                    id_token: account.id_token ?? null,
+                    session_state: account.session_state as string ?? null,
+                });
+                return true;
+            }
+
+            // Not first user — check if they were invited (email exists in invitations)
+            const { invitations } = await import("@/db/schema");
+            const invitation = await db
+                .select()
+                .from(invitations)
+                .where(eq(invitations.email, user.email));
+
+            if (invitation.length > 0) {
+                // Invited user — create account
+                const userId = crypto.randomUUID();
+                await db.insert(users).values({
+                    id: userId,
+                    name: user.name,
+                    email: user.email,
+                    image: user.image,
+                    role: "user",
+                });
+                await db.insert(accounts).values({
+                    userId,
+                    type: account.type,
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    refresh_token: account.refresh_token ?? null,
+                    access_token: account.access_token ?? null,
+                    expires_at: account.expires_at ?? null,
+                    token_type: account.token_type ?? null,
+                    scope: account.scope ?? null,
+                    id_token: account.id_token ?? null,
+                    session_state: account.session_state as string ?? null,
+                });
+                // Mark invitation as accepted
+                await db
+                    .update(invitations)
+                    .set({ status: "accepted" })
+                    .where(eq(invitations.email, user.email));
+                return true;
+            }
+
+            // Not invited → reject
+            return false;
+        },
+
+        async jwt({ token, user }) {
+            if (user?.email) {
+                const dbUser = await db
+                    .select({ id: users.id, role: users.role })
+                    .from(users)
+                    .where(eq(users.email, user.email));
+
+                if (dbUser.length > 0) {
+                    token.id = dbUser[0].id;
+                    token.role = dbUser[0].role;
+                }
+            }
+            return token;
+        },
+
+        async session({ session, token }) {
+            if (session.user) {
+                session.user.id = token.id as string;
+                session.user.role = token.role as string;
+            }
+            return session;
+        },
+    },
+});
