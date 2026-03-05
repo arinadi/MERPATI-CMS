@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppSidebar } from "@/components/admin/app-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { Toaster } from "sonner";
 
 export default async function AdminLayout({
     children,
@@ -30,6 +31,7 @@ export default async function AdminLayout({
                     <main className="flex-1 p-4 md:p-6">{children}</main>
                 </SidebarInset>
             </SidebarProvider>
+            <Toaster position="top-right" richColors />
         </TooltipProvider>
     );
 }

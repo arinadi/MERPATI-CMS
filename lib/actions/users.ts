@@ -70,6 +70,15 @@ export async function inviteUser(formData: FormData) {
         expiresAt,
     });
 
+    // Trigger Telegram Alert for invitation
+    const { getOption } = await import("@/lib/actions/options");
+    const shouldNotify = await getOption("telegram_notify_user");
+
+    if (shouldNotify === "true") {
+        const { sendTelegramAlert } = await import("@/lib/notifications/telegram");
+        sendTelegramAlert(`<b>New User Invited:</b> ${email}`);
+    }
+
     revalidatePath("/admin/users");
 
     return { success: true, message: `Invitation sent to ${email}.` };

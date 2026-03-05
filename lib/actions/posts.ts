@@ -319,8 +319,21 @@ export async function createPost(data: {
         await syncPostTerms(newPost.id, data.termIds);
     }
 
-    const basePath = parsed.data.type === "page" ? "/admin/pages" : "/admin/posts";
-    revalidatePath(basePath);
+    // Trigger Telegram Alert for new published post
+    if (parsed.data.status === "published") {
+        const { getOption } = await import("@/lib/actions/options");
+        const shouldNotify = await getOption("telegram_notify_post");
+
+        if (shouldNotify === "true") {
+            const { sendTelegramAlert } = await import("@/lib/notifications/telegram");
+            const siteUrl = await getOption("site_url") || "http://localhost:3000";
+            const postUrl = `${siteUrl}/${finalSlug}`;
+            sendTelegramAlert(`<b>New Post Published:</b> ${parsed.data.title}\n<a href="${postUrl}">${postUrl}</a>`);
+        }
+    }
+
+    revalidatePath(parsed.data.type === "page" ? "/admin/pages" : "/admin/posts");
+    revalidatePath("/");
 
     return { success: true, id: newPost?.id };
 }
@@ -345,7 +358,13 @@ export async function updatePost(
 
     // Check post exists
     const [existing] = await db
-        .select({ id: posts.id, type: posts.type })
+        .select({
+            id: posts.id,
+            type: posts.type,
+            status: posts.status,
+            slug: posts.slug,
+            title: posts.title
+        })
         .from(posts)
         .where(eq(posts.id, id));
 
@@ -410,8 +429,29 @@ export async function updatePost(
     }
 
     const basePath = existing.type === "page" ? "/admin/pages" : "/admin/posts";
+
+    // Trigger Telegram Alert for new published post or status change to published
+    const newStatus = data.status ?? existing.status;
+    const oldStatus = existing.status;
+    const currentSlug = updateValues.slug ?? existing.slug;
+    const currentTitle = updateValues.title ?? existing.title;
+
+    if (newStatus === "published" && oldStatus !== "published") {
+        const { getOption } = await import("@/lib/actions/options");
+        const shouldNotify = await getOption("telegram_notify_post");
+
+        if (shouldNotify === "true") {
+            const { sendTelegramAlert } = await import("@/lib/notifications/telegram");
+            // Get site URL from options for the notification message
+            const siteUrl = await getOption("site_url") || "http://localhost:3000";
+            const postUrl = `${siteUrl}/${currentSlug}`;
+            sendTelegramAlert(`<b>Post Published:</b> ${currentTitle}\n<a href="${postUrl}">${postUrl}</a>`);
+        }
+    }
+
     revalidatePath(basePath);
     revalidatePath(`${basePath}/${id}`);
+    revalidatePath("/"); // Revalidate homepage if a post is published/updated
 
     return { success: true };
 }
