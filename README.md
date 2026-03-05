@@ -50,6 +50,7 @@ A modern digital publishing platform — a lightweight, fast, and completely fre
 | `AUTH_URL` | `http://localhost:3000` |
 | `GOOGLE_CLIENT_ID` | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) OAuth 2.0 Client ID |
 | `GOOGLE_CLIENT_SECRET` | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) OAuth 2.0 Client Secret |
+| `BLOB_READ_WRITE_TOKEN` | [Vercel Storage](https://vercel.com/docs/storage/vercel-blob) Token for Media Uploads |
 | `ACTIVE_THEME` | `default` |
 
 ### Setup

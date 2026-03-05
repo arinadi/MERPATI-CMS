@@ -42,6 +42,7 @@ import {
 } from "@/lib/actions/posts";
 import CategoryCheckboxTree from "./terms/category-checkbox-tree";
 import TagCombobox from "./terms/tag-combobox";
+import EditorMediaModal from "./editor-media-modal";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -119,10 +120,12 @@ function MenuBar({
     editor,
     isHtmlMode,
     onToggleHtml,
+    onOpenMediaModal,
 }: {
     editor: ReturnType<typeof useEditor>;
     isHtmlMode: boolean;
     onToggleHtml: () => void;
+    onOpenMediaModal: () => void;
 }) {
     if (!editor) return null;
 
@@ -139,10 +142,7 @@ function MenuBar({
     };
 
     const addImage = () => {
-        const url = window.prompt("Enter image URL:");
-        if (url) {
-            editor.chain().focus().setImage({ src: url }).run();
-        }
+        onOpenMediaModal();
     };
 
     return (
@@ -412,6 +412,9 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
         post?.tags?.map((t) => t.id) ?? []
     );
     const [postId, setPostId] = useState<string | undefined>(post?.id);
+
+    // Editor UI State
+    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
     // HTML mode
     const [isHtmlMode, setIsHtmlMode] = useState(false);
@@ -750,6 +753,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                                 editor={editor}
                                 isHtmlMode={isHtmlMode}
                                 onToggleHtml={toggleHtmlMode}
+                                onOpenMediaModal={() => setIsMediaModalOpen(true)}
                             />
                         )}
                         {isHtmlMode ? (
@@ -956,6 +960,14 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                     )}
                 </div>
             </div>
+
+            <EditorMediaModal
+                open={isMediaModalOpen}
+                onOpenChange={setIsMediaModalOpen}
+                onInsert={(url, alt) => {
+                    editor?.chain().focus().setImage({ src: url, alt: alt || "" }).run();
+                }}
+            />
         </div>
     );
 }
