@@ -36,7 +36,7 @@ export default function MediaLibrary({ onSelect, selectable = false }: MediaLibr
                 }
                 setHasMore(result.items.length === 30);
             }
-        } catch (err) {
+        } catch {
             setError("Failed to load media.");
         } finally {
             setIsLoading(false);

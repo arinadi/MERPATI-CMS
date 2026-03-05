@@ -166,7 +166,7 @@ export default function TermForm({
             </Button>
 
             {isEdit && (
-                <Button type="button" variant="outline" className="ml-2" onClick={(e: React.MouseEvent) => {
+                <Button type="button" variant="outline" className="ml-2" onClick={() => {
                     // Quick way to cancel edit - navigate back to base route
                     router.push(`/admin/${taxonomy === "category" ? "categories" : "tags"}`);
                 }}>

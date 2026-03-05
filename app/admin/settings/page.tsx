@@ -25,7 +25,7 @@ export default async function SettingsPage() {
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
                 <p className="text-muted-foreground">
-                    Manage your site's global configuration and notifications.
+                    Manage your site&apos;s global configuration and notifications.
                 </p>
             </div>
 

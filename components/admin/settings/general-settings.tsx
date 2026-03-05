@@ -35,7 +35,7 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
             } else {
                 toast.error(result.error || "Failed to update settings.");
             }
-        } catch (error) {
+        } catch {
             toast.error("An unexpected error occurred.");
         } finally {
             setIsSaving(false);
@@ -47,7 +47,7 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
             <CardHeader>
                 <CardTitle>General Settings</CardTitle>
                 <CardDescription>
-                    Configure your site's identity and basic information.
+                    Configure your site&apos;s identity and basic information.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

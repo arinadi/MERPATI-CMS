@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { setOptions } from "@/lib/actions/options";
 import { toast } from "sonner";
-import { Loader2, BellRing, Send } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 
 interface NotificationSettingsProps {
     botToken: string;
@@ -44,7 +44,7 @@ export default function NotificationSettings({
             } else {
                 toast.error(result.error || "Failed to update settings.");
             }
-        } catch (error) {
+        } catch {
             toast.error("An unexpected error occurred.");
         } finally {
             setIsSaving(false);
@@ -60,7 +60,7 @@ export default function NotificationSettings({
                 </CardTitle>
                 <CardDescription>
                     Receive instant alerts on Telegram when important events occur in your CMS.
-                    You'll need a Telegram Bot token and your Chat ID.
+                    You&apos;ll need a Telegram Bot token and your Chat ID.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

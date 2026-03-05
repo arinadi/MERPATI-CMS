@@ -113,7 +113,7 @@ export default function ContactSettings({ initialContacts }: ContactSettingsProp
             <CardHeader>
                 <CardTitle>Contact Links</CardTitle>
                 <CardDescription>
-                    Manage the social media and contact links displayed on your site's header and footer.
+                    Manage the social media and contact links displayed on your site&apos;s header and footer.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

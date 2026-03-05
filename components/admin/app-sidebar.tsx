@@ -11,6 +11,7 @@ import {
     Image as ImageIcon,
     Users,
     Settings,
+    Menu as MenuIcon,
 } from "lucide-react";
 
 import {
@@ -42,6 +43,7 @@ const navItems: NavItem[] = [
     { title: "Tags", href: "/admin/tags", icon: Tags },
     { title: "Pages", href: "/admin/pages", icon: FileStack },
     { title: "Media", href: "/admin/media", icon: ImageIcon },
+    { title: "Menus", href: "/admin/menus", icon: MenuIcon },
     { title: "Users", href: "/admin/users", icon: Users, superUserOnly: true },
     { title: "Settings", href: "/admin/settings", icon: Settings },
 ];
