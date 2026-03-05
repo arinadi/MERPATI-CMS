@@ -4,10 +4,10 @@ import { auth } from "@/auth";
 export default auth((req) => {
     const { pathname } = req.nextUrl;
 
-    // Allow static files, api/auth, and _next
+    // Allow static files, api routes, and _next
     if (
         pathname.startsWith("/_next") ||
-        pathname.startsWith("/api/auth") ||
+        pathname.startsWith("/api/") ||
         pathname.startsWith("/favicon.ico")
     ) {
         return NextResponse.next();
@@ -18,20 +18,22 @@ export default auth((req) => {
     // Check initialization status via cookie (set after setup completes)
     const isInitialized = req.cookies.get("merpati_initialized")?.value === "true";
 
-    // If not initialized, redirect everything except /setup to /setup
-    if (!isInitialized) {
-        if (pathname === "/setup") {
-            return NextResponse.next();
-        }
-        return NextResponse.redirect(new URL("/setup", req.url));
-    }
-
-    // If initialized, /setup should redirect to home
+    // /setup page is always accessible — the page itself checks DB and redirects if needed
     if (pathname === "/setup") {
-        return NextResponse.redirect(new URL("/", req.url));
+        // If cookie says initialized, redirect away from setup
+        if (isInitialized) {
+            return NextResponse.redirect(new URL("/", req.url));
+        }
+        return NextResponse.next();
     }
 
-    // Protect /admin routes
+    // If not initialized (no cookie), redirect /admin to check-init API
+    // which will verify DB state, set cookie if needed, and redirect appropriately
+    if (!isInitialized && pathname.startsWith("/admin")) {
+        return NextResponse.redirect(new URL("/api/check-init", req.url));
+    }
+
+    // Protect /admin routes — require authentication
     if (pathname.startsWith("/admin")) {
         if (!isAuthenticated) {
             return NextResponse.redirect(new URL("/login", req.url));

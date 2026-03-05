@@ -56,6 +56,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     id_token: account.id_token ?? null,
                     session_state: account.session_state as string ?? null,
                 });
+                // Claim seed posts that have no author
+                const { posts } = await import("@/db/schema");
+                const { isNull } = await import("drizzle-orm");
+                await db.update(posts).set({ authorId: userId }).where(isNull(posts.authorId));
                 return true;
             }
 

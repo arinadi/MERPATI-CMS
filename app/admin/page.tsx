@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { users, posts } from "@/db/schema";
 import { eq, count } from "drizzle-orm";
@@ -34,7 +35,14 @@ const statCards = [
 
 export default async function AdminDashboard() {
     const session = await auth();
-    const stats = await getStats();
+
+    let stats: { posts: number; pages: number; users: number };
+    try {
+        stats = await getStats();
+    } catch {
+        // DB tables don't exist — redirect to init check which sets cookie and redirects
+        redirect("/api/check-init");
+    }
 
     return (
         <div className="space-y-8">

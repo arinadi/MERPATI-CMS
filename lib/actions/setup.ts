@@ -69,10 +69,10 @@ export async function bootstrapDatabase(formData: FormData) {
     let seedSqlContent = fs.readFileSync(seedSqlPath, "utf-8");
 
     // Replace placeholders
-    // Super User ID will be set after first login, use a temporary placeholder
     seedSqlContent = seedSqlContent.replace(/__SITE_TITLE__/g, siteTitle.replace(/'/g, "''"));
     seedSqlContent = seedSqlContent.replace(/__SITE_TAGLINE__/g, siteTagline.replace(/'/g, "''"));
-    seedSqlContent = seedSqlContent.replace(/__SUPER_USER_ID__/g, "NULL");
+    // Use subquery to get the super user's ID (first user with role 'super_user')
+    seedSqlContent = seedSqlContent.replace(/__SUPER_USER_ID__/g, "(SELECT id FROM users WHERE role = 'super_user' LIMIT 1)");
 
     await execSqlFile(seedSqlContent);
 
@@ -100,4 +100,3 @@ export async function checkInitialized(): Promise<boolean> {
         return false;
     }
 }
-
