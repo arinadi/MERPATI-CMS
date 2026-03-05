@@ -29,6 +29,7 @@ export async function uploadMedia(formData: FormData) {
     try {
         const { url } = await put(file.name, file, {
             access: "public",
+            addRandomSuffix: true,
         });
 
         const [newMedia] = await db
