@@ -39,6 +39,18 @@ A modern digital publishing platform — a lightweight, fast, and completely fre
 - pnpm
 - [Neon](https://neon.tech) account (Serverless Postgres)
 - [Google Cloud Console](https://console.cloud.google.com) account (OAuth credentials)
+  - Callback URL: `http://localhost:3000/api/auth/callback/google`
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | [Neon](https://console.neon.tech) Serverless Postgres connection string |
+| `AUTH_SECRET` | Generate with `openssl rand -base64 33` |
+| `AUTH_URL` | `http://localhost:3000` |
+| `GOOGLE_CLIENT_ID` | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) OAuth 2.0 Client ID |
+| `GOOGLE_CLIENT_SECRET` | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) OAuth 2.0 Client Secret |
+| `ACTIVE_THEME` | `default` |
 
 ### Setup
 
@@ -49,10 +61,6 @@ cd MERPATI-CMS
 
 # Install dependencies
 pnpm install
-
-# Copy environment variables
-cp .env.example .env.local
-# Edit .env.local with your credentials
 
 # Run development server
 pnpm dev

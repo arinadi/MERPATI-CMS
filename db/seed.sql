@@ -47,7 +47,7 @@ INSERT INTO posts (id, title, slug, content, excerpt, status, type, author_id, c
         'Selamat datang di MERPATI CMS — platform penerbitan digital modern untuk jurnalis dan penerbit independen.',
         'published',
         'post',
-        '__SUPER_USER_ID__',
+        __SUPER_USER_ID__,
         NOW(),
         NOW()
     )
@@ -75,7 +75,7 @@ INSERT INTO posts (id, title, slug, content, excerpt, status, type, author_id, c
         'Tentang MERPATI CMS — Media Editorial Ringkas, Praktis, Aman, Tetap Independen.',
         'published',
         'page',
-        '__SUPER_USER_ID__',
+        __SUPER_USER_ID__,
         NOW(),
         NOW()
     )

@@ -32,10 +32,37 @@ export async function bootstrapDatabase(formData: FormData) {
 
     const sql = neon(process.env.DATABASE_URL!);
 
+    // Helper: split SQL into individual statements (respects $$ blocks)
+    async function execSqlFile(sqlContent: string) {
+        const statements: string[] = [];
+        let current = "";
+        let inDollarBlock = false;
+
+        for (const line of sqlContent.split("\n")) {
+            const trimmed = line.trim();
+            if (!inDollarBlock && trimmed.startsWith("DO $$")) inDollarBlock = true;
+            current += line + "\n";
+            if (inDollarBlock && trimmed.endsWith("$$;")) {
+                inDollarBlock = false;
+                statements.push(current.trim());
+                current = "";
+            } else if (!inDollarBlock && trimmed.endsWith(";")) {
+                statements.push(current.trim());
+                current = "";
+            }
+        }
+        if (current.trim()) statements.push(current.trim());
+
+        for (const stmt of statements) {
+            const clean = stmt.replace(/^\s*--.*$/gm, "").trim();
+            if (clean) await sql.query(stmt);
+        }
+    }
+
     // 1. Execute init.sql to create all tables
     const initSqlPath = path.join(process.cwd(), "db", "init.sql");
     const initSqlContent = fs.readFileSync(initSqlPath, "utf-8");
-    await sql.query(initSqlContent);
+    await execSqlFile(initSqlContent);
 
     // 2. Execute seed.sql with placeholders replaced
     const seedSqlPath = path.join(process.cwd(), "db", "seed.sql");
@@ -45,9 +72,9 @@ export async function bootstrapDatabase(formData: FormData) {
     // Super User ID will be set after first login, use a temporary placeholder
     seedSqlContent = seedSqlContent.replace(/__SITE_TITLE__/g, siteTitle.replace(/'/g, "''"));
     seedSqlContent = seedSqlContent.replace(/__SITE_TAGLINE__/g, siteTagline.replace(/'/g, "''"));
-    seedSqlContent = seedSqlContent.replace(/__SUPER_USER_ID__/g, "pending-super-user");
+    seedSqlContent = seedSqlContent.replace(/__SUPER_USER_ID__/g, "NULL");
 
-    await sql.query(seedSqlContent);
+    await execSqlFile(seedSqlContent);
 
     // Set initialization cookie for middleware
     const cookieStore = await cookies();
