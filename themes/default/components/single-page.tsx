@@ -19,14 +19,14 @@ export default function SinglePage({ page }: SinglePageProps) {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
             {/* Page Header */}
-            <header className="pt-16 pb-12 md:pt-24 md:pb-20 bg-white">
+            <header className="pt-16 pb-12 md:pt-24 md:pb-20 bg-background">
                 <div className="container mx-auto px-4">
                     <div className="max-w-3xl mx-auto text-center space-y-6">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.1]">
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.1]">
                             {page.title}
                         </h1>
                         {page.excerpt && (
-                            <p className="text-xl text-slate-500 leading-relaxed font-medium max-w-2xl mx-auto">
+                            <p className="text-xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto">
                                 {page.excerpt}
                             </p>
                         )}
@@ -37,7 +37,7 @@ export default function SinglePage({ page }: SinglePageProps) {
             {/* Featured Image */}
             {page.featuredImage && (
                 <div className="container mx-auto px-4 mb-12 md:mb-20">
-                    <div className="aspect-[21/9] relative rounded-3xl overflow-hidden shadow-xl border-4 border-white">
+                    <div className="aspect-[21/9] relative rounded-3xl overflow-hidden shadow-xl shadow-black/10 border-4 border-background">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src={page.featuredImage}
@@ -52,12 +52,7 @@ export default function SinglePage({ page }: SinglePageProps) {
             <div className="container mx-auto px-4">
                 <div className="max-w-3xl mx-auto">
                     <div
-                        className="prose prose-lg prose-slate max-w-none
-                        prose-headings:font-black prose-headings:tracking-tight prose-headings:text-slate-900
-                        prose-p:leading-relaxed prose-p:text-slate-600
-                        prose-a:text-indigo-600 prose-a:font-bold hover:prose-a:text-indigo-500
-                        prose-img:rounded-3xl prose-img:shadow-lg
-                        "
+                        className="tiptap"
                         dangerouslySetInnerHTML={{ __html: page.content || "" }}
                     />
                 </div>

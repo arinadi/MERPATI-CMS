@@ -1,7 +1,8 @@
 import { db } from "@/db";
-import { posts, users, terms, termRelationships } from "@/db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { posts, users, terms, termRelationships, postRelationships } from "@/db/schema";
+import { eq, and, desc, inArray, ne } from "drizzle-orm";
 import { activeTheme } from "@/lib/themes";
+import type { PostCardData } from "@/lib/themes";
 
 const SinglePost = activeTheme.SinglePost;
 const SinglePage = activeTheme.SinglePage;
@@ -120,7 +121,59 @@ export default async function PublicPage({ params }: PublicPageProps) {
         const categories = allTerms.filter(t => t.taxonomy === "category").map(({ id, name, slug }) => ({ id, name, slug }));
         const tags = allTerms.filter(t => t.taxonomy === "tag").map(({ id, name, slug }) => ({ id, name, slug }));
 
-        return <SinglePost post={{ ...post, categories, tags }} />;
+        // ── Fetch Related Posts (from explicit relationships) ──────────────
+        const explicitRelations = await db
+            .select({
+                relatedPostId: postRelationships.relatedPostId,
+            })
+            .from(postRelationships)
+            .where(eq(postRelationships.postId, post.id));
+
+        const relatedPostIds = explicitRelations.map((r) => r.relatedPostId);
+        let relatedPosts: PostCardData[] = [];
+
+        if (relatedPostIds.length > 0) {
+            const related = await db
+                .select({
+                    id: posts.id,
+                    title: posts.title,
+                    slug: posts.slug,
+                    excerpt: posts.excerpt,
+                    featuredImage: posts.featuredImage,
+                    createdAt: posts.createdAt,
+                    author: { name: users.name },
+                })
+                .from(posts)
+                .leftJoin(users, eq(posts.authorId, users.id))
+                .where(
+                    and(
+                        inArray(posts.id, relatedPostIds),
+                        eq(posts.status, "published"),
+                        eq(posts.type, "post")
+                    )
+                )
+                .orderBy(desc(posts.createdAt))
+                .limit(3);
+
+            // Hydrate categories for PostCard
+            relatedPosts = await Promise.all(
+                related.map(async (rp) => {
+                    const rpCategories = await db
+                        .select({
+                            id: terms.id,
+                            name: terms.name,
+                            slug: terms.slug,
+                        })
+                        .from(termRelationships)
+                        .innerJoin(terms, eq(termRelationships.termId, terms.id))
+                        .where(and(eq(termRelationships.objectId, rp.id), eq(terms.taxonomy, "category")));
+
+                    return { ...rp, categories: rpCategories };
+                })
+            );
+        }
+
+        return <SinglePost post={{ ...post, categories, tags }} relatedPosts={relatedPosts} />;
     }
 
     // ── Try to find a Page ─────────────────────────────────────────────

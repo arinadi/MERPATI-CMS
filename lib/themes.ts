@@ -13,6 +13,7 @@ export interface ThemeLayoutProps {
 
 export interface SinglePostProps {
     post: PostData;
+    relatedPosts?: PostCardData[];
 }
 
 export interface SinglePageProps {
