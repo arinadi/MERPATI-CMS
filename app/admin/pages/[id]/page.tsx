@@ -10,9 +10,9 @@ export default async function EditPagePage({
     const { id } = await params;
     const post = await getPostById(id);
 
-    if (!post || post.type !== "page") {
+    if (!post || post.error || !post.post || post.post.type !== "page") {
         notFound();
     }
 
-    return <PostEditor type="page" post={post} />;
+    return <PostEditor type="page" post={post.post} />;
 }

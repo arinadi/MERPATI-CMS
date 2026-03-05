@@ -40,6 +40,8 @@ import {
     deletePost,
     searchPublishedPosts,
 } from "@/lib/actions/posts";
+import CategoryCheckboxTree from "./terms/category-checkbox-tree";
+import TagCombobox from "./terms/tag-combobox";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -60,11 +62,24 @@ interface PostData {
     createdAt: Date;
     updatedAt: Date;
     relatedPosts: RelatedPost[];
+    categories?: { id: string }[];
+    tags?: { id: string }[];
+}
+
+interface Term {
+    id: string;
+    name: string;
+    slug: string;
+    taxonomy: "category" | "tag";
+    parentId: string | null;
+    description: string | null;
 }
 
 interface PostEditorProps {
     type: "post" | "page";
     post?: PostData | null;
+    availableCategories?: Term[];
+    availableTags?: Term[];
 }
 
 // ─── Toolbar Button ─────────────────────────────────────────────────────────
@@ -373,7 +388,7 @@ function RelatedPostsSelector({
 
 // ─── Main Editor Component ──────────────────────────────────────────────────
 
-export function PostEditor({ type, post }: PostEditorProps) {
+export function PostEditor({ type, post, availableCategories = [], availableTags = [] }: PostEditorProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
@@ -389,6 +404,12 @@ export function PostEditor({ type, post }: PostEditorProps) {
     );
     const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>(
         post?.relatedPosts ?? []
+    );
+    const [categoryIds, setCategoryIds] = useState<string[]>(
+        post?.categories?.map((c) => c.id) ?? []
+    );
+    const [tagIds, setTagIds] = useState<string[]>(
+        post?.tags?.map((t) => t.id) ?? []
     );
     const [postId, setPostId] = useState<string | undefined>(post?.id);
 
@@ -540,6 +561,7 @@ export function PostEditor({ type, post }: PostEditorProps) {
                         status,
                         featuredImage: featuredImage || undefined,
                         relatedPostIds: relatedPosts.map((p) => p.id),
+                        termIds: [...categoryIds, ...tagIds],
                     });
 
                     if (result.error) {
@@ -576,6 +598,7 @@ export function PostEditor({ type, post }: PostEditorProps) {
                         type,
                         featuredImage: featuredImage || undefined,
                         relatedPostIds: relatedPosts.map((p) => p.id),
+                        termIds: [...categoryIds, ...tagIds],
                     });
 
                     if (result.error) {
@@ -620,6 +643,8 @@ export function PostEditor({ type, post }: PostEditorProps) {
             status,
             featuredImage,
             relatedPosts,
+            categoryIds,
+            tagIds,
             type,
         ]
     );
@@ -720,11 +745,13 @@ export function PostEditor({ type, post }: PostEditorProps) {
 
                     {/* Editor */}
                     <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-                        <MenuBar
-                            editor={editor}
-                            isHtmlMode={isHtmlMode}
-                            onToggleHtml={toggleHtmlMode}
-                        />
+                        {editor && (
+                            <MenuBar
+                                editor={editor}
+                                isHtmlMode={isHtmlMode}
+                                onToggleHtml={toggleHtmlMode}
+                            />
+                        )}
                         {isHtmlMode ? (
                             <textarea
                                 value={rawHtml}
@@ -734,9 +761,9 @@ export function PostEditor({ type, post }: PostEditorProps) {
                                 className="w-full min-h-[400px] p-4 font-mono text-sm bg-muted/20 focus:outline-none resize-y"
                                 spellCheck={false}
                             />
-                        ) : (
+                        ) : editor ? (
                             <EditorContent editor={editor} />
-                        )}
+                        ) : null}
                     </div>
 
                     {/* Excerpt */}
@@ -884,6 +911,35 @@ export function PostEditor({ type, post }: PostEditorProps) {
                             </div>
                         )}
                     </div>
+
+                    {/* Taxonomies (only for posts, not pages) */}
+                    {type === "post" && (
+                        <>
+                            <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
+                                <Label>Categories</Label>
+                                <CategoryCheckboxTree
+                                    categories={availableCategories}
+                                    selectedIds={categoryIds}
+                                    onChange={(ids) => {
+                                        setCategoryIds(ids);
+                                        setHasUnsavedChanges(true);
+                                    }}
+                                />
+                            </div>
+
+                            <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
+                                <Label>Tags</Label>
+                                <TagCombobox
+                                    availableTags={availableTags}
+                                    selectedIds={tagIds}
+                                    onChange={(ids) => {
+                                        setTagIds(ids);
+                                        setHasUnsavedChanges(true);
+                                    }}
+                                />
+                            </div>
+                        </>
+                    )}
 
                     {/* Related Posts (only for posts, not pages) */}
                     {type === "post" && (

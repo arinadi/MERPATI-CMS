@@ -1,7 +1,8 @@
 "use server";
 
 import { db } from "@/db";
-import { posts, postRelationships, users } from "@/db/schema";
+import { posts, users, postRelationships, termRelationships, terms } from "@/db/schema";
+import { syncPostTerms } from "./terms";
 import { eq, and, desc, count, ilike, ne } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
@@ -100,42 +101,71 @@ export async function getPosts(
 }
 
 export async function getPostById(id: string) {
-    const [post] = await db
-        .select({
-            id: posts.id,
-            title: posts.title,
-            slug: posts.slug,
-            content: posts.content,
-            excerpt: posts.excerpt,
-            status: posts.status,
-            type: posts.type,
-            authorId: posts.authorId,
-            featuredImage: posts.featuredImage,
-            createdAt: posts.createdAt,
-            updatedAt: posts.updatedAt,
-        })
-        .from(posts)
-        .where(eq(posts.id, id));
+    try {
+        const [post] = await db
+            .select({
+                id: posts.id,
+                title: posts.title,
+                slug: posts.slug,
+                content: posts.content,
+                excerpt: posts.excerpt,
+                status: posts.status,
+                type: posts.type,
+                featuredImage: posts.featuredImage,
+                createdAt: posts.createdAt,
+                updatedAt: posts.updatedAt,
+                author: {
+                    id: users.id,
+                    name: users.name,
+                },
+            })
+            .from(posts)
+            .leftJoin(users, eq(posts.authorId, users.id))
+            .where(eq(posts.id, id));
 
-    if (!post) return null;
+        if (!post) {
+            return { error: "Post not found." };
+        }
 
-    // Fetch related post IDs
-    const relations = await db
-        .select({
-            relatedPostId: postRelationships.relatedPostId,
-            title: posts.title,
-        })
-        .from(postRelationships)
-        .leftJoin(posts, eq(postRelationships.relatedPostId, posts.id))
-        .where(eq(postRelationships.postId, id));
+        // Fetch related posts
+        const related = await db
+            .select({
+                id: posts.id,
+                title: posts.title,
+                slug: posts.slug,
+                type: posts.type,
+            })
+            .from(postRelationships)
+            .innerJoin(posts, eq(postRelationships.relatedPostId, posts.id))
+            .where(eq(postRelationships.postId, id));
 
-    return {
-        ...post,
-        relatedPosts: relations.map((r) => ({
-            id: r.relatedPostId,
-            title: r.title ?? "",
-        })),
-    };
+        // Fetch terms (categories and tags) map
+        const postTermsRaw = await db
+            .select({
+                id: terms.id,
+                name: terms.name,
+                slug: terms.slug,
+                taxonomy: terms.taxonomy,
+            })
+            .from(termRelationships)
+            .innerJoin(terms, eq(termRelationships.termId, terms.id))
+            .where(eq(termRelationships.objectId, id));
+
+        const categories = postTermsRaw.filter(t => t.taxonomy === "category");
+        const tags = postTermsRaw.filter(t => t.taxonomy === "tag");
+
+        return {
+            post: {
+                ...post,
+                relatedPosts: related,
+                categories,
+                tags,
+            }
+        };
+    } catch (error) {
+        console.error("Error fetching post by ID:", error);
+        return { error: "Failed to fetch post." };
+    }
 }
 
 export async function searchPublishedPosts(query: string, excludeId?: string) {
@@ -171,8 +201,9 @@ export async function createPost(data: {
     excerpt?: string;
     status?: "draft" | "published";
     type?: "post" | "page";
-    featuredImage?: string;
+    featuredImage?: string | null;
     relatedPostIds?: string[];
+    termIds?: string[];
 }) {
     const session = await auth();
     if (!session?.user?.id) {
@@ -225,6 +256,11 @@ export async function createPost(data: {
         );
     }
 
+    // Sync terms
+    if (data.termIds && newPost) {
+        await syncPostTerms(newPost.id, data.termIds);
+    }
+
     const basePath = parsed.data.type === "page" ? "/admin/pages" : "/admin/posts";
     revalidatePath(basePath);
 
@@ -239,8 +275,9 @@ export async function updatePost(
         content?: string;
         excerpt?: string;
         status?: "draft" | "published";
-        featuredImage?: string;
+        featuredImage?: string | null;
         relatedPostIds?: string[];
+        termIds?: string[];
     }
 ) {
     const session = await auth();
@@ -294,7 +331,7 @@ export async function updatePost(
     await db.update(posts).set(updateValues).where(eq(posts.id, id));
 
     // Sync related posts
-    if (data.relatedPostIds !== undefined) {
+    if (data.relatedPostIds) {
         await db
             .delete(postRelationships)
             .where(eq(postRelationships.postId, id));
@@ -307,6 +344,11 @@ export async function updatePost(
                 }))
             );
         }
+    }
+
+    // Sync terms
+    if (data.termIds) {
+        await syncPostTerms(id, data.termIds);
     }
 
     const basePath = existing.type === "page" ? "/admin/pages" : "/admin/posts";

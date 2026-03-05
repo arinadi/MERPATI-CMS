@@ -6,6 +6,8 @@ import {
     LayoutDashboard,
     FileText,
     FileStack,
+    FolderTree,
+    Tags,
     Image as ImageIcon,
     Users,
     Settings,
@@ -36,6 +38,8 @@ interface NavItem {
 const navItems: NavItem[] = [
     { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { title: "Posts", href: "/admin/posts", icon: FileText },
+    { title: "Categories", href: "/admin/categories", icon: FolderTree },
+    { title: "Tags", href: "/admin/tags", icon: Tags },
     { title: "Pages", href: "/admin/pages", icon: FileStack },
     { title: "Media", href: "/admin/media", icon: ImageIcon },
     { title: "Users", href: "/admin/users", icon: Users, superUserOnly: true },
