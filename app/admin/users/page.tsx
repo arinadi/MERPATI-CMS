@@ -48,7 +48,8 @@ export default async function UsersPage() {
                 {canInvite && <InviteUserDialog />}
             </div>
 
-            <div className="rounded-xl border bg-card shadow-sm">
+            {/* Desktop Table View */}
+            <div className="hidden md:block rounded-xl border bg-card shadow-sm overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -83,15 +84,16 @@ export default async function UsersPage() {
                                     <TableCell className="font-medium">
                                         {user.name ?? "—"}
                                     </TableCell>
-                                    <TableCell>{user.email}</TableCell>
+                                    <TableCell className="text-sm">{user.email}</TableCell>
                                     <TableCell>
                                         <Badge
                                             variant={user.role === "super_user" ? "default" : "secondary"}
+                                            className="text-[10px] uppercase font-bold tracking-wider"
                                         >
                                             {user.role === "super_user" ? "Super User" : "User"}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground">
+                                    <TableCell className="text-muted-foreground text-sm">
                                         {formatDate(user.createdAt)}
                                     </TableCell>
                                 </TableRow>
@@ -99,6 +101,51 @@ export default async function UsersPage() {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+                {userList.length === 0 ? (
+                    <div className="rounded-xl border border-dashed bg-card p-12 text-center text-muted-foreground">
+                        No users found.
+                    </div>
+                ) : (
+                    userList.map((user) => (
+                        <div
+                            key={user.id}
+                            className="rounded-xl border bg-card p-4 shadow-sm flex items-center gap-4"
+                        >
+                            <Avatar className="h-12 w-12 border">
+                                <AvatarImage
+                                    src={user.image ?? undefined}
+                                    alt={user.name ?? "User"}
+                                />
+                                <AvatarFallback>
+                                    {getInitials(user.name)}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0 space-y-1">
+                                <div className="flex items-center justify-between gap-2">
+                                    <h3 className="font-semibold truncate">
+                                        {user.name ?? "—"}
+                                    </h3>
+                                    <Badge
+                                        variant={user.role === "super_user" ? "default" : "secondary"}
+                                        className="h-5 px-1.5 text-[10px] uppercase font-bold tracking-wider shrink-0"
+                                    >
+                                        {user.role === "super_user" ? "Admin" : "User"}
+                                    </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground truncate">
+                                    {user.email}
+                                </p>
+                                <p className="text-[11px] text-muted-foreground">
+                                    Joined {formatDate(user.createdAt)}
+                                </p>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );

@@ -5,12 +5,14 @@ Provide an interface for uploading and managing media (images). Media should be 
 
 ## UI Structure
 *   **Media Gallery (`/admin/media`):**
-    *   A grid view of image thumbnails.
+    *   **Mobile Grid:** Adaptive columns (2 on mobile, fixed aspect ratio). Thumbnails must be perfectly square using CSS `aspect-square` for consistency.
     *   A prominent upload zone (drag and drop or file select).
     *   Clicking an image opens a dialog showing details (Filename, Size, Dimensions, Upload Date) and a "Copy URL" button.
+    *   **Mobile-First Detail Dialog:** On small screens, the media detail view must be full-screen or a bottom sheet, ensuring that "Copy URL" and "Delete" actions are easily accessible without horizontal scrolling.
 *   **Editor Media Modal:**
     *   Triggered from the TipTap toolbar.
-    *   Tabs: "Upload", "Media Library", "Insert from URL".
+    *   **Tabs:** "Upload", "Media Library", "Insert from URL".
+    *   **Mobile UX:** Ensure the modal expands to maximum height (`85vh` or full screen) on mobile to maximize visibility of the media grid.
     *   Selecting an image inserts an `<img>` tag into the editor at the cursor position.
 
 ## Data & API

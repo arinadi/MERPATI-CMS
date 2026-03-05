@@ -28,6 +28,10 @@ import {
     Trash2,
     Search,
     X,
+    ImagePlus,
+    Settings,
+    ChevronLeft,
+    PanelRight,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -43,6 +47,13 @@ import {
 import CategoryCheckboxTree from "./terms/category-checkbox-tree";
 import TagCombobox from "./terms/tag-combobox";
 import EditorMediaModal from "./editor-media-modal";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -146,7 +157,7 @@ function MenuBar({
     };
 
     return (
-        <div className="flex flex-wrap items-center gap-0.5 border-b p-2 bg-muted/30">
+        <div className="sticky top-0 z-20 flex flex-wrap items-center gap-0.5 border-b p-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:top-0">
             <ToolbarButton
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 isActive={editor.isActive("bold")}
@@ -415,6 +426,8 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
 
     // Editor UI State
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+    const [isFeaturedImageModalOpen, setIsFeaturedImageModalOpen] = useState(false);
+    const [isMetadataSheetOpen, setIsMetadataSheetOpen] = useState(false);
 
     // HTML mode
     const [isHtmlMode, setIsHtmlMode] = useState(false);
@@ -434,6 +447,191 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
         type: "error" | "success";
         text: string;
     } | null>(null);
+
+    // Sidebar Content Renderer (for reuse in desktop and mobile sheet)
+    const renderSidebarContent = () => (
+        <div className="space-y-4">
+            {/* Publish Box */}
+            <div className="rounded-xl border bg-card p-4 shadow-sm space-y-4">
+                <h3 className="font-semibold text-sm">Publish</h3>
+
+                {/* Status toggle */}
+                <div className="space-y-2">
+                    <Label>Status</Label>
+                    <div className="flex gap-2">
+                        <Button
+                            type="button"
+                            variant={status === "draft" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => {
+                                setStatus("draft");
+                                setHasUnsavedChanges(true);
+                            }}
+                            className="flex-1"
+                        >
+                            Draft
+                        </Button>
+                        <Button
+                            type="button"
+                            variant={status === "published" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => {
+                                setStatus("published");
+                                setHasUnsavedChanges(true);
+                            }}
+                            className="flex-1"
+                        >
+                            Published
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Save / Publish button */}
+                <Button
+                    type="button"
+                    onClick={() => performSave(false)}
+                    disabled={isSaving || isPending}
+                    className="w-full"
+                >
+                    {isSaving ? (
+                        <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Saving…
+                        </>
+                    ) : (
+                        <>
+                            <Save className="h-4 w-4 mr-2" />
+                            {postId ? "Update" : "Save"} {label}
+                        </>
+                    )}
+                </Button>
+
+                {/* Delete button */}
+                {postId && (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleDelete}
+                        disabled={isPending}
+                        className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                    >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete {label}
+                    </Button>
+                )}
+            </div>
+
+            {/* Slug */}
+            <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
+                <Label htmlFor="slug">URL Slug</Label>
+                <Input
+                    id="slug"
+                    type="text"
+                    placeholder="post-url-slug"
+                    value={slug}
+                    onChange={(e) => {
+                        setSlug(e.target.value);
+                        setHasUnsavedChanges(true);
+                    }}
+                />
+                {slug && (
+                    <p className="text-xs text-muted-foreground truncate">
+                        /{type === "page" ? "" : "post/"}
+                        {slug}
+                    </p>
+                )}
+            </div>
+
+            {/* Featured Image */}
+            <div className="rounded-xl border bg-card p-4 shadow-sm space-y-3">
+                <Label>Featured Image</Label>
+
+                {featuredImage ? (
+                    <div className="relative group rounded-lg overflow-hidden border">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={featuredImage}
+                            alt="Featured"
+                            className="w-full h-40 object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => setIsFeaturedImageModalOpen(true)}
+                            >
+                                Replace
+                            </Button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => {
+                                    setFeaturedImage("");
+                                    setHasUnsavedChanges(true);
+                                }}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={() => setIsFeaturedImageModalOpen(true)}
+                        className="w-full h-40 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-card"
+                    >
+                        <ImagePlus className="h-8 w-8 text-muted-foreground/50" />
+                        <span className="text-sm font-medium">Add Image</span>
+                    </button>
+                )}
+            </div>
+
+            {/* Taxonomies (only for posts, not pages) */}
+            {type === "post" && (
+                <>
+                    <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
+                        <Label>Categories</Label>
+                        <CategoryCheckboxTree
+                            categories={availableCategories}
+                            selectedIds={categoryIds}
+                            onChange={(ids) => {
+                                setCategoryIds(ids);
+                                setHasUnsavedChanges(true);
+                            }}
+                        />
+                    </div>
+
+                    <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
+                        <Label>Tags</Label>
+                        <TagCombobox
+                            availableTags={availableTags}
+                            selectedIds={tagIds}
+                            onChange={(ids) => {
+                                setTagIds(ids);
+                                setHasUnsavedChanges(true);
+                            }}
+                        />
+                    </div>
+                </>
+            )}
+
+            {/* Related Posts (only for posts, not pages) */}
+            {type === "post" && (
+                <div className="rounded-xl border bg-card p-4 shadow-sm">
+                    <RelatedPostsSelector
+                        postId={postId}
+                        selected={relatedPosts}
+                        onChange={(posts) => {
+                            setRelatedPosts(posts);
+                            setHasUnsavedChanges(true);
+                        }}
+                    />
+                </div>
+            )}
+        </div>
+    );
 
     // TipTap editor
     // Force toolbar re-render on selection change
@@ -710,6 +908,56 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                 </div>
             </div>
 
+            {/* Sticky Mobile Header (Hidden on Desktop) */}
+            <div className="sticky top-0 z-30 flex items-center justify-between py-2 bg-background/80 backdrop-blur-sm border-b lg:hidden -mx-4 px-4">
+                <div className="flex items-center gap-2 overflow-hidden">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => router.back()}
+                        className="h-11 w-11 shrink-0"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                    {/* Save button (Mobile) */}
+                    <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => performSave(false)}
+                        disabled={isSaving || isPending}
+                        className="h-11 px-5"
+                    >
+                        {isSaving ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <>
+                                <Save className="h-4 w-4 mr-2" />
+                                Save
+                            </>
+                        )}
+                    </Button>
+
+                    {/* Settings Sheet Trigger (Mobile) */}
+                    <Sheet open={isMetadataSheetOpen} onOpenChange={setIsMetadataSheetOpen}>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-11 w-11">
+                                <Settings className="h-5 w-5" />
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="right" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                            <SheetHeader className="pb-4 border-b">
+                                <SheetTitle>{label} Settings</SheetTitle>
+                            </SheetHeader>
+                            <div className="py-6">
+                                {renderSidebarContent()}
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+                </div>
+            </div>
+
             {/* Message */}
             {message && (
                 <div
@@ -787,177 +1035,9 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                     </div>
                 </div>
 
-                {/* Sidebar */}
-                <div className="space-y-4">
-                    {/* Publish Box */}
-                    <div className="rounded-xl border bg-card p-4 shadow-sm space-y-4">
-                        <h3 className="font-semibold text-sm">Publish</h3>
-
-                        {/* Status toggle */}
-                        <div className="space-y-2">
-                            <Label>Status</Label>
-                            <div className="flex gap-2">
-                                <Button
-                                    type="button"
-                                    variant={
-                                        status === "draft"
-                                            ? "default"
-                                            : "outline"
-                                    }
-                                    size="sm"
-                                    onClick={() => {
-                                        setStatus("draft");
-                                        setHasUnsavedChanges(true);
-                                    }}
-                                    className="flex-1"
-                                >
-                                    Draft
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant={
-                                        status === "published"
-                                            ? "default"
-                                            : "outline"
-                                    }
-                                    size="sm"
-                                    onClick={() => {
-                                        setStatus("published");
-                                        setHasUnsavedChanges(true);
-                                    }}
-                                    className="flex-1"
-                                >
-                                    Published
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* Save / Publish button */}
-                        <Button
-                            type="button"
-                            onClick={() => performSave(false)}
-                            disabled={isSaving || isPending}
-                            className="w-full"
-                        >
-                            {isSaving ? (
-                                <>
-                                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                    Saving…
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="h-4 w-4 mr-2" />
-                                    {postId ? "Update" : "Save"}{" "}
-                                    {label}
-                                </>
-                            )}
-                        </Button>
-
-                        {/* Delete button */}
-                        {postId && (
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleDelete}
-                                disabled={isPending}
-                                className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-                            >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete {label}
-                            </Button>
-                        )}
-                    </div>
-
-                    {/* Slug */}
-                    <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
-                        <Label htmlFor="slug">URL Slug</Label>
-                        <Input
-                            id="slug"
-                            type="text"
-                            placeholder="post-url-slug"
-                            value={slug}
-                            onChange={(e) => {
-                                setSlug(e.target.value);
-                                setHasUnsavedChanges(true);
-                            }}
-                        />
-                        {slug && (
-                            <p className="text-xs text-muted-foreground truncate">
-                                /{type === "page" ? "" : "post/"}{slug}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* Featured Image */}
-                    <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
-                        <Label htmlFor="featured-image">Featured Image</Label>
-                        <Input
-                            id="featured-image"
-                            type="text"
-                            placeholder="Image URL"
-                            value={featuredImage}
-                            onChange={(e) => {
-                                setFeaturedImage(e.target.value);
-                                setHasUnsavedChanges(true);
-                            }}
-                        />
-                        {featuredImage && (
-                            <div className="mt-2 rounded-lg overflow-hidden border">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={featuredImage}
-                                    alt="Featured"
-                                    className="w-full h-32 object-cover"
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).style.display = "none";
-                                    }}
-                                />
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Taxonomies (only for posts, not pages) */}
-                    {type === "post" && (
-                        <>
-                            <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
-                                <Label>Categories</Label>
-                                <CategoryCheckboxTree
-                                    categories={availableCategories}
-                                    selectedIds={categoryIds}
-                                    onChange={(ids) => {
-                                        setCategoryIds(ids);
-                                        setHasUnsavedChanges(true);
-                                    }}
-                                />
-                            </div>
-
-                            <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
-                                <Label>Tags</Label>
-                                <TagCombobox
-                                    availableTags={availableTags}
-                                    selectedIds={tagIds}
-                                    onChange={(ids) => {
-                                        setTagIds(ids);
-                                        setHasUnsavedChanges(true);
-                                    }}
-                                />
-                            </div>
-                        </>
-                    )}
-
-                    {/* Related Posts (only for posts, not pages) */}
-                    {type === "post" && (
-                        <div className="rounded-xl border bg-card p-4 shadow-sm">
-                            <RelatedPostsSelector
-                                postId={postId}
-                                selected={relatedPosts}
-                                onChange={(posts) => {
-                                    setRelatedPosts(posts);
-                                    setHasUnsavedChanges(true);
-                                }}
-                            />
-                        </div>
-                    )}
+                {/* Sidebar (Desktop Only) */}
+                <div className="hidden lg:block space-y-4">
+                    {renderSidebarContent()}
                 </div>
             </div>
 
@@ -968,6 +1048,15 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                     editor?.chain().focus().setImage({ src: url, alt: alt || "" }).run();
                 }}
             />
-        </div>
+
+            <EditorMediaModal
+                open={isFeaturedImageModalOpen}
+                onOpenChange={setIsFeaturedImageModalOpen}
+                onInsert={(url) => {
+                    setFeaturedImage(url);
+                    setHasUnsavedChanges(true);
+                }}
+            />
+        </div >
     );
 }

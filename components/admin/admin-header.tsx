@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -72,7 +73,7 @@ export function AdminHeader({ userName, userEmail, userImage }: AdminHeaderProps
             <Breadcrumb className="flex-1">
                 <BreadcrumbList>
                     {breadcrumbs.map((crumb, i) => (
-                        <span key={crumb.href} className="contents">
+                        <React.Fragment key={crumb.href}>
                             {i > 0 && <BreadcrumbSeparator />}
                             <BreadcrumbItem>
                                 {crumb.isLast ? (
@@ -83,7 +84,7 @@ export function AdminHeader({ userName, userEmail, userImage }: AdminHeaderProps
                                     </BreadcrumbLink>
                                 )}
                             </BreadcrumbItem>
-                        </span>
+                        </React.Fragment>
                     ))}
                 </BreadcrumbList>
             </Breadcrumb>

@@ -42,7 +42,7 @@ export default function EditorMediaModal({ open, onOpenChange, onInsert }: Edito
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl h-[85vh] flex flex-col overflow-hidden p-0 sm:rounded-2xl">
+            <DialogContent className="sm:max-w-4xl h-[85vh] flex flex-col overflow-hidden p-0 sm:rounded-2xl">
                 <DialogHeader className="px-6 py-4 border-b shrink-0">
                     <DialogTitle>Insert Media</DialogTitle>
                 </DialogHeader>

@@ -7,7 +7,10 @@ Implement the core content creation engine. Provide a WP-like Classic Editor (HT
 *   **Content Listing (`/admin/posts` and `/admin/pages`):** Data tables showing Title, Author, Status (Draft/Published), Date. Includes bulk actions or individual row actions to Edit/Delete.
 *   **Editor UI (`/admin/posts/new` or `[id]`):**
     *   **Main Area:** Large, distraction-free input for the Post Title. Below it, the rich-text Classic Editor (bold, italic, lists, headings, media insert). Includes an "HTML toggle" mode to edit raw HTML.
-    *   **Sidebar:** Status toggle (Draft/Published), Post URL slug editor, Publish Button, Autosave indicator, **Featured Image** selector (opens Media Library module), and a **Related Posts** search-and-select multiselect box.
+    *   **Sidebar/Metadata:** 
+        *   **Desktop:** Visible secondary grid column (320px).
+        *   **Mobile-First:** Tucked into a **Sticky Header Metadata Sheet** (Settings Gear icon). Avoid vertical stacking to keep the editor content prioritized.
+    *   **Sticky Actions:** On small screens, the primary "Publish/Save" button must be pinned to a **Sticky Bottom Bar** or the **Sticky Header**, ensuring accessibility regardless of content length.
 
 ## Data & API
 *   **Posts Schema:** `posts` table (`id`, `title`, `slug` (unique), `content` (text/HTML), `excerpt`, `status`, `type` ('post' | 'page'), `author_id` (fk), `featured_image` (url/string, nullable), `created_at`, `updated_at`).

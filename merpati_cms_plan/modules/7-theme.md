@@ -19,7 +19,7 @@ Build the public-facing frontend using Next.js **React Server Components (RSC)**
     *   The `page.tsx` catch-all route determines the entity type (Category, Post, Page, or Home).
     *   Fetches the necessary data from the Database (via Drizzle).
     *   Passes the pure data object as a prop to the corresponding theme component (e.g., `<SinglePost post={postData} />`).
-    *   The theme component is solely responsible for rendering the UI using Tailwind CSS v4.
+    *   The theme component is solely responsible for rendering the UI using Tailwind CSS v4, following a strict **mobile-first** philosophy.
 
 ## Technical Implementation
 *   **100% React Server Components:** Themes are standard async RSCs. No Handlebars, no `fs` reads at runtime.

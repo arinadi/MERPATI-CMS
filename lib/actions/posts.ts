@@ -168,6 +168,64 @@ export async function getPostById(id: string) {
     }
 }
 
+export async function getPostBySlug(slugString: string) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return { error: "Unauthorized" };
+    }
+
+    try {
+        const [post] = await db
+            .select()
+            .from(posts)
+            .where(eq(posts.slug, slugString))
+            .limit(1);
+
+        if (!post) {
+            return { error: "Post not found." };
+        }
+
+        const id = post.id;
+
+        // Fetch related posts map
+        const related = await db
+            .select({
+                id: posts.id,
+                title: posts.title,
+            })
+            .from(postRelationships)
+            .innerJoin(posts, eq(postRelationships.relatedPostId, posts.id))
+            .where(eq(postRelationships.postId, id));
+
+        // Fetch terms (categories and tags) map
+        const postTermsRaw = await db
+            .select({
+                id: terms.id,
+                name: terms.name,
+                slug: terms.slug,
+                taxonomy: terms.taxonomy,
+            })
+            .from(termRelationships)
+            .innerJoin(terms, eq(termRelationships.termId, terms.id))
+            .where(eq(termRelationships.objectId, id));
+
+        const categories = postTermsRaw.filter(t => t.taxonomy === "category");
+        const tags = postTermsRaw.filter(t => t.taxonomy === "tag");
+
+        return {
+            post: {
+                ...post,
+                relatedPosts: related,
+                categories,
+                tags,
+            }
+        };
+    } catch (error) {
+        console.error("Error fetching post by slug:", error);
+        return { error: "Failed to fetch post." };
+    }
+}
+
 export async function searchPublishedPosts(query: string, excludeId?: string) {
     const conditions = [
         eq(posts.status, "published"),

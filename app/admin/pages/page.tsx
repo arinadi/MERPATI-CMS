@@ -41,7 +41,8 @@ export default async function PagesPage() {
                 </Button>
             </div>
 
-            <div className="rounded-xl border bg-card shadow-sm">
+            {/* Desktop Table View */}
+            <div className="hidden md:block rounded-xl border bg-card shadow-sm overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -73,7 +74,7 @@ export default async function PagesPage() {
                                             {page.title}
                                         </Link>
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground">
+                                    <TableCell className="text-muted-foreground text-sm">
                                         {page.authorName ?? "—"}
                                     </TableCell>
                                     <TableCell>
@@ -89,7 +90,7 @@ export default async function PagesPage() {
                                                 : "Draft"}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground">
+                                    <TableCell className="text-muted-foreground text-sm">
                                         {formatDate(page.updatedAt)}
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -115,6 +116,68 @@ export default async function PagesPage() {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+                {items.length === 0 ? (
+                    <div className="rounded-xl border border-dashed bg-card p-12 text-center text-muted-foreground">
+                        No pages yet. Create your first page!
+                    </div>
+                ) : (
+                    items.map((page) => (
+                        <div
+                            key={page.id}
+                            className="rounded-xl border bg-card p-4 shadow-sm space-y-3"
+                        >
+                            <div className="flex items-start justify-between gap-4">
+                                <Link
+                                    href={`/admin/pages/${page.id}`}
+                                    className="font-semibold text-lg hover:underline leading-tight"
+                                >
+                                    {page.title}
+                                </Link>
+                                <div className="flex items-center gap-1 shrink-0">
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        asChild
+                                        className="h-9 w-9 rounded-lg"
+                                    >
+                                        <Link href={`/admin/pages/${page.id}`}>
+                                            <Pencil className="h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                    <DeletePostButton
+                                        postId={page.id}
+                                        postTitle={page.title}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+                                <Badge
+                                    variant={
+                                        page.status === "published"
+                                            ? "default"
+                                            : "secondary"
+                                    }
+                                    className="h-5 px-1.5 text-[10px] uppercase font-bold tracking-wider"
+                                >
+                                    {page.status}
+                                </Badge>
+                                <span className="flex items-center gap-1">
+                                    {formatDate(page.updatedAt)}
+                                </span>
+                                {page.authorName && (
+                                    <span className="flex items-center gap-1">
+                                        • {page.authorName}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );

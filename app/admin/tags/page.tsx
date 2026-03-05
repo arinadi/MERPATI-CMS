@@ -47,7 +47,8 @@ export default async function TagsPage({
                 </div>
 
                 <div className="md:col-span-2">
-                    <div className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
+                    {/* Desktop Table View */}
+                    <div className="hidden lg:block rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
                         <table className="w-full text-sm text-left">
                             <thead className="bg-muted/50 text-muted-foreground border-b">
                                 <tr>
@@ -92,6 +93,46 @@ export default async function TagsPage({
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="lg:hidden space-y-3">
+                        {sortedTerms.length === 0 ? (
+                            <div className="rounded-lg border border-dashed bg-card p-8 text-center text-muted-foreground">
+                                No tags found.
+                            </div>
+                        ) : (
+                            sortedTerms.map((term) => (
+                                <div
+                                    key={term.id}
+                                    className="rounded-lg border bg-card p-4 shadow-sm space-y-3"
+                                >
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="min-w-0">
+                                            <h3 className="font-semibold truncate">
+                                                {term.name}
+                                            </h3>
+                                            <code className="text-[10px] text-muted-foreground bg-muted px-1 rounded">
+                                                {term.slug}
+                                            </code>
+                                        </div>
+                                        <div className="flex items-center gap-1 shrink-0">
+                                            <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+                                                <Link href={`/admin/tags?edit=${term.id}`}>
+                                                    <Edit className="h-4 w-4" />
+                                                </Link>
+                                            </Button>
+                                            <DeleteTermButton id={term.id} taxonomy="tag" />
+                                        </div>
+                                    </div>
+                                    {term.description && (
+                                        <p className="text-sm text-muted-foreground line-clamp-2 italic">
+                                            {term.description}
+                                        </p>
+                                    )}
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>

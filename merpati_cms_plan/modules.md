@@ -22,12 +22,16 @@
 * **Palette:** Sleek, modern dashboard feel (Slate/Zinc grayscale with a refined primary accent color).
 * **Typography:** System fonts (e.g. Inter/Geist via Next.js `next/font`), clear hierarchical type scale.
 * **Component Strategy:** Rely on `shadcn/ui` for high-quality, accessible interactive primitives (Dropdowns, Dialogs, Data Tables, Forms).
-* **Responsiveness:** Desktop-first logic for the core writing experience, but completely fluid down to mobile.
+* **Responsiveness:** 
+    *   **Mobile-First Editing:** Prioritize the writing experience on small screens with a sticky bottom action bar (Save/Publish) and a specialized Sheet for metadata (Categories, Tags, Slug).
+    *   **Adaptive Sidebar:** Uses `shadcn/ui` sidebar (sheet on mobile, persistent on desktop).
+    *   **Thumb-Friendly Targets:** All buttons, inputs, and touch targets meet minimum 44px height for reliable mobile interaction.
 
 ### Public Interface (Front-end)
 * **Styling Framework:** **Pure Tailwind CSS v4** (Strictly NO `shadcn/ui` or component library dependencies).
 * **Palette & Typography:** Defined entirely by the active file-based theme.
 * **Component Strategy:** Rely on semantic HTML and raw Tailwind utility classes to ensure a near-zero client JS footprint and maximum performance.
+* **Responsiveness:** Strict mobile-first implementation to prioritize the vast majority of readers on mobile devices.
 
 ---
 

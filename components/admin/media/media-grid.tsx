@@ -122,13 +122,13 @@ export default function MediaGrid({
 
     return (
         <>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 auto-rows-[150px]">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                 {items.map((item) => (
                     <button
                         key={item.id}
                         type="button"
                         onClick={() => openDetails(item)}
-                        className="group relative flex h-full w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                        className="group relative flex aspect-square w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                     >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -143,7 +143,7 @@ export default function MediaGrid({
             </div>
 
             <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
-                <DialogContent className="max-w-3xl overflow-hidden p-0 sm:rounded-2xl">
+                <DialogContent className="max-w-4xl overflow-hidden p-0 sm:rounded-2xl">
                     {selectedItem && (
                         <div className="flex flex-col md:flex-row h-full max-h-[85vh]">
                             {/* Image Preview (Left Side) */}
@@ -157,7 +157,7 @@ export default function MediaGrid({
                             </div>
 
                             {/* Details (Right Side) */}
-                            <div className="w-full md:w-[320px] shrink-0 p-6 flex flex-col h-[40vh] md:h-auto overflow-y-auto">
+                            <div className="w-full md:w-[350px] shrink-0 p-6 flex flex-col h-[45vh] md:h-auto overflow-y-auto">
                                 <DialogHeader className="mb-6 space-y-0">
                                     <DialogTitle className="text-xl font-semibold break-all">
                                         {selectedItem.filename}
@@ -259,7 +259,7 @@ export default function MediaGrid({
                                 {/* Actions Footer */}
                                 <div className="mt-6 pt-4 border-t flex items-center justify-between gap-2">
                                     {selectable && onSelect ? (
-                                        <Button className="flex-1" onClick={handleSelectAction}>
+                                        <Button className="flex-1 h-11 text-base font-semibold" onClick={handleSelectAction}>
                                             Select Image
                                         </Button>
                                     ) : (
@@ -269,8 +269,12 @@ export default function MediaGrid({
                                     {onDelete && (
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
-                                                <Button variant="destructive" size={selectable ? "icon" : "default"} className={selectable ? "shrink-0" : "flex-1"}>
-                                                    {selectable ? <Trash2 className="h-4 w-4" /> : (
+                                                <Button
+                                                    variant="destructive"
+                                                    size={selectable ? "icon" : "default"}
+                                                    className={`${selectable ? "h-11 w-11 shrink-0" : "flex-1 h-11"}`}
+                                                >
+                                                    {selectable ? <Trash2 className="h-5 w-5" /> : (
                                                         <>
                                                             <Trash2 className="h-4 w-4 mr-2" />
                                                             Delete Image

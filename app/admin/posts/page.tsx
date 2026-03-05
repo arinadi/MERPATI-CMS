@@ -41,7 +41,8 @@ export default async function PostsPage() {
                 </Button>
             </div>
 
-            <div className="rounded-xl border bg-card shadow-sm">
+            {/* Desktop Table View */}
+            <div className="hidden md:block rounded-xl border bg-card shadow-sm overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -67,13 +68,13 @@ export default async function PostsPage() {
                                 <TableRow key={post.id}>
                                     <TableCell className="font-medium">
                                         <Link
-                                            href={`/admin/posts/${post.id}`}
+                                            href={`/admin/posts/${post.slug}`}
                                             className="hover:underline"
                                         >
                                             {post.title}
                                         </Link>
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground">
+                                    <TableCell className="text-muted-foreground text-sm">
                                         {post.authorName ?? "—"}
                                     </TableCell>
                                     <TableCell>
@@ -89,7 +90,7 @@ export default async function PostsPage() {
                                                 : "Draft"}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-muted-foreground">
+                                    <TableCell className="text-muted-foreground text-sm">
                                         {formatDate(post.updatedAt)}
                                     </TableCell>
                                     <TableCell className="text-right">
@@ -101,7 +102,7 @@ export default async function PostsPage() {
                                                 className="h-8 w-8"
                                             >
                                                 <Link
-                                                    href={`/admin/posts/${post.id}`}
+                                                    href={`/admin/posts/${post.slug}`}
                                                 >
                                                     <Pencil className="h-4 w-4" />
                                                 </Link>
@@ -117,6 +118,68 @@ export default async function PostsPage() {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+                {items.length === 0 ? (
+                    <div className="rounded-xl border border-dashed bg-card p-12 text-center text-muted-foreground">
+                        No posts yet. Create your first post!
+                    </div>
+                ) : (
+                    items.map((post) => (
+                        <div
+                            key={post.id}
+                            className="rounded-xl border bg-card p-4 shadow-sm space-y-3"
+                        >
+                            <div className="flex items-start justify-between gap-4">
+                                <Link
+                                    href={`/admin/posts/${post.slug}`}
+                                    className="font-semibold text-lg hover:underline leading-tight"
+                                >
+                                    {post.title}
+                                </Link>
+                                <div className="flex items-center gap-1 shrink-0">
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        asChild
+                                        className="h-9 w-9 rounded-lg"
+                                    >
+                                        <Link href={`/admin/posts/${post.slug}`}>
+                                            <Pencil className="h-4 w-4" />
+                                        </Link>
+                                    </Button>
+                                    <DeletePostButton
+                                        postId={post.id}
+                                        postTitle={post.title}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+                                <Badge
+                                    variant={
+                                        post.status === "published"
+                                            ? "default"
+                                            : "secondary"
+                                    }
+                                    className="h-5 px-1.5 text-[10px] uppercase font-bold tracking-wider"
+                                >
+                                    {post.status}
+                                </Badge>
+                                <span className="flex items-center gap-1">
+                                    {formatDate(post.updatedAt)}
+                                </span>
+                                {post.authorName && (
+                                    <span className="flex items-center gap-1">
+                                        • {post.authorName}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );
