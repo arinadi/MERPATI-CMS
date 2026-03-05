@@ -59,6 +59,8 @@ graph LR
 - [Google Cloud](https://console.cloud.google.com) (OAuth Credentials)
 - [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) (Optional for production media)
 
+[See prerequisites.md for detailed setup instructions and documentation links.](./prerequisites.md)
+
 ### 3. Quick Install
 ```bash
 git clone https://github.com/arinadi/MERPATI-CMS.git
