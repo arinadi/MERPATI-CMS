@@ -60,14 +60,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const { posts } = await import("@/db/schema");
                 const { isNull } = await import("drizzle-orm");
                 await db.update(posts).set({ authorId: userId }).where(isNull(posts.authorId));
-
-                // Trigger Telegram Alert for first user
-                const { getOption } = await import("@/lib/actions/options");
-                const shouldNotify = await getOption("telegram_notify_user");
-                if (shouldNotify === "true") {
-                    const { sendTelegramAlert } = await import("@/lib/notifications/telegram");
-                    sendTelegramAlert(`<b>New Super User joined the CMS:</b> ${user.email}`);
-                }
                 return true;
             }
 
