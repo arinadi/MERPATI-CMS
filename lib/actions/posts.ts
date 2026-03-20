@@ -7,7 +7,7 @@ import { eq, and, desc, count, ilike, ne } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
-import DOMPurify from "isomorphic-dompurify";
+import sanitize from "sanitize-html";
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
@@ -25,17 +25,18 @@ const postSchema = z.object({
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function sanitizeHtml(html: string): string {
-    return DOMPurify.sanitize(html, {
-        ALLOWED_TAGS: [
+    return sanitize(html, {
+        allowedTags: [
             "p", "br", "strong", "em", "u", "s", "a", "ul", "ol", "li",
             "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "pre", "code",
             "img", "figure", "figcaption", "hr", "table", "thead", "tbody",
             "tr", "th", "td", "div", "span",
         ],
-        ALLOWED_ATTR: [
-            "href", "target", "rel", "src", "alt", "title", "width", "height",
-            "class", "id",
-        ],
+        allowedAttributes: {
+            "*": ["class", "id"],
+            "a": ["href", "target", "rel", "title"],
+            "img": ["src", "alt", "title", "width", "height"],
+        },
     });
 }
 
