@@ -43,9 +43,9 @@ const navItems: NavItem[] = [
     { title: "Tags", href: "/admin/tags", icon: Tags },
     { title: "Pages", href: "/admin/pages", icon: FileStack },
     { title: "Media", href: "/admin/media", icon: ImageIcon },
-    { title: "Menus", href: "/admin/menus", icon: MenuIcon },
+    { title: "Menus", href: "/admin/menus", icon: MenuIcon, superUserOnly: true },
     { title: "Users", href: "/admin/users", icon: Users, superUserOnly: true },
-    { title: "Settings", href: "/admin/settings", icon: Settings },
+    { title: "Settings", href: "/admin/settings", icon: Settings, superUserOnly: true },
 ];
 
 export function AppSidebar({ userRole }: { userRole?: string | null }) {

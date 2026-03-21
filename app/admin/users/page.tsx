@@ -12,6 +12,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { UserActionsMenu } from "@/components/admin/user-actions-menu";
 
 function formatDate(date: Date) {
     return new Intl.DateTimeFormat("id-ID", {
@@ -35,6 +36,7 @@ export default async function UsersPage() {
     const session = await auth();
     const userList = await getUsers();
     const canInvite = isSuperUser(session?.user?.role);
+    const currentUserId = session?.user?.id;
 
     return (
         <div className="space-y-6">
@@ -58,6 +60,7 @@ export default async function UsersPage() {
                             <TableHead>Email</TableHead>
                             <TableHead>Role</TableHead>
                             <TableHead>Joined</TableHead>
+                            <TableHead className="w-12"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -82,7 +85,14 @@ export default async function UsersPage() {
                                         </Avatar>
                                     </TableCell>
                                     <TableCell className="font-medium">
-                                        {user.name ?? "—"}
+                                        <div className="flex items-center gap-2">
+                                            {user.name ?? "—"}
+                                            {user.status === "suspended" && (
+                                                <Badge variant="destructive" className="h-5 px-1.5 text-[10px] uppercase font-bold tracking-wider shrink-0">
+                                                    Suspended
+                                                </Badge>
+                                            )}
+                                        </div>
                                     </TableCell>
                                     <TableCell className="text-sm">{user.email}</TableCell>
                                     <TableCell>
@@ -95,6 +105,14 @@ export default async function UsersPage() {
                                     </TableCell>
                                     <TableCell className="text-muted-foreground text-sm">
                                         {formatDate(user.createdAt)}
+                                    </TableCell>
+                                    <TableCell>
+                                        <UserActionsMenu user={user as {
+                                            id: string;
+                                            name: string | null;
+                                            role: "user" | "super_user";
+                                            status: string;
+                                        }} currentUserId={currentUserId} />
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -129,12 +147,19 @@ export default async function UsersPage() {
                                     <h3 className="font-semibold truncate">
                                         {user.name ?? "—"}
                                     </h3>
-                                    <Badge
-                                        variant={user.role === "super_user" ? "default" : "secondary"}
-                                        className="h-5 px-1.5 text-[10px] uppercase font-bold tracking-wider shrink-0"
-                                    >
-                                        {user.role === "super_user" ? "Admin" : "User"}
-                                    </Badge>
+                                    <div className="flex items-center gap-2">
+                                        {user.status === "suspended" && (
+                                            <Badge variant="destructive" className="h-5 px-1.5 text-[10px] uppercase font-bold tracking-wider shrink-0">
+                                                Suspended
+                                            </Badge>
+                                        )}
+                                        <Badge
+                                            variant={user.role === "super_user" ? "default" : "secondary"}
+                                            className="h-5 px-1.5 text-[10px] uppercase font-bold tracking-wider shrink-0"
+                                        >
+                                            {user.role === "super_user" ? "Admin" : "User"}
+                                        </Badge>
+                                    </div>
                                 </div>
                                 <p className="text-sm text-muted-foreground truncate">
                                     {user.email}
@@ -143,6 +168,12 @@ export default async function UsersPage() {
                                     Joined {formatDate(user.createdAt)}
                                 </p>
                             </div>
+                            <UserActionsMenu user={user as {
+                                id: string;
+                                name: string | null;
+                                role: "user" | "super_user";
+                                status: string;
+                            }} currentUserId={currentUserId} />
                         </div>
                     ))
                 )}

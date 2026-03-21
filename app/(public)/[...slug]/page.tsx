@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { posts, users, terms, termRelationships, postRelationships } from "@/db/schema";
-import { eq, and, desc, inArray, ne } from "drizzle-orm";
+import { eq, and, desc, inArray } from "drizzle-orm";
 import { activeTheme } from "@/lib/themes";
 import type { PostCardData } from "@/lib/themes";
 

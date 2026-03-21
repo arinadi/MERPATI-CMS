@@ -10,6 +10,8 @@
 - **WP-Familiarity**: Admin UX should feel instantly recognizable to WordPress users.
 - **Independence**: Zero-touch initialization and deployment.
 
+> **💡 Technical Documentation**: All setup guides, prerequisites, and project documents are located in the `docs/` directory. Be sure to reference files within `docs/` for deeper technical context when needed.
+
 ---
 
 ## 2. Technical Architecture

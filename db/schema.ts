@@ -17,6 +17,7 @@ export const postTypeEnum = pgEnum('post_type', ['post', 'page']);
 export const taxonomyEnum = pgEnum('taxonomy_type', ['category', 'tag']);
 export const menuItemTypeEnum = pgEnum('menu_item_type', ['custom', 'post', 'page', 'category']);
 export const invitationStatusEnum = pgEnum('invitation_status', ['pending', 'accepted', 'expired']);
+export const userStatusEnum = pgEnum('user_status', ['active', 'suspended']);
 
 // ─── Users (Auth.js compatible) ─────────────────────────────────────────────
 
@@ -27,6 +28,7 @@ export const users = pgTable('users', {
     emailVerified: timestamp('email_verified', { mode: 'date' }),
     image: text('image'),
     role: userRoleEnum('role').default('user').notNull(),
+    status: userStatusEnum('status').default('active').notNull(),
     createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { mode: 'date' }).defaultNow().notNull(),
 });

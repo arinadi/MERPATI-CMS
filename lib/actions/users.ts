@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { users, invitations } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { checkRole } from "@/lib/rbac";
+import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
 
@@ -18,6 +19,7 @@ export async function getUsers() {
             name: users.name,
             email: users.email,
             role: users.role,
+            status: users.status,
             image: users.image,
             createdAt: users.createdAt,
         })
@@ -25,6 +27,80 @@ export async function getUsers() {
         .orderBy(users.createdAt);
 
     return allUsers;
+}
+
+export async function updateProfile(data: { name: string }) {
+    const session = await auth();
+    if (!session?.user?.id) return { error: "Unauthorized" };
+
+    if (!data.name?.trim()) return { error: "Name cannot be empty" };
+
+    try {
+        await db.update(users)
+            .set({ name: data.name, updatedAt: new Date() })
+            .where(eq(users.id, session.user.id));
+        return { success: true };
+    } catch {
+        return { error: "Failed to update profile" };
+    }
+}
+
+export async function updateUserRole(id: string, newRole: "user" | "super_user") {
+    await checkRole(["super_user"]);
+    try {
+        await db.update(users)
+            .set({ role: newRole, updatedAt: new Date() })
+            .where(eq(users.id, id));
+        revalidatePath("/admin/users");
+        return { success: true };
+    } catch {
+        return { error: "Failed to update role" };
+    }
+}
+
+export async function updateUserStatus(id: string, newStatus: "active" | "suspended") {
+    await checkRole(["super_user"]);
+    try {
+        await db.update(users)
+            .set({ status: newStatus, updatedAt: new Date() })
+            .where(eq(users.id, id));
+        revalidatePath("/admin/users");
+        return { success: true };
+    } catch {
+        return { error: "Failed to update status" };
+    }
+}
+
+export async function renameUser(id: string, newName: string) {
+    await checkRole(["super_user"]);
+    if (!newName?.trim()) return { error: "Name cannot be empty" };
+    try {
+        await db.update(users)
+            .set({ name: newName, updatedAt: new Date() })
+            .where(eq(users.id, id));
+        revalidatePath("/admin/users");
+        return { success: true };
+    } catch (error) {
+        return { error: "Failed to rename user" };
+    }
+}
+
+export async function deleteUser(id: string) {
+    await checkRole(["super_user"]);
+    
+    // Prevent self-deletion
+    const session = await auth();
+    if (session?.user?.id === id) {
+        return { error: "You cannot delete your own account." };
+    }
+
+    try {
+        await db.delete(users).where(eq(users.id, id));
+        revalidatePath("/admin/users");
+        return { success: true };
+    } catch (error) {
+        return { error: "Failed to delete user" };
+    }
 }
 
 export async function inviteUser(formData: FormData) {

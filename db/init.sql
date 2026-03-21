@@ -33,6 +33,11 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
+DO $$ BEGIN
+    CREATE TYPE user_status AS ENUM ('active', 'suspended');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
 -- Users
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
@@ -41,6 +46,7 @@ CREATE TABLE IF NOT EXISTS users (
     email_verified TIMESTAMP,
     image TEXT,
     role user_role NOT NULL DEFAULT 'user',
+    status user_status NOT NULL DEFAULT 'active',
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

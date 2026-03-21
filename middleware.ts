@@ -51,6 +51,17 @@ export default auth((req) => {
         if (!isAuthenticated) {
             return NextResponse.redirect(new URL("/login", req.url));
         }
+
+        // Issue #3: Restrict sensitive menus to super_user
+        if (
+            pathname.startsWith("/admin/settings") ||
+            pathname.startsWith("/admin/users") ||
+            pathname.startsWith("/admin/menus")
+        ) {
+            if ((req.auth?.user as { role?: string })?.role !== "super_user") {
+                return NextResponse.redirect(new URL("/admin/posts", req.url));
+            }
+        }
     }
 
     // If authenticated and on /login, redirect to /admin

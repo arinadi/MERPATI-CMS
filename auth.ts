@@ -21,11 +21,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
             // Check if user already exists
             const existingUsers = await db
-                .select()
+                .select({ status: users.status })
                 .from(users)
                 .where(eq(users.email, user.email));
 
             if (existingUsers.length > 0) {
+                if (existingUsers[0].status === "suspended") return false;
                 // Existing user — allow sign in
                 return true;
             }
@@ -116,13 +117,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async jwt({ token, user }) {
             if (user?.email) {
                 const dbUser = await db
-                    .select({ id: users.id, role: users.role })
+                    .select({ id: users.id, role: users.role, status: users.status })
                     .from(users)
                     .where(eq(users.email, user.email));
 
                 if (dbUser.length > 0) {
+                    if (dbUser[0].status === "suspended") {
+                        return {}; // Invalidate token if suspended
+                    }
                     token.id = dbUser[0].id;
                     token.role = dbUser[0].role;
+                    token.status = dbUser[0].status;
                 }
             }
             return token;
@@ -132,6 +137,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (session.user) {
                 session.user.id = token.id as string;
                 session.user.role = token.role as string;
+                (session.user as { status?: string }).status = token.status as string;
             }
             return session;
         },

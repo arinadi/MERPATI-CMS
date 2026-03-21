@@ -31,56 +31,19 @@ MERPATI is a radical, high-performance publishing platform designed to eliminate
 | **📝 Classic Editor** | Familiar WYSIWYG writing with HTML toggle & robust autosave. |
 | **🖼️ Media Library** | Instant Vercel Blob uploads or remote URL integration. |
 | **🎨 Modular Themes** | Isolated `/themes` directory for infinite design freedom. |
-| **👤 Invite-Only Auth** | Secure author management via Google OAuth. |
+| **👤 Invite-Only Auth** | Secure author management via Google OAuth. Roles and status. |
 | **🧭 Menu Manager** | Intuitive drag-and-drop navigation builder. |
 | **🔔 Push Alerts** | Real-time Telegram notifications for posts and users. |
 
 ---
 
-## 🛠️ Getting Started in 60 Seconds
+## 📖 Documentation & Setup
 
-MERPATI features a **"Zero-Touch"** initialization flow. No CLI migrations or complex terminal commands required.
+MERPATI features a **"Zero-Touch"** initialization flow perfectly suited for edge deployments. 
 
-### 1. Simple Deployment Flow
+All comprehensive technical documentation, including **Setup Guides**, **Prerequisites**, and **Architecture Layout**, has been neatly organized for developers.
 
-```mermaid
-graph LR
-    A[Clone Repo] --> B[Set .env]
-    B --> C[pnpm dev]
-    C --> D{Setup Wizard}
-    D --> E[Init DB & Seed]
-    E --> F[Super User Login]
-    F --> G[Start Publishing!]
-```
-
-### 2. Prerequisites
-- Node.js 18+ & `pnpm`
-- [Neon.tech](https://neon.tech) (Free Serverless Postgres)
-- [Google Cloud](https://console.cloud.google.com) (OAuth Credentials)
-- [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) (Optional for production media)
-
-[See prerequisites.md for detailed setup instructions and documentation links.](./prerequisites.md)
-
-### 3. Quick Install
-```bash
-git clone https://github.com/arinadi/MERPATI-CMS.git
-cd MERPATI-CMS
-pnpm install
-cp .env.example .env.local # Fill in your credentials
-pnpm dev
-```
-Visit `http://localhost:3000` to launch the **Automatic Setup Wizard**.
-
----
-
-## 🏗️ Technical Architecture
-
-MERPATI is built for the edge:
-- **Framework**: Next.js 15 (App Router)
-- **Database**: Neon (Serverless Postgres over HTTP)
-- **ORM**: Drizzle (Ultra-lightweight)
-- **Styling**: Tailwind CSS v4 + shadcn/ui
-- **Auth**: Auth.js v5 (JWT Strategy)
+👉 **[View the Official Documentation in the `/docs` directory](./docs)**
 
 ---
 
