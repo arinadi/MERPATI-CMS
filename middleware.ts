@@ -4,6 +4,19 @@ import { auth } from "@/auth";
 export default auth((req) => {
     const { pathname } = req.nextUrl;
 
+    // Fast reject for common bot paths (WordPress, PHP, .env, etc.)
+    // Ini menghemat resource Vercel karena merespon error langsung dari Edge Server
+    if (
+        pathname.startsWith("/wp-admin") ||
+        pathname.startsWith("/wp-login") ||
+        pathname.startsWith("/wp-includes") ||
+        pathname.startsWith("/.git") ||
+        pathname.startsWith("/.env") ||
+        pathname.endsWith(".php")
+    ) {
+        return new NextResponse("Not Found", { status: 404 });
+    }
+
     // Allow static files, api routes, and _next
     if (
         pathname.startsWith("/_next") ||
