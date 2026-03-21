@@ -31,6 +31,8 @@ import {
     ImagePlus,
     Settings,
     ChevronLeft,
+    Video,
+    Youtube,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -447,6 +449,19 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
         text: string;
     } | null>(null);
 
+    const handleAddYoutube = () => {
+        const url = window.prompt("Enter YouTube URL:");
+        if (url) {
+            // Basic validation
+            if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                setFeaturedImage(url);
+                setHasUnsavedChanges(true);
+            } else {
+                alert("Please enter a valid YouTube URL.");
+            }
+        }
+    };
+
     // Sidebar Content Renderer (for reuse in desktop and mobile sheet)
     const renderSidebarContent = () => (
         <div className="space-y-4">
@@ -547,12 +562,21 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
 
                 {featuredImage ? (
                     <div className="relative group rounded-lg overflow-hidden border">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            src={featuredImage}
-                            alt="Featured"
-                            className="w-full h-40 object-cover"
-                        />
+                        {featuredImage.includes("youtube.com") || featuredImage.includes("youtu.be") ? (
+                            <div className="w-full h-40 bg-zinc-900 flex flex-col items-center justify-center text-white">
+                                <Youtube className="h-8 w-8 text-red-500 mb-2" />
+                                <span className="text-xs text-zinc-400 truncate px-4 max-w-full">
+                                    {featuredImage}
+                                </span>
+                            </div>
+                        ) : (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                                src={featuredImage}
+                                alt="Featured"
+                                className="w-full h-40 object-cover"
+                            />
+                        )}
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                             <Button
                                 type="button"
@@ -576,14 +600,24 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                         </div>
                     </div>
                 ) : (
-                    <button
-                        type="button"
-                        onClick={() => setIsFeaturedImageModalOpen(true)}
-                        className="w-full h-40 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-card"
-                    >
-                        <ImagePlus className="h-8 w-8 text-muted-foreground/50" />
-                        <span className="text-sm font-medium">Add Image</span>
-                    </button>
+                    <div className="grid grid-cols-2 gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setIsFeaturedImageModalOpen(true)}
+                            className="w-full h-32 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-card"
+                        >
+                            <ImagePlus className="h-6 w-6 text-muted-foreground/50" />
+                            <span className="text-xs font-medium">Add Image</span>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleAddYoutube}
+                            className="w-full h-32 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-card"
+                        >
+                            <Youtube className="h-6 w-6 text-muted-foreground/50" />
+                            <span className="text-xs font-medium">Add YouTube</span>
+                        </button>
+                    </div>
                 )}
             </div>
 

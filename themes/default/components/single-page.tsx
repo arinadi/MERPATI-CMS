@@ -1,5 +1,6 @@
 
 import type { SinglePageProps } from "@/lib/themes";
+import { FeaturedMedia } from "./featured-media";
 
 export default function SinglePage({ page }: SinglePageProps) {
     const jsonLd = {
@@ -38,12 +39,12 @@ export default function SinglePage({ page }: SinglePageProps) {
             {page.featuredImage && (
                 <div className="container mx-auto px-4 mb-12 md:mb-20">
                     <div className="aspect-[21/9] relative rounded-3xl overflow-hidden shadow-xl shadow-black/10 border-4 border-background">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            src={page.featuredImage}
-                            alt={page.title}
-                            className="absolute inset-0 w-full h-full object-cover"
-                        />
+                    <FeaturedMedia
+                        src={page.featuredImage}
+                        alt={page.title}
+                        priority={true}
+                        className="w-full h-[300px] md:h-[500px] object-cover"
+                    />
                     </div>
                 </div>
             )}

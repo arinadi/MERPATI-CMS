@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Calendar, ArrowRight, Image as ImageIcon } from "lucide-react";
 import type { ArchiveProps, PostCardData } from "@/lib/themes";
+import { FeaturedMedia } from "./featured-media";
 
 export default function Archive({ title, description, posts }: ArchiveProps) {
     return (
@@ -61,11 +62,10 @@ export function PostCard({ post }: { post: PostCardData }) {
         >
             <div className="aspect-[16/10] relative overflow-hidden">
                 {post.featuredImage ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
+                    <FeaturedMedia
                         src={post.featuredImage}
                         alt={post.title}
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                 ) : (
                     <div className="absolute inset-0 bg-primary/10 flex items-center justify-center text-primary/40">

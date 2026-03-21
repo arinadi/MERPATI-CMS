@@ -2,7 +2,8 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
 import Link from "next/link";
-import { Calendar, Tag, Clock } from "lucide-react";
+import { Calendar, User, Tag as TagIcon, ArrowLeft } from "lucide-react";
+import { FeaturedMedia } from "./featured-media";
 import type { SinglePostProps } from "@/lib/themes";
 import { PostCard } from "./archive";
 import { ShareButtons } from "./share-buttons";
@@ -45,7 +46,7 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
                             ))}
                             {post.categories?.length > 0 && <span className="w-1 h-1 rounded-full bg-border" />}
                             <span className="flex items-center gap-1.5 text-muted-foreground">
-                                <Clock className="w-3.5 h-3.5" />
+                                <User className="w-3.5 h-3.5" />
                                 5 min read
                             </span>
                         </div>
@@ -66,12 +67,12 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
             {post.featuredImage && (
                 <div className="container mx-auto px-4 -mt-4 md:-mt-12 relative z-20">
                     <div className="aspect-[21/9] relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl shadow-black/10 border-2 md:border-4 border-background">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            src={post.featuredImage}
-                            alt={post.title}
-                            className="absolute inset-0 w-full h-full object-cover"
-                        />
+                    <FeaturedMedia
+                        src={post.featuredImage}
+                        alt={post.title}
+                        priority={true}
+                        className="w-full h-[300px] md:h-[500px] object-cover"
+                    />
                     </div>
                 </div>
             )}
@@ -120,7 +121,7 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
                                     href={`/tag/${tag.slug}`}
                                     className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-full text-sm font-bold transition-colors inline-flex items-center gap-2"
                                 >
-                                    <Tag className="w-3.5 h-3.5" />
+                                    <TagIcon className="h-4 w-4" />
                                     {tag.name}
                                 </Link>
                             ))}

@@ -3,6 +3,7 @@ import { getOptions } from "@/lib/actions/options";
 import GeneralSettings from "@/components/admin/settings/general-settings";
 import ContactSettings from "@/components/admin/settings/contact-settings";
 import NotificationSettings from "@/components/admin/settings/notification-settings";
+import TrackingSettings from "@/components/admin/settings/tracking-settings";
 
 export const metadata = {
     title: "Settings - MERPATI Admin",
@@ -14,10 +15,10 @@ export default async function SettingsPage() {
         "site_tagline",
         "site_url",
         "site_contacts",
-        "telegram_bot_token",
         "telegram_chat_id",
         "telegram_notify_post",
-        "telegram_notify_user"
+        "telegram_notify_user",
+        "ga_measurement_id"
     ]);
 
     return (
@@ -30,10 +31,11 @@ export default async function SettingsPage() {
             </div>
 
             <Tabs defaultValue="general" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4 md:w-auto">
                     <TabsTrigger value="general">General</TabsTrigger>
                     <TabsTrigger value="contacts">Contacts</TabsTrigger>
                     <TabsTrigger value="notifications">Notifications</TabsTrigger>
+                    <TabsTrigger value="tracking">Tracking</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="general" className="space-y-4">
@@ -56,6 +58,12 @@ export default async function SettingsPage() {
                         chatId={settings.telegram_chat_id || ""}
                         notifyPost={settings.telegram_notify_post === "true"}
                         notifyUser={settings.telegram_notify_user === "true"}
+                    />
+                </TabsContent>
+
+                <TabsContent value="tracking" className="space-y-4">
+                    <TrackingSettings
+                        gaId={settings.ga_measurement_id || ""}
                     />
                 </TabsContent>
             </Tabs>
