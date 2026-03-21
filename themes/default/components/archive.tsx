@@ -55,22 +55,31 @@ export default function Archive({ title, description, posts }: ArchiveProps) {
 export function PostCard({ post }: { post: PostCardData }) {
     const publishDate = post.createdAt ? new Date(post.createdAt) : new Date();
 
+    const isYoutube = post.featuredImage && (post.featuredImage.includes("youtube.com") || post.featuredImage.includes("youtu.be"));
+
     return (
-        <Link
-            href={`/${post.slug}`}
-            className="group flex flex-col bg-card rounded-3xl border border-border shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all transform hover:-translate-y-1 overflow-hidden"
-        >
+        <div className="group flex flex-col bg-card rounded-3xl border border-border shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all transform hover:-translate-y-1 overflow-hidden">
             <div className="aspect-[16/10] relative overflow-hidden">
-                {post.featuredImage ? (
+                {isYoutube ? (
                     <FeaturedMedia
-                        src={post.featuredImage}
+                        src={post.featuredImage!}
                         alt={post.title}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-48 object-cover transition-transform duration-300"
                     />
                 ) : (
-                    <div className="absolute inset-0 bg-primary/10 flex items-center justify-center text-primary/40">
-                        <ImageIcon className="w-12 h-12" />
-                    </div>
+                    <Link href={`/${post.slug}`} className="block w-full h-full">
+                        {post.featuredImage ? (
+                            <FeaturedMedia
+                                src={post.featuredImage}
+                                alt={post.title}
+                                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                        ) : (
+                            <div className="absolute inset-0 bg-primary/10 flex items-center justify-center text-primary/40">
+                                <ImageIcon className="w-12 h-12" />
+                            </div>
+                        )}
+                    </Link>
                 )}
                 {post.categories?.[0] && (
                     <div className="absolute top-4 left-4">
@@ -87,19 +96,21 @@ export function PostCard({ post }: { post: PostCardData }) {
                     {format(publishDate, "d MMM yyyy", { locale: id })}
                 </div>
 
-                <h3 className="text-xl font-bold text-foreground leading-tight group-hover:text-primary transition-colors mb-3">
-                    {post.title}
-                </h3>
+                <Link href={`/${post.slug}`} className="block">
+                    <h3 className="text-xl font-bold text-foreground leading-tight group-hover:text-primary transition-colors mb-3 items-start flex">
+                        {post.title}
+                    </h3>
+                </Link>
 
                 <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-6">
                     {post.excerpt}
                 </p>
 
                 <div className="mt-auto pt-4 border-t border-border flex items-center justify-between">
-                    <span className="text-xs font-bold text-foreground inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                    <Link href={`/${post.slug}`} className="text-xs font-bold text-foreground inline-flex items-center gap-1 group-hover:gap-2 transition-all">
                         Baca Selengkapnya
                         <ArrowRight className="w-3.5 h-3.5 text-primary" />
-                    </span>
+                    </Link>
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-[10px] font-bold border border-background shrink-0">
                             {post.author?.name?.charAt(0) || "A"}
@@ -107,6 +118,6 @@ export function PostCard({ post }: { post: PostCardData }) {
                     </div>
                 </div>
             </div>
-        </Link>
+        </div>
     );
 }

@@ -55,6 +55,14 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -429,6 +437,8 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
     const [isFeaturedImageModalOpen, setIsFeaturedImageModalOpen] = useState(false);
     const [isMetadataSheetOpen, setIsMetadataSheetOpen] = useState(false);
+    const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState(false);
+    const [youtubeInputUrl, setYoutubeInputUrl] = useState("");
 
     // HTML mode
     const [isHtmlMode, setIsHtmlMode] = useState(false);
@@ -449,16 +459,15 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
         text: string;
     } | null>(null);
 
-    const handleAddYoutube = () => {
-        const url = window.prompt("Enter YouTube URL:");
-        if (url) {
-            // Basic validation
-            if (url.includes("youtube.com") || url.includes("youtu.be")) {
-                setFeaturedImage(url);
-                setHasUnsavedChanges(true);
-            } else {
-                alert("Please enter a valid YouTube URL.");
-            }
+    const handleSaveYoutube = () => {
+        if (!youtubeInputUrl) return;
+        if (youtubeInputUrl.includes("youtube.com") || youtubeInputUrl.includes("youtu.be")) {
+            setFeaturedImage(youtubeInputUrl);
+            setHasUnsavedChanges(true);
+            setIsYoutubeModalOpen(false);
+            setYoutubeInputUrl("");
+        } else {
+            alert("Please enter a valid YouTube URL.");
         }
     };
 
@@ -611,7 +620,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                         </button>
                         <button
                             type="button"
-                            onClick={handleAddYoutube}
+                            onClick={() => setIsYoutubeModalOpen(true)}
                             className="w-full h-32 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-card"
                         >
                             <Youtube className="h-6 w-6 text-muted-foreground/50" />
@@ -1090,6 +1099,35 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                     setHasUnsavedChanges(true);
                 }}
             />
+
+            <Dialog open={isYoutubeModalOpen} onOpenChange={setIsYoutubeModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add YouTube Video</DialogTitle>
+                        <DialogDescription>
+                            Enter the full YouTube URL to use a video as the featured image.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Label htmlFor="ytUrl" className="sr-only">URL</Label>
+                        <Input
+                            id="ytUrl"
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            value={youtubeInputUrl}
+                            onChange={(e) => setYoutubeInputUrl(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSaveYoutube();
+                            }}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsYoutubeModalOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSaveYoutube}>Add Video</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div >
     );
 }
