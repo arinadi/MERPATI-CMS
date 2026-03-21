@@ -28,8 +28,9 @@ export function FeaturedMedia({ src, alt, className = "", priority = false }: Fe
 
         if (videoId) {
             return (
-                <div className={`overflow-hidden bg-black flex items-center justify-center ${className}`}>
-                    <div className="w-full max-w-4xl mx-auto">
+                <div className={`relative overflow-hidden bg-black ${className}`}>
+                    {/* Scale slightly (1.12) to make 16:9 perfectly object-cover a 16:10 container */}
+                    <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full scale-[1.15]">
                         <YouTubeEmbed videoid={videoId} params="rel=0" />
                     </div>
                 </div>
