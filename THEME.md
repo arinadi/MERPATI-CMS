@@ -1,33 +1,33 @@
 # MERPATI CMS — Theme Development Guide
 
-Panduan ini menjelaskan arsitektur tema MERPATI CMS dan aturan yang **WAJIB** dipatuhi agar tema berfungsi dengan benar, termasuk sistem caching.
+This guide explains the MERPATI CMS theme architecture and the rules that **MUST** be followed for the theme to work correctly, including the caching system.
 
 ---
 
-## Arsitektur Tema
+## Theme Architecture
 
 ```
 themes/
 └── your-theme/
-    ├── index.tsx          ← Entry point: ekspor semua komponen
+    ├── index.tsx          ← Entry point: export all components
     └── components/
         ├── layout.tsx     ← ThemeLayout (shell: header, nav, footer)
-        ├── home.tsx       ← Homepage (opsional, fallback ke Archive)
-        ├── archive.tsx    ← Daftar artikel + pagination
-        ├── single-post.tsx← Halaman artikel tunggal
-        ├── single-page.tsx← Halaman statis tunggal
-        ├── not-found.tsx  ← Halaman 404
-        └── ...            ← Komponen pendukung (post-card, dll)
+        ├── home.tsx       ← Homepage (optional, falls back to Archive)
+        ├── archive.tsx    ← Article list + pagination
+        ├── single-post.tsx← Single article page
+        ├── single-page.tsx← Single static page
+        ├── not-found.tsx  ← 404 page
+        └── ...            ← Supporting components (post-card, etc.)
 ```
 
-## Komponen yang Wajib Diekspor
+## Required Exported Components
 
-File `themes/your-theme/index.tsx` HARUS mengekspor komponen berikut:
+The `themes/your-theme/index.tsx` file MUST export the following components:
 
 ```tsx
 import ThemeLayout from "./components/layout";
 import Archive from "./components/archive";
-import Home from "./components/home";          // Opsional
+import Home from "./components/home";          // Optional
 import SinglePost from "./components/single-post";
 import SinglePage from "./components/single-page";
 import NotFound from "./components/not-found";
@@ -35,7 +35,7 @@ import NotFound from "./components/not-found";
 export { ThemeLayout, Home, Archive, SinglePost, SinglePage, NotFound };
 ```
 
-Setelah membuat tema, daftarkan di `lib/themes.ts`:
+After creating the theme, register it in `lib/themes.ts`:
 
 ```tsx
 import * as yourTheme from "@/themes/your-theme";
@@ -46,16 +46,16 @@ const THEME_MAP: Record<string, ThemeExports> = {
 };
 ```
 
-Aktifkan via `.env.local`:
+Activate it via `.env.local`:
 ```
 ACTIVE_THEME=your-theme
 ```
 
 ---
 
-## Interface Props (dari `lib/themes.ts`)
+## Props Interfaces (from `lib/themes.ts`)
 
-Setiap komponen menerima props yang HARUS sesuai interface berikut:
+Each component receives props that MUST conform to the following interfaces:
 
 ### `ThemeLayout`
 ```tsx
@@ -66,7 +66,7 @@ interface ThemeLayoutProps {
     contacts: ContactItem[];
     primaryMenu: MenuItem[];
     footerMenu: MenuItem[];
-    cacheId?: string;       // Frozen timestamp dari data cache
+    cacheId?: string;       // Frozen timestamp from cached data
 }
 ```
 
@@ -100,20 +100,20 @@ interface ArchiveProps {
 ```
 
 ### `NotFound`
-Tanpa props (kosong).
+No props (empty).
 
 ---
 
-## Aturan Caching — SANGAT PENTING
+## Caching Rules — VERY IMPORTANT
 
-MERPATI CMS menggunakan `unstable_cache` dari Next.js untuk meng-cache semua query database. Tema WAJIB mendukung sistem ini.
+MERPATI CMS uses `unstable_cache` from Next.js to cache all database queries. Themes MUST support this system.
 
-### 1. `cacheId` Prop
+### 1. The `cacheId` Prop
 
-Prop `cacheId` pada `ThemeLayout` adalah timestamp yang **membeku saat data cache aktif**. Gunakan ini sebagai indikator visual di footer:
+The `cacheId` prop on `ThemeLayout` is a timestamp that **freezes when the cache is active**. Use it as a visual indicator in the footer:
 
 ```tsx
-// Di ThemeLayout footer:
+// In ThemeLayout footer:
 {cacheId && (
     <span className="text-xs opacity-50">
         CACHE ID: {cacheId}
@@ -122,70 +122,70 @@ Prop `cacheId` pada `ThemeLayout` adalah timestamp yang **membeku saat data cach
 ```
 
 > [!CAUTION]
-> **JANGAN** generate timestamp sendiri di komponen tema seperti `new Date().toISOString()`.
-> Ini akan menyebabkan **hydration mismatch** antara server dan client,
-> karena waktu server dan browser berbeda.
+> **DO NOT** generate your own timestamp inside theme components using `new Date().toISOString()`.
+> This will cause a **hydration mismatch** between server and client,
+> because the server and browser times will differ.
 
-### 2. Jangan Gunakan `next/image`
+### 2. Do Not Use `next/image`
 
-Gunakan tag `<img>` biasa. Alasan:
-- Sumber gambar bisa dari URL eksternal manapun (Unsplash, dll)
-- `next/image` memerlukan konfigurasi domain di `next.config.ts`
-- Tag `<img>` lebih fleksibel untuk CMS
+Use a plain `<img>` tag instead. Reasons:
+- Image sources can come from any external URL (Unsplash, etc.)
+- `next/image` requires domain configuration in `next.config.ts`
+- The `<img>` tag is more flexible for a CMS
 
 ```tsx
-// ❌ JANGAN
+// ❌ DON'T
 import Image from "next/image";
 <Image src={post.featuredImage} ... />
 
-// ✅ BENAR
+// ✅ CORRECT
 <img src={post.featuredImage} alt={post.title} className="..." />
 ```
 
-### 3. Pagination Harus Path-Based
+### 3. Pagination Must Be Path-Based
 
-Pagination **WAJIB** menggunakan format URL `/page/X`, BUKAN query param `?page=X`:
+Pagination **MUST** use the URL format `/page/X`, NOT query params `?page=X`:
 
 ```tsx
-// ❌ JANGAN — query params mematikan cache Next.js
+// ❌ DON'T — query params disable Next.js cache
 <Link href={`${basePath}?page=${page + 1}`}>
 
-// ✅ BENAR — path-based tetap kompatibel dengan ISR cache
+// ✅ CORRECT — path-based stays compatible with ISR cache
 <Link href={`${basePath}/page/${page + 1}`}>
 ```
 
-Untuk halaman pertama, link langsung ke `basePath` tanpa `/page/1`:
+For the first page, link directly to `basePath` without `/page/1`:
 ```tsx
 href={page - 1 === 1 ? basePath : `${basePath}/page/${page - 1}`}
 ```
 
-### 4. ThemeLayout Harus `"use client"`
+### 4. ThemeLayout Must Be `"use client"`
 
-Karena layout biasanya mengandung state (mobile menu toggle, scroll effects, dll), tandai dengan `"use client"`:
+Since layouts typically contain state (mobile menu toggle, scroll effects, etc.), mark it with `"use client"`:
 
 ```tsx
 "use client";
-// ...komponen layout
+// ...layout component
 ```
 
-### 5. Komponen Lain = Server Components
+### 5. Other Components = Server Components
 
-Kecuali ada alasan khusus (interaktivitas), biarkan komponen lain sebagai Server Components (tanpa `"use client"`).
+Unless there is a specific reason (interactivity), leave other components as Server Components (without `"use client"`).
 
 ---
 
-## Arsitektur Data & Cache Flow
+## Data Architecture & Cache Flow
 
 ```
 User Request
     ↓
-middleware.ts (skip auth untuk public routes)
+middleware.ts (skip auth for public routes)
     ↓
 app/(public)/layout.tsx
     ├── getCachedOption()        ← unstable_cache, tag: site-options
     ├── getCachedOptions()       ← unstable_cache, tag: site-options
     ├── getCachedMenuWithItems() ← unstable_cache, tag: site-menus
-    ├── getCacheTimestamp()      ← unstable_cache, tag: semua
+    ├── getCacheTimestamp()      ← unstable_cache, tag: all
     └── render ThemeLayout
          ↓
 app/(public)/[...slug]/page.tsx
@@ -198,34 +198,34 @@ app/(public)/[...slug]/page.tsx
 
 ### Cache Invalidation
 
-Saat admin menekan **"Clear All Cache"** di `/admin/cache`:
+When an admin clicks **"Clear All Cache"** at `/admin/cache`:
 ```
-revalidateTag("site-options")  → Opsi & timestamp di-refresh
-revalidateTag("site-menus")    → Menu di-refresh
-revalidateTag("posts")         → Semua post/page/archive di-refresh
-revalidatePath("/", "layout")  → Full Route Cache di-invalidate
+revalidateTag("site-options")  → Options & timestamp are refreshed
+revalidateTag("site-menus")    → Menus are refreshed
+revalidateTag("posts")         → All posts/pages/archives are refreshed
+revalidatePath("/", "layout")  → Full Route Cache is invalidated
 ```
 
 ---
 
-## Middleware — Jangan Sentuh Public Routes
+## Middleware — Do Not Touch Public Routes
 
-File `middleware.ts` dikonfigurasi agar **TIDAK** memanggil `auth()` untuk halaman publik. Ini krusial karena `auth()` membaca cookies yang akan mematikan Full Route Cache.
+`middleware.ts` is configured so that it **does NOT** call `auth()` for public pages. This is crucial because `auth()` reads cookies, which disables the Full Route Cache.
 
 ```typescript
-// Public routes: langsung pass tanpa auth
+// Public routes: pass through directly without auth
 if (!pathname.startsWith("/admin") && pathname !== "/login" && pathname !== "/setup") {
     return NextResponse.next();
 }
 ```
 
 > [!WARNING]
-> Jika Anda memodifikasi middleware, JANGAN pernah memanggil `auth()`, `cookies()`,
-> atau `headers()` untuk path publik. Ini akan mematikan semua caching.
+> If you modify the middleware, NEVER call `auth()`, `cookies()`,
+> or `headers()` for public paths. This will disable all caching.
 
 ---
 
-## Cara Verifikasi Cache
+## How to Verify Caching
 
 ### Benchmark Script
 ```bash
@@ -234,22 +234,22 @@ bash /tmp/cache_benchmark.sh
 
 ### Manual Check
 1. `npm run build && npm start`
-2. Buka halaman, lihat CACHE ID di footer
-3. Refresh berkali-kali — CACHE ID harus tetap sama
-4. Buka `/admin/cache` → **Clear All Cache**
-5. Refresh halaman — CACHE ID harus berubah ke waktu baru, lalu kembali frozen
+2. Open a page and check the CACHE ID in the footer
+3. Refresh multiple times — the CACHE ID must stay the same
+4. Go to `/admin/cache` → **Clear All Cache**
+5. Refresh the page — the CACHE ID must change to a new time, then freeze again
 
 ---
 
-## Checklist Tema Baru
+## New Theme Checklist
 
-- [ ] Semua 6 komponen diekspor dari `index.tsx`
-- [ ] Props sesuai interface di `lib/themes.ts`
-- [ ] `cacheId` ditampilkan di footer layout
-- [ ] Tidak menggunakan `next/image`
-- [ ] Tidak menggunakan `new Date()` di komponen
-- [ ] Pagination path-based (`/page/X`), bukan query param
-- [ ] Layout ditandai `"use client"`
-- [ ] Tidak ada hydration mismatch (test di production build)
-- [ ] Build berjalan tanpa error (`npm run build`)
-- [ ] Lint bersih (`npm run lint`)
+- [ ] All 6 components exported from `index.tsx`
+- [ ] Props conform to the interfaces in `lib/themes.ts`
+- [ ] `cacheId` is displayed in the footer layout
+- [ ] `next/image` is not used
+- [ ] `new Date()` is not used in any component
+- [ ] Pagination is path-based (`/page/X`), not query params
+- [ ] Layout is marked `"use client"`
+- [ ] No hydration mismatches (test on a production build)
+- [ ] Build runs without errors (`npm run build`)
+- [ ] Lint is clean (`npm run lint`)
