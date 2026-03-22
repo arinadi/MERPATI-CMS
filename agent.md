@@ -59,8 +59,9 @@ ACTIVE_THEME=default
 ### Runtime Initialization
 MERPATI uses a "Zero-Touch" initialization strategy:
 1. **The `/setup` route**: Automatically intercepts requests if the specific options table is empty.
-2. **Schema & Seed**: On first run, the system executes `init.sql` (automatic via Drizzle) and `seed.sql` (default content).
-3. **Super User**: The first user to authenticate via Google OAuth in a fresh installation is automatically assigned the `super_user` role.
+2. **`dbGuard` Protection**: All public layout/page data fetching MUST be wrapped in `dbGuard` (from `lib/db-guard.ts`). It catches Neon DB "relation does not exist" errors when tables are missing and securely redirects to `/setup`.
+3. **Schema & Seed**: On first run, the system executes `init.sql` (automatic via Drizzle) and `seed.sql` (default content).
+4. **Super User**: The first user to authenticate via Google OAuth in a fresh installation is automatically assigned the `super_user` role.
 
 ---
 
@@ -73,7 +74,7 @@ MERPATI uses a "Zero-Touch" initialization strategy:
 4. Ensure any default data is added to a seeding utility if necessary.
 
 ### Admin vs. Public Logic
-- **Admin Components**: Place in `components/admin/`. Use shadcn primitives.
+- **Admin Components**: Place in `components/admin/`. Use shadcn primitives. Admin includes quick "Visit Site" and "Visit Post" live preview links for editor convenience.
 - **Public Components**: Place in `themes/[theme_name]/components/`. Use only pure Tailwind.
 - **Server Actions**: Keep logic strictly in `lib/actions/` for reuse across both layers.
 

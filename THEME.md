@@ -142,7 +142,19 @@ import Image from "next/image";
 <img src={post.featuredImage} alt={post.title} className="..." />
 ```
 
-### 3. Pagination Must Be Path-Based
+### 3. Responsive Embedded Media (YouTube)
+
+The classic editor allows authors to embed YouTube videos natively. These are rendered as `<iframe>` tags within the `post.content`.
+Theme developers MUST ensure that post content containers apply responsive styles to iframes (e.g., using Tailwind's `aspect-video w-full`).
+
+```tsx
+<div 
+    className="prose max-w-none prose-iframe:aspect-video prose-iframe:w-full prose-iframe:rounded-lg" 
+    dangerouslySetInnerHTML={{ __html: post.content }} 
+/>
+```
+
+### 4. Pagination Must Be Path-Based
 
 Pagination **MUST** use the URL format `/page/X`, NOT query params `?page=X`:
 
@@ -159,7 +171,7 @@ For the first page, link directly to `basePath` without `/page/1`:
 href={page - 1 === 1 ? basePath : `${basePath}/page/${page - 1}`}
 ```
 
-### 4. ThemeLayout Must Be `"use client"`
+### 5. ThemeLayout Must Be `"use client"`
 
 Since layouts typically contain state (mobile menu toggle, scroll effects, etc.), mark it with `"use client"`:
 
@@ -168,11 +180,11 @@ Since layouts typically contain state (mobile menu toggle, scroll effects, etc.)
 // ...layout component
 ```
 
-### 5. Other Components = Server Components
+### 6. Other Components = Server Components
 
 Unless there is a specific reason (interactivity), leave other components as Server Components (without `"use client"`).
 
-### 6. Search Must Navigate to `/search/{query}`
+### 7. Search Must Navigate to `/search/{query}`
 
 The search input in the layout MUST be wrapped in a `<form>` with an `onSubmit` handler that uses `useRouter` to navigate:
 

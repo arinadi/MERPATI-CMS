@@ -30,10 +30,12 @@ MERPATI is a radical, high-performance publishing platform designed to eliminate
 |---|---|
 | **📝 Classic Editor** | Familiar WYSIWYG writing with HTML toggle & robust autosave. |
 | **🖼️ Media Library** | Instant Vercel Blob uploads or remote URL integration. |
+| **▶️ YouTube Embeds** | Native YouTube video embedding in posts and media library integration. |
 | **🎨 Modular Themes** | Isolated `/themes` directory for infinite design freedom. |
 | **👤 Invite-Only Auth** | Secure author management via Google OAuth. Roles and status. |
 | **🧭 Menu Manager** | Intuitive drag-and-drop navigation builder. |
 | **🔔 Push Alerts** | Real-time Telegram notifications for posts and users. |
+| **👁️ Live Preview**  | Instant "Visit Site" and "Visit Post" shortcuts from the admin dashboard. |
 
 ---
 
