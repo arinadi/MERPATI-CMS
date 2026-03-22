@@ -4,6 +4,7 @@ import { eq, desc, and } from "drizzle-orm";
 import { activeTheme } from "@/lib/themes";
 import { getCachedOptions } from "@/lib/queries/options";
 import { unstable_cache } from "next/cache";
+import { dbGuard } from "@/lib/db-guard";
 
 const HomeComp = activeTheme.Home || activeTheme.Archive;
 
@@ -56,8 +57,11 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-    const hydratedPosts = await getCachedHomePosts();
-    const options = await getCachedOptions(["site_tagline"]);
+    const [hydratedPosts, options] = await dbGuard(async () => {
+        const p = await getCachedHomePosts();
+        const o = await getCachedOptions(["site_tagline"]);
+        return [p, o] as const;
+    });
 
     return (
         <HomeComp

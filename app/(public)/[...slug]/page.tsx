@@ -5,6 +5,7 @@ import { activeTheme } from "@/lib/themes";
 import type { PostCardData } from "@/lib/themes";
 import { getCachedOption } from "@/lib/queries/options";
 import { unstable_cache } from "next/cache";
+import { dbGuard } from "@/lib/db-guard";
 
 const SinglePost = activeTheme.SinglePost;
 const SinglePage = activeTheme.SinglePage;
@@ -395,51 +396,64 @@ export default async function PublicPage(props: PublicPageProps) {
 
     const fullSlug = slug.join("/");
 
-    const postsPerPageStr = await getCachedOption("posts_per_page") || "12";
-    const limit = parseInt(postsPerPageStr, 10) || 12;
-    const offset = Math.max(0, (pageNum - 1) * limit);
+    const result = await dbGuard(async () => {
+        const postsPerPageStr = await getCachedOption("posts_per_page") || "12";
+        const limit = parseInt(postsPerPageStr, 10) || 12;
+        const offset = Math.max(0, (pageNum - 1) * limit);
 
-    // ── Category / Tag routes
-    if (slug[0] === "category" && slug[1]) {
-        const data = await getCachedTaxonomyPosts(slug[1], "category", limit, offset);
-        if (!data) return <NotFoundComponent />;
-        const totalPages = Math.ceil(data.total / limit);
-        return <Archive title={data.term.name} description={data.term.description || ""} posts={data.hydratedPosts} pagination={{ currentPage: pageNum, totalPages, basePath: `/category/${slug[1]}` }} />;
-    }
-    if (slug[0] === "tag" && slug[1]) {
-        const data = await getCachedTaxonomyPosts(slug[1], "tag", limit, offset);
-        if (!data) return <NotFoundComponent />;
-        const totalPages = Math.ceil(data.total / limit);
-        return <Archive title={data.term.name} description={data.term.description || ""} posts={data.hydratedPosts} pagination={{ currentPage: pageNum, totalPages, basePath: `/tag/${slug[1]}` }} />;
-    }
+        // ── Category / Tag routes
+        if (slug[0] === "category" && slug[1]) {
+            const data = await getCachedTaxonomyPosts(slug[1], "category", limit, offset);
+            if (!data) return { type: "notfound" as const };
+            const totalPages = Math.ceil(data.total / limit);
+            return { type: "archive" as const, title: data.term.name, description: data.term.description || "", posts: data.hydratedPosts, pagination: { currentPage: pageNum, totalPages, basePath: `/category/${slug[1]}` } };
+        }
+        if (slug[0] === "tag" && slug[1]) {
+            const data = await getCachedTaxonomyPosts(slug[1], "tag", limit, offset);
+            if (!data) return { type: "notfound" as const };
+            const totalPages = Math.ceil(data.total / limit);
+            return { type: "archive" as const, title: data.term.name, description: data.term.description || "", posts: data.hydratedPosts, pagination: { currentPage: pageNum, totalPages, basePath: `/tag/${slug[1]}` } };
+        }
 
-    // ── Archive Route
-    if (slug[0] === "archive" && slug.length === 1) {
-        const data = await getCachedArchivePosts(limit, offset);
-        const totalPages = Math.ceil(data.total / limit);
-        return <Archive title="Semua Artikel" description="Jelajahi kumpulan berita dan artikel yang telah kami terbitkan." posts={data.hydratedPosts} pagination={{ currentPage: pageNum, totalPages, basePath: "/archive" }} />;
-    }
+        // ── Archive Route
+        if (slug[0] === "archive" && slug.length === 1) {
+            const data = await getCachedArchivePosts(limit, offset);
+            const totalPages = Math.ceil(data.total / limit);
+            return { type: "archive" as const, title: "Semua Artikel", description: "Jelajahi kumpulan berita dan artikel yang telah kami terbitkan.", posts: data.hydratedPosts, pagination: { currentPage: pageNum, totalPages, basePath: "/archive" } };
+        }
 
-    // ── Search Route
-    if (slug[0] === "search" && slug[1]) {
-        const query = decodeURIComponent(slug[1]);
-        const data = await getCachedSearchResults(query, limit, offset);
-        const totalPages = Math.ceil(data.total / limit);
-        return <Archive title={`Hasil pencarian untuk: "${query}"`} description={`Ditemukan ${data.total} artikel`} posts={data.hydratedPosts} pagination={totalPages > 1 ? { currentPage: pageNum, totalPages, basePath: `/search/${slug[1]}` } : undefined} />;
-    }
+        // ── Search Route
+        if (slug[0] === "search" && slug[1]) {
+            const query = decodeURIComponent(slug[1]);
+            const data = await getCachedSearchResults(query, limit, offset);
+            const totalPages = Math.ceil(data.total / limit);
+            return { type: "archive" as const, title: `Hasil pencarian untuk: "${query}"`, description: `Ditemukan ${data.total} artikel`, posts: data.hydratedPosts, pagination: totalPages > 1 ? { currentPage: pageNum, totalPages, basePath: `/search/${slug[1]}` } : undefined };
+        }
 
-    // ── Try to find a Post
-    const postData = await getCachedPost(fullSlug);
-    if (postData) {
-        return <SinglePost post={postData.post} relatedPosts={postData.relatedPosts} />;
-    }
+        // ── Try to find a Post
+        const postData = await getCachedPost(fullSlug);
+        if (postData) {
+            return { type: "post" as const, post: postData.post, relatedPosts: postData.relatedPosts };
+        }
 
-    // ── Try to find a Page
-    const page = await getCachedPage(fullSlug);
-    if (page) {
-        return <SinglePage page={page} />;
-    }
+        // ── Try to find a Page
+        const page = await getCachedPage(fullSlug);
+        if (page) {
+            return { type: "page" as const, page };
+        }
 
-    // ── Not Found
-    return <NotFoundComponent />;
+        return { type: "notfound" as const };
+    });
+
+    // ── Render based on result type (JSX outside try-catch)
+    switch (result.type) {
+        case "archive":
+            return <Archive title={result.title} description={result.description} posts={result.posts} pagination={result.pagination} />;
+        case "post":
+            return <SinglePost post={result.post} relatedPosts={result.relatedPosts} />;
+        case "page":
+            return <SinglePage page={result.page} />;
+        default:
+            return <NotFoundComponent />;
+    }
 }
