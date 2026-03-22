@@ -1,148 +1,144 @@
+import Link from "next/link";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-
-import Link from "next/link";
-import { Calendar, User, Tag as TagIcon, ArrowLeft } from "lucide-react";
 import { FeaturedMedia } from "./featured-media";
-import type { SinglePostProps } from "@/lib/themes";
-import { PostCard } from "./archive";
 import { ShareButtons } from "./share-buttons";
+import type { SinglePostProps } from "@/lib/themes";
 
 export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
     const publishDate = post.createdAt ? new Date(post.createdAt) : new Date();
 
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "NewsArticle",
-        "headline": post.title,
-        "description": post.excerpt,
-        "image": post.featuredImage ? [post.featuredImage] : [],
-        "datePublished": publishDate.toISOString(),
-        "dateModified": post.updatedAt ? new Date(post.updatedAt).toISOString() : publishDate.toISOString(),
-        "author": [
-            {
-                "@type": "Person",
-                "name": post.author?.name || "Admin",
-                "url": "#",
-            },
-        ],
-    };
-
     return (
-        <article className="pb-24">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-            {/* Post Header */}
-            <header className="relative pt-6 pb-8 md:pt-24 md:pb-20 overflow-hidden bg-background">
-                <div className="container mx-auto px-4 relative z-10">
-                    <div className="max-w-3xl mx-auto space-y-3 md:space-y-6">
-                        <div className="flex flex-wrap items-center gap-2 md:gap-4 text-[10px] md:text-xs font-bold uppercase tracking-widest text-primary">
-                            {post.categories?.map((cat) => (
-                                <Link key={cat.id} href={`/category/${cat.slug}`} className="hover:underline">
-                                    {cat.name}
-                                </Link>
-                            ))}
-                            {post.categories?.length > 0 && <span className="w-1 h-1 rounded-full bg-border" />}
-                            <span className="flex items-center gap-1.5 text-muted-foreground">
-                                <User className="w-3.5 h-3.5" />
-                                5 min read
-                            </span>
-                        </div>
-
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.1]">
-                            {post.title}
-                        </h1>
-
-                        <p className="text-base md:text-xl text-muted-foreground leading-snug md:leading-relaxed font-medium italic border-l-4 border-primary/20 pl-4 md:pl-6">
-                            {post.excerpt}
-                        </p>
-
-                    </div>
-                </div>
+        <article className="pb-16 md:pb-32 bg-[#0B1120]">
+            {/* Header: Giant Title Rata Tengah */}
+            <header className="container mx-auto px-4 pt-10 md:pt-20 pb-8 md:pb-12 text-center max-w-5xl">
+                <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white leading-[1.1] tracking-tight drop-shadow-md">
+                    {post.title}
+                </h1>
+                {post.excerpt && (
+                    <p className="mt-4 md:mt-8 text-lg md:text-xl font-light text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                        {post.excerpt}
+                    </p>
+                )}
             </header>
 
             {/* Featured Image */}
-            {post.featuredImage && (
-                <div className="container mx-auto px-4 -mt-4 md:-mt-12 relative z-20">
-                    <div className="aspect-[21/9] relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl shadow-black/10 border-2 md:border-4 border-background">
-                    <FeaturedMedia
-                        src={post.featuredImage}
-                        alt={post.title}
-                        priority={true}
-                        className="w-full h-[300px] md:h-[500px] object-cover"
-                    />
-                    </div>
-                </div>
-            )}
-
-            {/* Content Body */}
-            <div className="container mx-auto px-4 mt-8 md:mt-16">
-                <div className="max-w-3xl mx-auto border-b border-border pb-8 mb-8">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                        <div className="flex items-center gap-4">
-                            {post.author?.image ? (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img
-                                    src={post.author.image}
-                                    alt={post.author.name || "Author"}
-                                    className="w-12 h-12 rounded-full ring-2 ring-primary/10 object-cover shadow-sm"
-                                />
-                            ) : (
-                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shadow-sm">
-                                    {post.author?.name?.charAt(0) || "U"}
-                                </div>
-                            )}
-                            <div className="flex flex-col">
-                                <span className="font-bold text-foreground">{post.author?.name || "Admin"}</span>
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium">
-                                    <Calendar className="w-3.5 h-3.5" />
-                                    {format(publishDate, "d MMMM yyyy", { locale: id })}
-                                </div>
-                            </div>
-                        </div>
-                        <ShareButtons title={post.title} text={post.excerpt || ""} />
-                    </div>
-                </div>
-
-                <div className="max-w-3xl mx-auto">
-                    <div
-                        className="tiptap"
-                        dangerouslySetInnerHTML={{ __html: post.content || "" }}
-                    />
-
-                    {/* Tags */}
-                    {post.tags?.length > 0 && (
-                        <div className="mt-16 pt-8 border-t border-border flex flex-wrap gap-2">
-                            {post.tags.map((tag) => (
-                                <Link
-                                    key={tag.id}
-                                    href={`/tag/${tag.slug}`}
-                                    className="px-4 py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-full text-sm font-bold transition-colors inline-flex items-center gap-2"
-                                >
-                                    <TagIcon className="h-4 w-4" />
-                                    {tag.name}
-                                </Link>
-                            ))}
-                        </div>
+            <div className="container mx-auto px-4 max-w-6xl mb-8 md:mb-16">
+                <div className="aspect-video relative rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl bg-[#0F172A] border border-white/5">
+                    {post.featuredImage && (
+                        <FeaturedMedia
+                            src={post.featuredImage}
+                            alt={post.title}
+                            className="w-full h-full object-cover rounded-[2rem]"
+                            priority
+                        />
                     )}
                 </div>
             </div>
 
-            {/* Related Posts */}
-            {relatedPosts && relatedPosts.length > 0 && (
-                <div className="container mx-auto px-4 mt-16 md:mt-24 border-t border-border pt-12 md:pt-16">
-                    <div className="max-w-3xl mx-auto mb-8">
-                        <h3 className="text-2xl font-black tracking-tight text-foreground">Baca Juga</h3>
+            {/* Content Layout */}
+            <div className="container mx-auto px-4 max-w-6xl">
+                <div className="flex flex-col lg:flex-row gap-8 md:gap-16 lg:gap-24">
+                    {/* Left: Main Content */}
+                    <div className="flex-1 lg:w-2/3">
+                        {/* 1. Category Badge */}
+                        {post.categories && post.categories.length > 0 && (
+                            <div className="mb-6 md:mb-8">
+                                <Link 
+                                    href={`/category/${post.categories[0].slug}`} 
+                                    className="px-4 py-2 bg-blue-600/10 text-blue-400 font-bold uppercase tracking-widest text-xs rounded-full border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-colors"
+                                >
+                                    {post.categories[0].name}
+                                </Link>
+                            </div>
+                        )}
+
+                        {/* 2. Author & Share Row */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 py-4 md:py-8 border-y border-white/10 mb-8 md:mb-12">
+                            {/* Author Info */}
+                            <div className="flex items-center gap-4 w-full md:w-auto">
+                                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-800 shrink-0 ring-2 ring-white/10">
+                                    {post.author?.image ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img src={post.author.image} alt={post.author.name || "Author"} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                                            {post.author?.name?.[0]?.toUpperCase() || "A"}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-white text-base">{post.author?.name || "Anonymous"}</span>
+                                    <span className="text-sm text-gray-500 font-medium">
+                                        {format(publishDate, "EEEE, dd MMMM yyyy", { locale: id })}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Share Buttons */}
+                            <div className="w-full md:w-auto flex justify-end">
+                                <ShareButtons title={post.title} text={post.excerpt || ""} />
+                            </div>
+                        </div>
+
+                        {/* 3. Article Body */}
+                        <div 
+                            className="prose prose-lg prose-invert max-w-none hover:prose-a:text-blue-400 prose-a:text-blue-500 prose-a:font-semibold prose-a:no-underline prose-headings:font-bold prose-headings:tracking-tight prose-img:rounded-2xl prose-img:shadow-xl"
+                            dangerouslySetInnerHTML={{ __html: post.content || "" }}
+                        />
+
+                        {/* Tags */}
+                        {post.tags && post.tags.length > 0 && (
+                            <div className="mt-16 pt-8 border-t border-white/10">
+                                <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Tag Artikel</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {post.tags.map(tag => (
+                                        <Link 
+                                            key={tag.id}
+                                            href={`/tag/${tag.slug}`}
+                                            className="px-4 py-2 rounded-xl bg-[#1E293B] hover:bg-gray-800 border border-white/5 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                                        >
+                                            #{tag.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
-                    <div className="max-w-5xl mx-auto grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                        {relatedPosts.map(rp => (
-                            <PostCard key={rp.id} post={rp} />
-                        ))}
+
+                    {/* Right: Sidebar */}
+                    <div className="lg:w-1/3">
+                        <div className="sticky top-32">
+                            <h3 className="text-lg font-black uppercase tracking-widest text-white mb-8 pb-4 border-b border-white/10">
+                                Artikel Terkait
+                            </h3>
+                            {relatedPosts && relatedPosts.length > 0 ? (
+                                <div className="flex flex-col gap-6">
+                                    {relatedPosts.map(rp => (
+                                        <Link key={rp.id} href={`/${rp.slug}`} className="group flex gap-4 bg-[#1E293B]/40 p-4 rounded-2xl hover:bg-[#1E293B] border border-transparent hover:border-white/5 transition-all">
+                                            {rp.featuredImage && (
+                                                <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden shadow-sm">
+                                                    <FeaturedMedia src={rp.featuredImage} alt={rp.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                                </div>
+                                            )}
+                                            <div className="flex flex-col flex-1 py-1">
+                                                <h4 className="font-bold text-gray-200 group-hover:text-white line-clamp-2 text-sm leading-snug mb-2 transition-colors">
+                                                    {rp.title}
+                                                </h4>
+                                                <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 mt-auto">
+                                                    {format(new Date(rp.createdAt || new Date()), "dd MMM yyyy", { locale: id })}
+                                                </span>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 text-sm">Tidak ada artikel terkait.</p>
+                            )}
+                        </div>
                     </div>
                 </div>
-            )}
+            </div>
         </article>
     );
 }

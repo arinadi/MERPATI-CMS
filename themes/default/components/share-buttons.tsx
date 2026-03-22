@@ -1,14 +1,9 @@
 "use client";
 
+import { Twitter, Facebook, Linkedin, Link2, Check } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Share2, Link as LinkIcon, Check, Twitter, Facebook, MessageCircle } from "lucide-react";
 
-interface ShareButtonsProps {
-    title: string;
-    text?: string;
-}
-
-export function ShareButtons({ title, text }: ShareButtonsProps) {
+export function ShareButtons({ title }: { title: string; text?: string }) {
     const [url, setUrl] = useState("");
     const [copied, setCopied] = useState(false);
 
@@ -17,86 +12,68 @@ export function ShareButtons({ title, text }: ShareButtonsProps) {
         setUrl(window.location.href);
     }, []);
 
-    const handleShare = async () => {
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title,
-                    text: text || title,
-                    url,
-                });
-            } catch (err) {
-                console.log("Error sharing", err);
-            }
-        }
-    };
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
-
-    if (!url) return null;
-
     const encodedUrl = encodeURIComponent(url);
     const encodedTitle = encodeURIComponent(title);
 
     const shareLinks = [
         {
-            name: "X (Twitter)",
+            name: "X",
             icon: Twitter,
             href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-            color: "hover:bg-[#1DA1F2] hover:text-white"
+            color: "hover:bg-black hover:text-white"
         },
         {
             name: "Facebook",
             icon: Facebook,
             href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-            color: "hover:bg-[#4267B2] hover:text-white"
+            color: "hover:bg-[#1877F2] hover:text-white"
         },
         {
-            name: "WhatsApp",
-            icon: MessageCircle,
-            href: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
-            color: "hover:bg-[#25D366] hover:text-white"
+            name: "LinkedIn",
+            icon: Linkedin,
+            href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+            color: "hover:bg-[#0A66C2] hover:text-white"
         }
     ];
 
+    const copyLink = async () => {
+        try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error("Failed to copy", err);
+        }
+    };
+
+    if (!url) return null;
+
     return (
-        <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-muted-foreground mr-1 uppercase tracking-wider hidden sm:inline-block">Bagikan:</span>
-
-            {shareLinks.map((link) => (
-                <a
-                    key={link.name}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`w-9 h-9 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center transition-colors ${link.color}`}
-                    title={`Bagikan ke ${link.name}`}
-                >
-                    <link.icon className="w-4 h-4" />
-                </a>
-            ))}
-
+        <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-gray-500 mr-2">Share</span>
+            {shareLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                    <a
+                        key={link.name}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`w-10 h-10 rounded-full flex items-center justify-center bg-[#1E293B] text-gray-400 border border-white/5 transition-all shadow-sm ${link.color}`}
+                        title={`Share on ${link.name}`}
+                    >
+                        <Icon className="w-4 h-4" />
+                    </a>
+                );
+            })}
             <button
-                onClick={handleCopy}
-                className="w-9 h-9 rounded-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors"
-                title="Salin Tautan"
+                onClick={copyLink}
+                className="h-10 px-4 rounded-full flex items-center justify-center gap-2 bg-[#1E293B] text-gray-400 border border-white/5 hover:bg-gray-800 hover:text-white transition-all shadow-sm group"
+                title="Copy link"
             >
-                {copied ? <Check className="w-4 h-4" /> : <LinkIcon className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4 text-green-400" /> : <Link2 className="w-4 h-4 group-hover:rotate-12 transition-transform" />}
+                <span className="text-sm font-bold uppercase tracking-wide">{copied ? "Copied" : "Copy Link"}</span>
             </button>
-
-            {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
-                <button
-                    onClick={handleShare}
-                    className="w-9 h-9 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center transition-colors ml-1 sm:hidden"
-                    title="Bagikan via Sistem"
-                >
-                    <Share2 className="w-4 h-4" />
-                </button>
-            )}
         </div>
     );
 }

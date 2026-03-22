@@ -12,6 +12,7 @@ import {
     Users,
     Settings,
     Menu as MenuIcon,
+    DatabaseZap,
 } from "lucide-react";
 
 import {
@@ -45,6 +46,7 @@ const navItems: NavItem[] = [
     { title: "Media", href: "/admin/media", icon: ImageIcon },
     { title: "Menus", href: "/admin/menus", icon: MenuIcon, superUserOnly: true },
     { title: "Users", href: "/admin/users", icon: Users, superUserOnly: true },
+    { title: "Cache", href: "/admin/cache", icon: DatabaseZap, superUserOnly: true },
     { title: "Settings", href: "/admin/settings", icon: Settings, superUserOnly: true },
 ];
 

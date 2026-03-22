@@ -1,59 +1,40 @@
-
-import type { SinglePageProps } from "@/lib/themes";
 import { FeaturedMedia } from "./featured-media";
+import type { SinglePageProps } from "@/lib/themes";
 
 export default function SinglePage({ page }: SinglePageProps) {
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": page.title,
-        "description": page.excerpt,
-        "url": "#",
-        "datePublished": page.createdAt ? new Date(page.createdAt).toISOString() : new Date().toISOString(),
-        "dateModified": page.updatedAt ? new Date(page.updatedAt).toISOString() : (page.createdAt ? new Date(page.createdAt).toISOString() : new Date().toISOString()),
-    };
-
     return (
-        <article className="pb-24">
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-            {/* Page Header */}
-            <header className="pt-16 pb-12 md:pt-24 md:pb-20 bg-background">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-3xl mx-auto text-center space-y-6">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.1]">
-                            {page.title}
-                        </h1>
-                        {page.excerpt && (
-                            <p className="text-xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto">
-                                {page.excerpt}
-                            </p>
-                        )}
-                    </div>
-                </div>
+        <article className="pb-32 bg-[#0B1120] min-h-screen">
+            {/* Header */}
+            <header className="container mx-auto px-4 pt-24 pb-16 text-center max-w-4xl">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight drop-shadow-sm">
+                    {page.title}
+                </h1>
+                {page.excerpt && (
+                    <p className="mt-6 text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                        {page.excerpt}
+                    </p>
+                )}
             </header>
 
-            {/* Featured Image */}
-            {page.featuredImage && (
-                <div className="container mx-auto px-4 mb-12 md:mb-20">
-                    <div className="aspect-[21/9] relative rounded-3xl overflow-hidden shadow-xl shadow-black/10 border-4 border-background">
-                    <FeaturedMedia
-                        src={page.featuredImage}
-                        alt={page.title}
-                        priority={true}
-                        className="w-full h-[300px] md:h-[500px] object-cover"
-                    />
-                    </div>
-                </div>
-            )}
-
-            {/* Content Body */}
-            <div className="container mx-auto px-4">
-                <div className="max-w-3xl mx-auto">
-                    <div
-                        className="tiptap"
+            {/* Main Content Area */}
+            <div className="container mx-auto px-4 max-w-4xl">
+                <div className="bg-[#1E293B]/30 rounded-[2rem] border border-white/5 p-8 md:p-12 lg:p-16 shadow-2xl">
+                    {page.featuredImage && (
+                        <div className="aspect-video relative rounded-2xl overflow-hidden shadow-xl bg-black border border-white/10 mb-12">
+                            <FeaturedMedia
+                                src={page.featuredImage}
+                                alt={page.title}
+                                className="w-full h-full object-cover"
+                                priority
+                            />
+                        </div>
+                    )}
+                    
+                    <div 
+                        className="prose prose-lg prose-invert max-w-none mx-auto
+                            hover:prose-a:text-blue-400 prose-a:text-blue-500 prose-a:font-semibold prose-a:no-underline 
+                            prose-headings:font-bold prose-headings:tracking-tight 
+                            prose-img:rounded-2xl prose-img:shadow-xl prose-hr:border-white/10"
                         dangerouslySetInnerHTML={{ __html: page.content || "" }}
                     />
                 </div>

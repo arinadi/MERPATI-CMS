@@ -13,12 +13,14 @@ interface GeneralSettingsProps {
     siteTitle: string;
     siteTagline: string;
     siteUrl: string;
+    postsPerPage: string;
 }
 
-export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: initialTagline, siteUrl: initialUrl }: GeneralSettingsProps) {
+export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: initialTagline, siteUrl: initialUrl, postsPerPage: initialPostsPerPage }: GeneralSettingsProps) {
     const [title, setTitle] = useState(initialTitle);
     const [tagline, setTagline] = useState(initialTagline);
     const [url, setUrl] = useState(initialUrl);
+    const [postsPerPage, setPostsPerPage] = useState(initialPostsPerPage || "12");
     const [isSaving, setIsSaving] = useState(false);
 
     async function handleSave() {
@@ -27,7 +29,8 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
             const result = await setOptions({
                 site_title: title,
                 site_tagline: tagline,
-                site_url: url
+                site_url: url,
+                posts_per_page: postsPerPage
             });
 
             if (result.success) {
@@ -79,6 +82,21 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                     />
                     <p className="text-[12px] text-muted-foreground">
                         Used for generating permanent links in notifications.
+                    </p>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="posts_per_page">Items Per Page</Label>
+                    <Input
+                        id="posts_per_page"
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={postsPerPage}
+                        onChange={(e) => setPostsPerPage(e.target.value)}
+                        placeholder="12"
+                    />
+                    <p className="text-[12px] text-muted-foreground">
+                        Number of items to display per page on archives.
                     </p>
                 </div>
             </CardContent>

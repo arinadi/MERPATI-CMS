@@ -17,8 +17,13 @@ export async function getOption(key: string): Promise<string | null> {
             .limit(1);
 
         return result[0]?.value ?? null;
-    } catch (error) {
-        console.error(`Error getting option ${key}:`, error);
+    } catch (error: unknown) {
+        const err = error as Error & { code?: string; cause?: { message?: string } };
+        const errorText = err?.message + " " + (err?.cause?.message || "");
+        if (err?.code === '42P01' || errorText.includes('relation "options" does not exist')) {
+            return null;
+        }
+        console.warn(`Warning getting option ${key}:`, errorText);
         return null;
     }
 }
@@ -37,8 +42,13 @@ export async function getOptions(keys: string[]): Promise<Record<string, string>
             acc[curr.key] = curr.value;
             return acc;
         }, {} as Record<string, string>);
-    } catch (error) {
-        console.error("Error getting multiple options:", error);
+    } catch (error: unknown) {
+        const err = error as Error & { code?: string; cause?: { message?: string } };
+        const errorText = err?.message + " " + (err?.cause?.message || "");
+        if (err?.code === '42P01' || errorText.includes('relation "options" does not exist')) {
+            return {};
+        }
+        console.warn("Warning getting multiple options:", errorText);
         return {};
     }
 }

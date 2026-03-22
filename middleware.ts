@@ -1,11 +1,9 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { NextResponse, type NextRequest } from "next/server";
 
-export default auth((req) => {
+export default async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
     // Fast reject for common bot paths (WordPress, PHP, .env, etc.)
-    // Ini menghemat resource Vercel karena merespon error langsung dari Edge Server
     if (
         pathname.startsWith("/wp-admin") ||
         pathname.startsWith("/wp-login") ||
@@ -26,22 +24,33 @@ export default auth((req) => {
         return NextResponse.next();
     }
 
-    const isAuthenticated = !!req.auth;
+    // ─── PUBLIC ROUTES: Let them pass without ANY auth/cookie reads ────
+    // This is critical for Next.js Full Route Cache to work!
+    if (
+        !pathname.startsWith("/admin") &&
+        pathname !== "/login" &&
+        pathname !== "/setup"
+    ) {
+        return NextResponse.next();
+    }
 
-    // Check initialization status via cookie (set after setup completes)
-    const isInitialized = req.cookies.get("merpati_initialized")?.value === "true";
+    // ─── From here on, we need auth. Dynamically import to avoid
+    //     loading auth module for public routes. ───────────────────────
+    const { auth } = await import("@/auth");
+    const session = await auth();
+    const isAuthenticated = !!session;
 
-    // /setup page is always accessible — the page itself checks DB and redirects if needed
+    // /setup page
     if (pathname === "/setup") {
-        // If cookie says initialized, redirect away from setup
+        const isInitialized = req.cookies.get("merpati_initialized")?.value === "true";
         if (isInitialized) {
             return NextResponse.redirect(new URL("/", req.url));
         }
         return NextResponse.next();
     }
 
-    // If not initialized (no cookie), redirect /admin to check-init API
-    // which will verify DB state, set cookie if needed, and redirect appropriately
+    // If not initialized, redirect /admin to check-init API
+    const isInitialized = req.cookies.get("merpati_initialized")?.value === "true";
     if (!isInitialized && pathname.startsWith("/admin")) {
         return NextResponse.redirect(new URL("/api/check-init", req.url));
     }
@@ -52,13 +61,14 @@ export default auth((req) => {
             return NextResponse.redirect(new URL("/login", req.url));
         }
 
-        // Issue #3: Restrict sensitive menus to super_user
+        // Restrict sensitive menus to super_user
         if (
             pathname.startsWith("/admin/settings") ||
             pathname.startsWith("/admin/users") ||
-            pathname.startsWith("/admin/menus")
+            pathname.startsWith("/admin/menus") ||
+            pathname.startsWith("/admin/cache")
         ) {
-            if ((req.auth?.user as { role?: string })?.role !== "super_user") {
+            if ((session?.user as { role?: string })?.role !== "super_user") {
                 return NextResponse.redirect(new URL("/admin/posts", req.url));
             }
         }
@@ -70,7 +80,7 @@ export default auth((req) => {
     }
 
     return NextResponse.next();
-});
+}
 
 export const config = {
     matcher: [
@@ -84,3 +94,4 @@ export const config = {
         "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
     ],
 };
+

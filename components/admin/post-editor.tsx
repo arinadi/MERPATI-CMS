@@ -31,7 +31,6 @@ import {
     ImagePlus,
     Settings,
     ChevronLeft,
-    Video,
     Youtube,
 } from "lucide-react";
 

@@ -9,6 +9,7 @@ export interface ThemeLayoutProps {
     contacts: ContactItem[];
     primaryMenu: MenuItem[];
     footerMenu: MenuItem[];
+    cacheId?: string;
 }
 
 export interface SinglePostProps {
@@ -24,6 +25,11 @@ export interface ArchiveProps {
     title: string;
     description?: string;
     posts: PostCardData[];
+    pagination?: {
+        currentPage: number;
+        totalPages: number;
+        basePath: string;
+    };
 }
 
 // ─── Shared Data Types ─────────────────────────────────────────────────────
@@ -85,6 +91,7 @@ export interface PostCardData {
 
 export interface ThemeExports {
     ThemeLayout: ComponentType<ThemeLayoutProps>;
+    Home?: ComponentType<ArchiveProps>;
     SinglePost: ComponentType<SinglePostProps>;
     SinglePage: ComponentType<SinglePageProps>;
     Archive: ComponentType<ArchiveProps>;

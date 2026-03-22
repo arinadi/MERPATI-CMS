@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { updateUserRole, updateUserStatus, deleteUser, renameUser } from "@/lib/actions/users";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,

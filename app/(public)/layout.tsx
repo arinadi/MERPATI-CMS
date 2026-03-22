@@ -1,13 +1,15 @@
-import { getOptions } from "@/lib/actions/options";
+import { getCachedOptions, getCachedOption } from "@/lib/queries/options";
+import { getCachedMenuWithItems } from "@/lib/queries/menus";
+import { getCacheTimestamp } from "@/lib/queries/cache-timestamp";
 import { activeTheme } from "@/lib/themes";
-import { db } from "@/db";
-import { menus, menuItems, posts, terms } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 
 const ThemeLayout = activeTheme.ThemeLayout;
 
+export const revalidate = 3600;
+
 export async function generateMetadata() {
-    const options = await getOptions([
+    const options = await getCachedOptions([
         "site_title",
         "site_tagline",
     ]);
@@ -40,7 +42,11 @@ export default async function PublicLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const options = await getOptions([
+    const isInit = await getCachedOption("is_initialized");
+    if (isInit !== "true") {
+        redirect("/setup");
+    }
+    const options = await getCachedOptions([
         "site_title",
         "site_tagline",
         "site_contacts"
@@ -56,51 +62,8 @@ export default async function PublicLayout({
         console.error("Failed to parse site_contacts", e);
     }
 
-    async function getMenuWithItems(location: "primary" | "footer") {
-        const [menu] = await db
-            .select()
-            .from(menus)
-            .where(eq(menus.location, location))
-            .limit(1);
-
-        if (!menu) return [];
-
-        const rawItems = await db
-            .select()
-            .from(menuItems)
-            .where(eq(menuItems.menuId, menu.id))
-            .orderBy(menuItems.sortOrder);
-
-        const items = await Promise.all(
-            rawItems.map(async (item) => {
-                if (item.type === "custom") return item;
-
-                let slug = "";
-                if (item.type === "post" || item.type === "page") {
-                    const [p] = await db
-                        .select({ slug: posts.slug })
-                        .from(posts)
-                        .where(eq(posts.id, item.objectId!))
-                        .limit(1);
-                    slug = p?.slug || "";
-                } else if (item.type === "category") {
-                    const [t] = await db
-                        .select({ slug: terms.slug })
-                        .from(terms)
-                        .where(eq(terms.id, item.objectId!))
-                        .limit(1);
-                    slug = t ? `category/${t.slug}` : "";
-                }
-
-                return { ...item, slug };
-            })
-        );
-
-        return items;
-    }
-
-    const primaryMenu = await getMenuWithItems("primary");
-    const footerMenu = await getMenuWithItems("footer");
+    const primaryMenu = await getCachedMenuWithItems("primary");
+    const footerMenu = await getCachedMenuWithItems("footer");
 
     return (
         <ThemeLayout
@@ -109,6 +72,7 @@ export default async function PublicLayout({
             contacts={contacts}
             primaryMenu={primaryMenu}
             footerMenu={footerMenu}
+            cacheId={await getCacheTimestamp()}
         >
             {children}
         </ThemeLayout>

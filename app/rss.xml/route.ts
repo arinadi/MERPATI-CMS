@@ -2,9 +2,13 @@ import { Feed } from 'feed';
 import { db } from '@/db';
 import { posts, users, options } from '@/db/schema';
 import { eq, desc, and } from 'drizzle-orm';
+import { headers } from 'next/headers';
 
 export async function GET() {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const headersList = await headers();
+    const host = headersList.get('x-forwarded-host') || headersList.get('host');
+    const protocol = host?.includes('localhost') ? 'http' : 'https';
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (host ? `${protocol}://${host}` : 'http://localhost:3000');
 
     const siteOptions = await db
         .select()

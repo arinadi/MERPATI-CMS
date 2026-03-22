@@ -1,34 +1,38 @@
 import Link from "next/link";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
-import { Calendar, ArrowRight, Image as ImageIcon } from "lucide-react";
-import type { ArchiveProps, PostCardData } from "@/lib/themes";
-import { FeaturedMedia } from "./featured-media";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { ArchiveProps } from "@/lib/themes";
+import { PostCard } from "./post-card";
 
-export default function Archive({ title, description, posts }: ArchiveProps) {
+export default function Archive({ title, description, posts, pagination }: ArchiveProps) {
     return (
-        <div className="pb-24">
-            {/* Archive Header */}
-            <header className="pt-20 pb-16 bg-background border-b border-border">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-3xl space-y-4">
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground leading-tight">
-                            {title}
-                        </h1>
-                        {description && (
-                            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                                {description}
-                            </p>
-                        )}
+        <div className="pb-24 pt-12">
+            {/* Archive Header / Search Header */}
+            {title && (
+                <header className="py-12 md:py-20 bg-transparent border-b border-white/5 mb-12">
+                    <div className="container mx-auto px-4 text-center">
+                        <div className="max-w-3xl mx-auto space-y-4">
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-white leading-tight">
+                                {title.startsWith("Hasil pencarian untuk:") ? (
+                                    <>Hasil pencarian: <span className="text-blue-400">&quot;{title.replace("Hasil pencarian untuk: ", "").replace(/"/g, "")}&quot;</span></>
+                                ) : (
+                                    title
+                                )}
+                            </h1>
+                            {description && (
+                                <p className="text-lg text-gray-400 leading-relaxed max-w-2xl mx-auto mt-6">
+                                    {description}
+                                </p>
+                            )}
+                        </div>
                     </div>
-                </div>
-            </header>
+                </header>
+            )}
 
             {/* Posts Grid */}
-            <div className="container mx-auto px-4 mt-12 md:mt-20">
+            <div className="container mx-auto px-4">
                 {posts.length === 0 ? (
-                    <div className="text-center py-20 bg-card rounded-3xl border border-dashed border-border">
-                        <p className="text-muted-foreground font-medium">Belum ada konten untuk ditampilkan.</p>
+                    <div className="text-center py-32 bg-[#1E293B]/30 rounded-3xl border border-dashed border-white/10">
+                        <p className="text-gray-400 font-medium text-lg">Belum ada konten untuk ditampilkan di kategori ini.</p>
                     </div>
                 ) : (
                     <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -38,85 +42,46 @@ export default function Archive({ title, description, posts }: ArchiveProps) {
                     </div>
                 )}
 
-                {posts.length > 0 && (
-                    <div className="mt-16 flex justify-center">
+                {/* Pagination UI */}
+                {pagination && pagination.totalPages > 1 && (
+                    <div className="mt-20 flex justify-center">
                         <nav className="flex items-center gap-2">
-                            <button className="px-6 py-3 rounded-xl bg-card border border-border font-bold text-foreground hover:bg-muted transition-colors shadow-sm">
-                                Muat Lebih Banyak
-                            </button>
+                            {pagination.currentPage > 1 ? (
+                                <Link 
+                                    href={pagination.currentPage - 1 === 1 ? pagination.basePath : `${pagination.basePath}/page/${pagination.currentPage - 1}`} 
+                                    className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#1E293B] hover:bg-gray-800 border border-white/5 font-bold text-white transition-colors group"
+                                >
+                                    <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                                    <span className="sr-only">Previous</span>
+                                </Link>
+                            ) : (
+                                <button disabled className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#1E293B] border border-white/5 font-bold text-gray-500 cursor-not-allowed opacity-50">
+                                    <ChevronLeft className="w-5 h-5" />
+                                    <span className="sr-only">Previous</span>
+                                </button>
+                            )}
+                            
+                            <div className="px-6 py-3 rounded-xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-900/40">
+                                Hal {pagination.currentPage} / {pagination.totalPages}
+                            </div>
+                            
+                            {pagination.currentPage < pagination.totalPages ? (
+                                <Link 
+                                    href={`${pagination.basePath}/page/${pagination.currentPage + 1}`} 
+                                    className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#1E293B] hover:bg-gray-800 border border-white/5 font-bold text-white transition-colors group"
+                                >
+                                    <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    <span className="sr-only">Next</span>
+                                </Link>
+                            ) : (
+                                <button disabled className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#1E293B] border border-white/5 font-bold text-gray-500 cursor-not-allowed opacity-50">
+                                    <ChevronRight className="w-5 h-5" />
+                                    <span className="sr-only">Next</span>
+                                </button>
+                            )}
                         </nav>
                     </div>
                 )}
-            </div>
-        </div>
-    );
-}
-
-export function PostCard({ post }: { post: PostCardData }) {
-    const publishDate = post.createdAt ? new Date(post.createdAt) : new Date();
-
-    const isYoutube = post.featuredImage && (post.featuredImage.includes("youtube.com") || post.featuredImage.includes("youtu.be"));
-
-    return (
-        <div className="group flex flex-col bg-card rounded-3xl border border-border shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all transform hover:-translate-y-1 overflow-hidden">
-            <div className="aspect-[16/10] relative overflow-hidden">
-                {isYoutube ? (
-                    <FeaturedMedia
-                        src={post.featuredImage!}
-                        alt={post.title}
-                        className="w-full h-48 object-cover transition-transform duration-300"
-                    />
-                ) : (
-                    <Link href={`/${post.slug}`} className="block w-full h-full">
-                        {post.featuredImage ? (
-                            <FeaturedMedia
-                                src={post.featuredImage}
-                                alt={post.title}
-                                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                        ) : (
-                            <div className="absolute inset-0 bg-primary/10 flex items-center justify-center text-primary/40">
-                                <ImageIcon className="w-12 h-12" />
-                            </div>
-                        )}
-                    </Link>
-                )}
-                {post.categories?.[0] && (
-                    <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 bg-background/90 backdrop-blur-sm rounded-full text-[10px] font-black uppercase tracking-widest text-primary shadow-sm">
-                            {post.categories[0].name}
-                        </span>
-                    </div>
-                )}
-            </div>
-
-            <div className="p-6 flex-1 flex flex-col">
-                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
-                    <Calendar className="w-3 h-3" />
-                    {format(publishDate, "d MMM yyyy", { locale: id })}
-                </div>
-
-                <Link href={`/${post.slug}`} className="block">
-                    <h3 className="text-xl font-bold text-foreground leading-tight group-hover:text-primary transition-colors mb-3 items-start flex">
-                        {post.title}
-                    </h3>
-                </Link>
-
-                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-6">
-                    {post.excerpt}
-                </p>
-
-                <div className="mt-auto pt-4 border-t border-border flex items-center justify-between">
-                    <Link href={`/${post.slug}`} className="text-xs font-bold text-foreground inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-                        Baca Selengkapnya
-                        <ArrowRight className="w-3.5 h-3.5 text-primary" />
-                    </Link>
-                    <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-[10px] font-bold border border-background shrink-0">
-                            {post.author?.name?.charAt(0) || "A"}
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     );

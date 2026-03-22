@@ -1,8 +1,10 @@
 import { db } from "@/db";
 import { posts, users, terms, termRelationships, postRelationships } from "@/db/schema";
-import { eq, and, desc, inArray } from "drizzle-orm";
+import { eq, and, desc, inArray, count } from "drizzle-orm";
 import { activeTheme } from "@/lib/themes";
 import type { PostCardData } from "@/lib/themes";
+import { getCachedOption } from "@/lib/queries/options";
+import { unstable_cache } from "next/cache";
 
 const SinglePost = activeTheme.SinglePost;
 const SinglePage = activeTheme.SinglePage;
@@ -13,100 +15,42 @@ interface PublicPageProps {
     params: Promise<{ slug: string[] }>;
 }
 
-export async function generateMetadata({ params }: PublicPageProps) {
-    const { slug } = await params;
-    const fullSlug = slug.join("/");
+export const revalidate = 3600;
 
-    if (slug[0] === "category" || slug[0] === "tag") {
-        const [term] = await db
-            .select()
-            .from(terms)
-            .where(and(eq(terms.slug, slug[1]), eq(terms.taxonomy, slug[0])))
+// ─── Cached DB query functions ─────────────────────────────────────────
+
+const getCachedPost = unstable_cache(
+    async (slug: string) => {
+        const [post] = await db
+            .select({
+                id: posts.id,
+                title: posts.title,
+                slug: posts.slug,
+                content: posts.content,
+                excerpt: posts.excerpt,
+                status: posts.status,
+                type: posts.type,
+                featuredImage: posts.featuredImage,
+                createdAt: posts.createdAt,
+                updatedAt: posts.updatedAt,
+                author: {
+                    name: users.name,
+                    image: users.image,
+                },
+            })
+            .from(posts)
+            .leftJoin(users, eq(posts.authorId, users.id))
+            .where(
+                and(
+                    eq(posts.slug, slug),
+                    eq(posts.status, "published"),
+                    eq(posts.type, "post")
+                )
+            )
             .limit(1);
 
-        if (term) {
-            return {
-                title: term.name,
-                description: term.description,
-            };
-        }
-    }
+        if (!post) return null;
 
-    const [post] = await db
-        .select()
-        .from(posts)
-        .where(
-            and(
-                eq(posts.slug, fullSlug),
-                eq(posts.status, "published")
-            )
-        )
-        .limit(1);
-
-    if (post) {
-        return {
-            title: post.title,
-            description: post.excerpt,
-            openGraph: {
-                title: post.title,
-                description: post.excerpt || undefined,
-                images: post.featuredImage ? [post.featuredImage] : [],
-                type: post.type === "post" ? "article" : "website",
-            },
-            twitter: {
-                card: "summary_large_image",
-                title: post.title,
-                description: post.excerpt || undefined,
-                images: post.featuredImage ? [post.featuredImage] : [],
-            },
-        };
-    }
-
-    return {};
-}
-
-export default async function PublicPage({ params }: PublicPageProps) {
-    const { slug } = await params;
-    const fullSlug = slug.join("/");
-
-    // ── Category / Tag routes ──────────────────────────────────────────
-    if (slug[0] === "category" && slug[1]) {
-        return handleTaxonomy(slug[1], "category");
-    }
-    if (slug[0] === "tag" && slug[1]) {
-        return handleTaxonomy(slug[1], "tag");
-    }
-
-    // ── Try to find a Post ─────────────────────────────────────────────
-    const [post] = await db
-        .select({
-            id: posts.id,
-            title: posts.title,
-            slug: posts.slug,
-            content: posts.content,
-            excerpt: posts.excerpt,
-            status: posts.status,
-            type: posts.type,
-            featuredImage: posts.featuredImage,
-            createdAt: posts.createdAt,
-            updatedAt: posts.updatedAt,
-            author: {
-                name: users.name,
-                image: users.image,
-            },
-        })
-        .from(posts)
-        .leftJoin(users, eq(posts.authorId, users.id))
-        .where(
-            and(
-                eq(posts.slug, fullSlug),
-                eq(posts.status, "published"),
-                eq(posts.type, "post")
-            )
-        )
-        .limit(1);
-
-    if (post) {
         const allTerms = await db
             .select({
                 id: terms.id,
@@ -121,11 +65,9 @@ export default async function PublicPage({ params }: PublicPageProps) {
         const categories = allTerms.filter(t => t.taxonomy === "category").map(({ id, name, slug }) => ({ id, name, slug }));
         const tags = allTerms.filter(t => t.taxonomy === "tag").map(({ id, name, slug }) => ({ id, name, slug }));
 
-        // ── Fetch Related Posts (from explicit relationships) ──────────────
+        // Fetch Related Posts
         const explicitRelations = await db
-            .select({
-                relatedPostId: postRelationships.relatedPostId,
-            })
+            .select({ relatedPostId: postRelationships.relatedPostId })
             .from(postRelationships)
             .where(eq(postRelationships.postId, post.id));
 
@@ -155,103 +97,280 @@ export default async function PublicPage({ params }: PublicPageProps) {
                 .orderBy(desc(posts.createdAt))
                 .limit(3);
 
-            // Hydrate categories for PostCard
             relatedPosts = await Promise.all(
                 related.map(async (rp) => {
                     const rpCategories = await db
-                        .select({
-                            id: terms.id,
-                            name: terms.name,
-                            slug: terms.slug,
-                        })
+                        .select({ id: terms.id, name: terms.name, slug: terms.slug })
                         .from(termRelationships)
                         .innerJoin(terms, eq(termRelationships.termId, terms.id))
                         .where(and(eq(termRelationships.objectId, rp.id), eq(terms.taxonomy, "category")));
-
                     return { ...rp, categories: rpCategories };
                 })
             );
         }
 
-        return <SinglePost post={{ ...post, categories, tags }} relatedPosts={relatedPosts} />;
+        return { post: { ...post, categories, tags }, relatedPosts };
+    },
+    ["single-post"],
+    { revalidate: 3600, tags: ["posts"] }
+);
+
+const getCachedPage = unstable_cache(
+    async (slug: string) => {
+        const [page] = await db
+            .select({
+                id: posts.id,
+                title: posts.title,
+                slug: posts.slug,
+                content: posts.content,
+                excerpt: posts.excerpt,
+                featuredImage: posts.featuredImage,
+                createdAt: posts.createdAt,
+                updatedAt: posts.updatedAt,
+            })
+            .from(posts)
+            .where(
+                and(
+                    eq(posts.slug, slug),
+                    eq(posts.status, "published"),
+                    eq(posts.type, "page")
+                )
+            )
+            .limit(1);
+
+        return page || null;
+    },
+    ["single-page"],
+    { revalidate: 3600, tags: ["posts"] }
+);
+
+const getCachedMetadata = unstable_cache(
+    async (fullSlug: string, firstSegment: string, secondSegment?: string) => {
+        if (firstSegment === "category" || firstSegment === "tag") {
+            if (secondSegment) {
+                const [term] = await db
+                    .select()
+                    .from(terms)
+                    .where(and(eq(terms.slug, secondSegment), eq(terms.taxonomy, firstSegment)))
+                    .limit(1);
+                if (term) return { title: term.name, description: term.description };
+            }
+        }
+
+        const [post] = await db
+            .select()
+            .from(posts)
+            .where(and(eq(posts.slug, fullSlug), eq(posts.status, "published")))
+            .limit(1);
+
+        if (post) {
+            return {
+                title: post.title,
+                description: post.excerpt,
+                featuredImage: post.featuredImage,
+                type: post.type,
+            };
+        }
+
+        if (firstSegment === "archive") {
+            return { title: "Semua Artikel", description: "Jelajahi kumpulan berita dan artikel terbaru kami." };
+        }
+
+        return null;
+    },
+    ["page-metadata"],
+    { revalidate: 3600, tags: ["posts"] }
+);
+
+const getCachedTaxonomyPosts = unstable_cache(
+    async (slug: string, taxonomy: "category" | "tag", limit: number, offset: number) => {
+        const [term] = await db
+            .select()
+            .from(terms)
+            .where(and(eq(terms.slug, slug), eq(terms.taxonomy, taxonomy)))
+            .limit(1);
+
+        if (!term) return null;
+
+        const [{ value: total }] = await db
+            .select({ value: count() })
+            .from(termRelationships)
+            .innerJoin(posts, eq(termRelationships.objectId, posts.id))
+            .where(
+                and(
+                    eq(termRelationships.termId, term.id),
+                    eq(posts.status, "published"),
+                    eq(posts.type, "post")
+                )
+            );
+
+        const termPosts = await db
+            .select({
+                id: posts.id,
+                title: posts.title,
+                slug: posts.slug,
+                excerpt: posts.excerpt,
+                featuredImage: posts.featuredImage,
+                createdAt: posts.createdAt,
+            })
+            .from(termRelationships)
+            .innerJoin(posts, eq(termRelationships.objectId, posts.id))
+            .where(
+                and(
+                    eq(termRelationships.termId, term.id),
+                    eq(posts.status, "published"),
+                    eq(posts.type, "post")
+                )
+            )
+            .orderBy(desc(posts.createdAt))
+            .limit(limit)
+            .offset(offset);
+
+        const hydratedPosts = await Promise.all(
+            termPosts.map(async (p) => {
+                const categories = await db
+                    .select({ id: terms.id, name: terms.name, slug: terms.slug })
+                    .from(termRelationships)
+                    .innerJoin(terms, eq(termRelationships.termId, terms.id))
+                    .where(and(eq(termRelationships.objectId, p.id), eq(terms.taxonomy, "category")));
+                return { ...p, categories };
+            })
+        );
+
+        return { term, total, hydratedPosts };
+    },
+    ["taxonomy-posts"],
+    { revalidate: 3600, tags: ["posts"] }
+);
+
+const getCachedArchivePosts = unstable_cache(
+    async (limit: number, offset: number) => {
+        const [{ value: total }] = await db
+            .select({ value: count() })
+            .from(posts)
+            .where(and(eq(posts.status, "published"), eq(posts.type, "post")));
+
+        const allPosts = await db
+            .select({
+                id: posts.id,
+                title: posts.title,
+                slug: posts.slug,
+                excerpt: posts.excerpt,
+                featuredImage: posts.featuredImage,
+                createdAt: posts.createdAt,
+            })
+            .from(posts)
+            .where(and(eq(posts.status, "published"), eq(posts.type, "post")))
+            .orderBy(desc(posts.createdAt))
+            .limit(limit)
+            .offset(offset);
+
+        const hydratedPosts = await Promise.all(
+            allPosts.map(async (p) => {
+                const categories = await db
+                    .select({ id: terms.id, name: terms.name, slug: terms.slug })
+                    .from(termRelationships)
+                    .innerJoin(terms, eq(termRelationships.termId, terms.id))
+                    .where(and(eq(termRelationships.objectId, p.id), eq(terms.taxonomy, "category")));
+                return { ...p, categories };
+            })
+        );
+
+        return { total, hydratedPosts };
+    },
+    ["archive-posts"],
+    { revalidate: 3600, tags: ["posts"] }
+);
+
+// ─── Metadata ──────────────────────────────────────────────────────────
+
+export async function generateMetadata({ params }: PublicPageProps) {
+    const { slug } = await params;
+    const fullSlug = slug.join("/");
+    const meta = await getCachedMetadata(fullSlug, slug[0], slug[1]);
+
+    if (!meta) return {};
+
+    const result: Record<string, unknown> = {
+        title: meta.title,
+        description: meta.description,
+    };
+
+    if ("featuredImage" in meta && meta.featuredImage) {
+        result.openGraph = {
+            title: meta.title,
+            description: meta.description || undefined,
+            images: [meta.featuredImage],
+            type: meta.type === "post" ? "article" : "website",
+        };
+        result.twitter = {
+            card: "summary_large_image",
+            title: meta.title,
+            description: meta.description || undefined,
+            images: [meta.featuredImage],
+        };
     }
 
-    // ── Try to find a Page ─────────────────────────────────────────────
-    const [page] = await db
-        .select({
-            id: posts.id,
-            title: posts.title,
-            slug: posts.slug,
-            content: posts.content,
-            excerpt: posts.excerpt,
-            featuredImage: posts.featuredImage,
-            createdAt: posts.createdAt,
-            updatedAt: posts.updatedAt,
-        })
-        .from(posts)
-        .where(
-            and(
-                eq(posts.slug, fullSlug),
-                eq(posts.status, "published"),
-                eq(posts.type, "page")
-            )
-        )
-        .limit(1);
+    return result;
+}
 
+// ─── Page Component ────────────────────────────────────────────────────
+
+export default async function PublicPage(props: PublicPageProps) {
+    const params = await props.params;
+    const rawSlug = params.slug;
+
+    // Extract page number if present
+    let pageNum = 1;
+    let slug = [...rawSlug];
+    const pageIndex = slug.lastIndexOf("page");
+    if (pageIndex !== -1 && pageIndex === slug.length - 2) {
+        const parsedPage = parseInt(slug[slug.length - 1]!, 10);
+        if (!isNaN(parsedPage) && parsedPage > 0) {
+            pageNum = parsedPage;
+            slug = slug.slice(0, pageIndex);
+        }
+    }
+
+    const fullSlug = slug.join("/");
+
+    const postsPerPageStr = await getCachedOption("posts_per_page") || "12";
+    const limit = parseInt(postsPerPageStr, 10) || 12;
+    const offset = Math.max(0, (pageNum - 1) * limit);
+
+    // ── Category / Tag routes
+    if (slug[0] === "category" && slug[1]) {
+        const data = await getCachedTaxonomyPosts(slug[1], "category", limit, offset);
+        if (!data) return <NotFoundComponent />;
+        const totalPages = Math.ceil(data.total / limit);
+        return <Archive title={data.term.name} description={data.term.description || ""} posts={data.hydratedPosts} pagination={{ currentPage: pageNum, totalPages, basePath: `/category/${slug[1]}` }} />;
+    }
+    if (slug[0] === "tag" && slug[1]) {
+        const data = await getCachedTaxonomyPosts(slug[1], "tag", limit, offset);
+        if (!data) return <NotFoundComponent />;
+        const totalPages = Math.ceil(data.total / limit);
+        return <Archive title={data.term.name} description={data.term.description || ""} posts={data.hydratedPosts} pagination={{ currentPage: pageNum, totalPages, basePath: `/tag/${slug[1]}` }} />;
+    }
+
+    // ── Archive Route
+    if (slug[0] === "archive" && slug.length === 1) {
+        const data = await getCachedArchivePosts(limit, offset);
+        const totalPages = Math.ceil(data.total / limit);
+        return <Archive title="Semua Artikel" description="Jelajahi kumpulan berita dan artikel yang telah kami terbitkan." posts={data.hydratedPosts} pagination={{ currentPage: pageNum, totalPages, basePath: "/archive" }} />;
+    }
+
+    // ── Try to find a Post
+    const postData = await getCachedPost(fullSlug);
+    if (postData) {
+        return <SinglePost post={postData.post} relatedPosts={postData.relatedPosts} />;
+    }
+
+    // ── Try to find a Page
+    const page = await getCachedPage(fullSlug);
     if (page) {
         return <SinglePage page={page} />;
     }
 
-    // ── Not Found ──────────────────────────────────────────────────────
+    // ── Not Found
     return <NotFoundComponent />;
-}
-
-async function handleTaxonomy(slug: string, taxonomy: "category" | "tag") {
-    const [term] = await db
-        .select()
-        .from(terms)
-        .where(and(eq(terms.slug, slug), eq(terms.taxonomy, taxonomy)))
-        .limit(1);
-
-    if (!term) {
-        return <NotFoundComponent />;
-    }
-
-    const termPosts = await db
-        .select({
-            id: posts.id,
-            title: posts.title,
-            slug: posts.slug,
-            excerpt: posts.excerpt,
-            featuredImage: posts.featuredImage,
-            createdAt: posts.createdAt,
-        })
-        .from(termRelationships)
-        .innerJoin(posts, eq(termRelationships.objectId, posts.id))
-        .where(
-            and(
-                eq(termRelationships.termId, term.id),
-                eq(posts.status, "published"),
-                eq(posts.type, "post")
-            )
-        )
-        .orderBy(desc(posts.createdAt));
-
-    const hydratedPosts = await Promise.all(
-        termPosts.map(async (p) => {
-            const categories = await db
-                .select({
-                    id: terms.id,
-                    name: terms.name,
-                    slug: terms.slug,
-                })
-                .from(termRelationships)
-                .innerJoin(terms, eq(termRelationships.termId, terms.id))
-                .where(and(eq(termRelationships.objectId, p.id), eq(terms.taxonomy, "category")));
-
-            return { ...p, categories };
-        })
-    );
-
-    return <Archive title={term.name} description={term.description || ""} posts={hydratedPosts} />;
 }

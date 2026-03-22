@@ -18,7 +18,8 @@ export default async function SettingsPage() {
         "telegram_chat_id",
         "telegram_notify_post",
         "telegram_notify_user",
-        "ga_measurement_id"
+        "ga_measurement_id",
+        "posts_per_page"
     ]);
 
     return (
@@ -43,6 +44,7 @@ export default async function SettingsPage() {
                         siteTitle={settings.site_title || ""}
                         siteTagline={settings.site_tagline || ""}
                         siteUrl={settings.site_url || ""}
+                        postsPerPage={settings.posts_per_page || "12"}
                     />
                 </TabsContent>
 

@@ -80,7 +80,7 @@ export async function renameUser(id: string, newName: string) {
             .where(eq(users.id, id));
         revalidatePath("/admin/users");
         return { success: true };
-    } catch (error) {
+    } catch {
         return { error: "Failed to rename user" };
     }
 }
@@ -98,7 +98,7 @@ export async function deleteUser(id: string) {
         await db.delete(users).where(eq(users.id, id));
         revalidatePath("/admin/users");
         return { success: true };
-    } catch (error) {
+    } catch {
         return { error: "Failed to delete user" };
     }
 }
