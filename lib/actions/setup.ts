@@ -6,6 +6,7 @@ import { options } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import fs from "fs";
 import path from "path";
 
@@ -89,6 +90,9 @@ export async function bootstrapDatabase(formData: FormData) {
     seedSqlContent = seedSqlContent.replace(/__SUPER_USER_ID__/g, "(SELECT id FROM users WHERE role = 'super_user' LIMIT 1)");
 
     await execSqlFile(seedSqlContent);
+
+    // Invalidate all cached data so stale null values are cleared
+    revalidatePath("/", "layout");
 
     // Set initialization cookie for middleware
     const cookieStore = await cookies();
