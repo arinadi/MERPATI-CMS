@@ -34,12 +34,10 @@ export default async function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
-    // /setup page — handle BEFORE auth() to avoid DB crash when tables don't exist
+    // /setup page — always let through, no auth/cookie check needed.
+    // The setup page itself handles "already initialized" via checkInitialized().
+    // This prevents redirect loops when DB is deleted but cookie still exists.
     if (pathname === "/setup") {
-        const isInitialized = req.cookies.get("merpati_initialized")?.value === "true";
-        if (isInitialized) {
-            return NextResponse.redirect(new URL("/", req.url));
-        }
         return NextResponse.next();
     }
 
