@@ -129,19 +129,17 @@ export async function deleteTerm(id: string) {
 
 export async function syncPostTerms(postId: string, termIds: string[]) {
     try {
-        await db.transaction(async (tx) => {
-            // Delete all existing relationships for this post
-            await tx.delete(termRelationships).where(eq(termRelationships.objectId, postId));
+        // Delete all existing relationships for this post
+        await db.delete(termRelationships).where(eq(termRelationships.objectId, postId));
 
-            // Insert new relationships
-            if (termIds.length > 0) {
-                const newRelations = termIds.map(termId => ({
-                    objectId: postId,
-                    termId,
-                }));
-                await tx.insert(termRelationships).values(newRelations);
-            }
-        });
+        // Insert new relationships
+        if (termIds.length > 0) {
+            const newRelations = termIds.map(termId => ({
+                objectId: postId,
+                termId,
+            }));
+            await db.insert(termRelationships).values(newRelations);
+        }
         return { success: true };
     } catch (error) {
         console.error("Failed to sync post terms:", error);

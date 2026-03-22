@@ -68,25 +68,22 @@ export interface SaveMenuItemInput {
 
 export async function saveMenuItems(menuId: string, items: SaveMenuItemInput[]) {
     try {
-        // Simple approach: delete all current items and re-insert
-        // A more robust approach would be to calculate diffs, but for V1 this is safer
-        await db.transaction(async (tx) => {
-            await tx.delete(menuItems).where(eq(menuItems.menuId, menuId));
+        // Delete all current items and re-insert (no transactions in neon-http)
+        await db.delete(menuItems).where(eq(menuItems.menuId, menuId));
 
-            if (items.length > 0) {
-                await tx.insert(menuItems).values(
-                    items.map((item, index) => ({
-                        menuId,
-                        title: item.title,
-                        url: item.url,
-                        objectId: item.objectId,
-                        type: item.type,
-                        parentId: item.parentId,
-                        sortOrder: index,
-                    }))
-                );
-            }
-        });
+        if (items.length > 0) {
+            await db.insert(menuItems).values(
+                items.map((item, index) => ({
+                    menuId,
+                    title: item.title,
+                    url: item.url,
+                    objectId: item.objectId,
+                    type: item.type,
+                    parentId: item.parentId,
+                    sortOrder: index,
+                }))
+            );
+        }
 
         revalidatePath("/admin/menus");
         return { success: true as const };
