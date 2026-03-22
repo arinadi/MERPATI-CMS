@@ -91,7 +91,7 @@ export function AdminHeader({ userName, userEmail, userImage }: AdminHeaderProps
             </Breadcrumb>
 
             {/* Date */}
-            <span className="hidden text-xs text-muted-foreground md:block">
+            <span className="hidden text-xs text-muted-foreground md:block" suppressHydrationWarning>
                 {formattedDate}
             </span>
 

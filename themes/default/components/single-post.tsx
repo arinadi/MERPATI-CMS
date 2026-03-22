@@ -83,7 +83,7 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
 
                         {/* 3. Article Body */}
                         <div 
-                            className="prose prose-lg prose-invert max-w-none hover:prose-a:text-blue-400 prose-a:text-blue-500 prose-a:font-semibold prose-a:no-underline prose-headings:font-bold prose-headings:tracking-tight prose-img:rounded-2xl prose-img:shadow-xl"
+                            className="article-body max-w-none"
                             dangerouslySetInnerHTML={{ __html: post.content || "" }}
                         />
 

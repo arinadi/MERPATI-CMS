@@ -31,10 +31,7 @@ export default function SinglePage({ page }: SinglePageProps) {
                     )}
                     
                     <div 
-                        className="prose prose-lg prose-invert max-w-none mx-auto
-                            hover:prose-a:text-blue-400 prose-a:text-blue-500 prose-a:font-semibold prose-a:no-underline 
-                            prose-headings:font-bold prose-headings:tracking-tight 
-                            prose-img:rounded-2xl prose-img:shadow-xl prose-hr:border-white/10"
+                        className="article-body max-w-none mx-auto"
                         dangerouslySetInnerHTML={{ __html: page.content || "" }}
                     />
                 </div>
