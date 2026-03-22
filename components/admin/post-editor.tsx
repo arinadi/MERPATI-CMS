@@ -32,6 +32,7 @@ import {
     Settings,
     ChevronLeft,
     Youtube,
+    ExternalLink,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -528,6 +529,21 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                     )}
                 </Button>
 
+                {/* Visit button */}
+                {postId && (
+                    <Button
+                        type="button"
+                        variant="outline"
+                        asChild
+                        className="w-full"
+                    >
+                        <a href={`/${slug}`} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Visit
+                        </a>
+                    </Button>
+                )}
+
                 {/* Delete button */}
                 {postId && (
                     <Button
@@ -979,6 +995,16 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                             </>
                         )}
                     </Button>
+
+                    {/* Visit button (Mobile) */}
+                    {postId && (
+                        <Button variant="outline" size="icon" className="h-11 w-11" asChild>
+                            <a href={`/${slug}`} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="h-5 w-5" />
+                                <span className="sr-only">Visit</span>
+                            </a>
+                        </Button>
+                    )}
 
                     {/* Settings Sheet Trigger (Mobile) */}
                     <Sheet open={isMetadataSheetOpen} onOpenChange={setIsMetadataSheetOpen}>

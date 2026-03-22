@@ -13,6 +13,7 @@ import {
     Settings,
     Menu as MenuIcon,
     DatabaseZap,
+    ExternalLink,
 } from "lucide-react";
 
 import {
@@ -39,6 +40,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
     { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { title: "Visit Site", href: "/", icon: ExternalLink },
     { title: "Posts", href: "/admin/posts", icon: FileText },
     { title: "Categories", href: "/admin/categories", icon: FolderTree },
     { title: "Tags", href: "/admin/tags", icon: Tags },
@@ -79,6 +81,8 @@ export function AppSidebar({ userRole }: { userRole?: string | null }) {
                                 const isActive =
                                     item.href === "/admin"
                                         ? pathname === "/admin"
+                                        : item.href === "/"
+                                        ? false
                                         : pathname.startsWith(item.href);
 
                                 return (
@@ -88,7 +92,7 @@ export function AppSidebar({ userRole }: { userRole?: string | null }) {
                                             isActive={isActive}
                                             tooltip={item.title}
                                         >
-                                            <Link href={item.href}>
+                                            <Link href={item.href} target={item.href === "/" ? "_blank" : undefined}>
                                                 <item.icon className="h-4 w-4" />
                                                 <span>{item.title}</span>
                                             </Link>
