@@ -1,5 +1,7 @@
 "use client";
 
+import "../theme.css";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
