@@ -32,21 +32,35 @@ export async function bootstrapDatabase(formData: FormData) {
 
     const sql = neon(process.env.DATABASE_URL!);
 
-    // Helper: split SQL into individual statements (respects $$ blocks)
+    // Helper: split SQL into individual statements
+    // Respects $$ blocks AND single-quoted strings (multi-line content)
+    // Skips SQL comments (--) when tracking quote state
     async function execSqlFile(sqlContent: string) {
         const statements: string[] = [];
         let current = "";
         let inDollarBlock = false;
+        let inString = false;
 
         for (const line of sqlContent.split("\n")) {
             const trimmed = line.trim();
-            if (!inDollarBlock && trimmed.startsWith("DO $$")) inDollarBlock = true;
+            if (!inDollarBlock && !inString && trimmed.startsWith("DO $$")) inDollarBlock = true;
             current += line + "\n";
+
+            // Track whether we're inside a single-quoted SQL string
+            // Skip comment lines — they can contain apostrophes that break tracking
+            if (!inDollarBlock && !trimmed.startsWith("--")) {
+                const withoutEscaped = line.replace(/''/g, "");
+                const quoteCount = (withoutEscaped.match(/'/g) || []).length;
+                if (quoteCount % 2 !== 0) {
+                    inString = !inString;
+                }
+            }
+
             if (inDollarBlock && trimmed.endsWith("$$;")) {
                 inDollarBlock = false;
                 statements.push(current.trim());
                 current = "";
-            } else if (!inDollarBlock && trimmed.endsWith(";")) {
+            } else if (!inDollarBlock && !inString && trimmed.endsWith(";")) {
                 statements.push(current.trim());
                 current = "";
             }

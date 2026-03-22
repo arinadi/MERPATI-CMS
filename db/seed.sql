@@ -92,12 +92,12 @@ INSERT INTO posts (id, title, slug, content, excerpt, status, type, author_id, f
             .select({ value: options.value })
             .from(options)
             .where(eq(options.key, key))
-            .limit(1);
-        return result[0]?.value ?? null;
+            .limit(1)&#59;
+        return result[0]?.value ?? null&#59;
     },
     ["site-option"],
     { revalidate: 3600, tags: ["site-options"] }
-);</code></pre>
+)&#59;</code></pre>
 
 <hr>
 <p>Mulailah menulis dan berbagi cerita Anda dengan dunia. Kunjungi <a href="/admin">dashboard admin</a> untuk mulai membuat konten.</p>',
@@ -142,11 +142,11 @@ INSERT INTO posts (id, title, slug, content, excerpt, status, type, author_id, f
 
 <h3>Implementasi di MERPATI</h3>
 <p>MERPATI CMS menggunakan <code>Neon Serverless Postgres</code> sebagai database utama. Koneksi dilakukan melalui HTTP, bukan TCP, sehingga setiap request adalah stateless:</p>
-<pre><code>import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+<pre><code>import { neon } from "@neondatabase/serverless"&#59;
+import { drizzle } from "drizzle-orm/neon-http"&#59;
 
-const sql = neon(process.env.DATABASE_URL!);
-export const db = drizzle(sql);</code></pre>
+const sql = neon(process.env.DATABASE_URL!)&#59;
+export const db = drizzle(sql)&#59;</code></pre>
 
 <p>Merpati CMS dibangun tepat di atas filosofi ini, memastikan <em>kebebasan pers dimulai dari kebebasan infrastruktur</em>.</p>',
 'Meninggalkan server tradisional dan beralih ke arsitektur serverless memberikan kebebasan luar biasa bagi penerbit independen tanpa biaya hosting.',
@@ -185,9 +185,9 @@ module.exports = {
         destination: "/media/:path*",
         permanent: true,
       },
-    ];
+    ]&#59;
   },
-};</code></pre>
+}&#59;</code></pre>
 
 <p>Proses migrasi ke Merpati CMS telah disederhanakan melalui skrip import yang secara otomatis mengonversi format <code>wp_posts</code> menjadi struktur yang ramah SEO.</p>',
 'Langkah demi langkah memindahkan ribuan artikel dari WordPress ke Merpati CMS tanpa kehilangan ranking SEO.',
@@ -251,13 +251,13 @@ module.exports = {
 
 <h3>Contoh Responsive Typography</h3>
 <pre><code>.article-body {
-  font-size: 1.125rem;     /* 18px - nyaman di mobile */
-  line-height: 1.9;        /* Longgar untuk keterbacaan */
+  font-size: 1.125rem&#59;     /* 18px - nyaman di mobile */
+  line-height: 1.9&#59;        /* Longgar untuk keterbacaan */
 }
 
 .article-body h2 {
-  font-size: clamp(1.5rem, 4vw, 2rem);
-  margin-top: 2em;
+  font-size: clamp(1.5rem, 4vw, 2rem)&#59;
+  margin-top: 2em&#59;
 }</code></pre>
 
 <blockquote><p>Dashboard penulisan dan antarmuka pembaca dirancang dengan pendekatan mobile-first. Anda bisa menulis, mengedit, dan menerbitkan langsung dari smartphone.</p></blockquote>
@@ -340,7 +340,7 @@ export const getCacheTimestamp = unstable_cache(
     async () => new Date().toISOString(),
     ["cache-timestamp"],
     { revalidate: 3600, tags: ["site-options", "posts"] }
-);</code></pre>
+)&#59;</code></pre>
 
 <blockquote><p>Dengan MERPATI CMS, setiap halaman publik di-cache selama 1 jam. Response time rata-rata hanya 90ms setelah cache terbentuk — 16x lebih cepat dari request pertama.</p></blockquote>
 
