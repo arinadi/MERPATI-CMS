@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
  * that database tables don't exist (fresh install / DB reset).
  */
 function isDbMissingError(error: unknown): boolean {
-    const patterns = ["does not exist", "42P01", "relation"];
+    const patterns = ["does not exist", "42P01"];
     let current: unknown = error;
     while (current) {
         const msg = current instanceof Error

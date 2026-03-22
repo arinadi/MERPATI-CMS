@@ -34,13 +34,7 @@ export default async function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
-    // ─── From here on, we need auth. Dynamically import to avoid
-    //     loading auth module for public routes. ───────────────────────
-    const { auth } = await import("@/auth");
-    const session = await auth();
-    const isAuthenticated = !!session;
-
-    // /setup page
+    // /setup page — handle BEFORE auth() to avoid DB crash when tables don't exist
     if (pathname === "/setup") {
         const isInitialized = req.cookies.get("merpati_initialized")?.value === "true";
         if (isInitialized) {
@@ -48,6 +42,12 @@ export default async function middleware(req: NextRequest) {
         }
         return NextResponse.next();
     }
+
+    // ─── From here on, we need auth. Dynamically import to avoid
+    //     loading auth module for public routes. ───────────────────────
+    const { auth } = await import("@/auth");
+    const session = await auth();
+    const isAuthenticated = !!session;
 
     // If not initialized, redirect /admin to check-init API
     const isInitialized = req.cookies.get("merpati_initialized")?.value === "true";
