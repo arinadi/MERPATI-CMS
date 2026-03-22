@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { posts, users, terms, termRelationships, postRelationships } from "@/db/schema";
-import { eq, and, desc, inArray, count } from "drizzle-orm";
+import { eq, and, desc, inArray, count, ilike, or } from "drizzle-orm";
 import { activeTheme } from "@/lib/themes";
 import type { PostCardData } from "@/lib/themes";
 import { getCachedOption } from "@/lib/queries/options";
@@ -282,6 +282,67 @@ const getCachedArchivePosts = unstable_cache(
     { revalidate: 3600, tags: ["posts"] }
 );
 
+const getCachedSearchResults = unstable_cache(
+    async (query: string, limit: number, offset: number) => {
+        const searchPattern = `%${query}%`;
+
+        const [{ value: total }] = await db
+            .select({ value: count() })
+            .from(posts)
+            .where(
+                and(
+                    eq(posts.status, "published"),
+                    eq(posts.type, "post"),
+                    or(
+                        ilike(posts.title, searchPattern),
+                        ilike(posts.excerpt, searchPattern),
+                        ilike(posts.content, searchPattern)
+                    )
+                )
+            );
+
+        const results = await db
+            .select({
+                id: posts.id,
+                title: posts.title,
+                slug: posts.slug,
+                excerpt: posts.excerpt,
+                featuredImage: posts.featuredImage,
+                createdAt: posts.createdAt,
+            })
+            .from(posts)
+            .where(
+                and(
+                    eq(posts.status, "published"),
+                    eq(posts.type, "post"),
+                    or(
+                        ilike(posts.title, searchPattern),
+                        ilike(posts.excerpt, searchPattern),
+                        ilike(posts.content, searchPattern)
+                    )
+                )
+            )
+            .orderBy(desc(posts.createdAt))
+            .limit(limit)
+            .offset(offset);
+
+        const hydratedPosts = await Promise.all(
+            results.map(async (p) => {
+                const categories = await db
+                    .select({ id: terms.id, name: terms.name, slug: terms.slug })
+                    .from(termRelationships)
+                    .innerJoin(terms, eq(termRelationships.termId, terms.id))
+                    .where(and(eq(termRelationships.objectId, p.id), eq(terms.taxonomy, "category")));
+                return { ...p, categories };
+            })
+        );
+
+        return { total, hydratedPosts };
+    },
+    ["search-results"],
+    { revalidate: 3600, tags: ["posts"] }
+);
+
 // ─── Metadata ──────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: PublicPageProps) {
@@ -357,6 +418,14 @@ export default async function PublicPage(props: PublicPageProps) {
         const data = await getCachedArchivePosts(limit, offset);
         const totalPages = Math.ceil(data.total / limit);
         return <Archive title="Semua Artikel" description="Jelajahi kumpulan berita dan artikel yang telah kami terbitkan." posts={data.hydratedPosts} pagination={{ currentPage: pageNum, totalPages, basePath: "/archive" }} />;
+    }
+
+    // ── Search Route
+    if (slug[0] === "search" && slug[1]) {
+        const query = decodeURIComponent(slug[1]);
+        const data = await getCachedSearchResults(query, limit, offset);
+        const totalPages = Math.ceil(data.total / limit);
+        return <Archive title={`Hasil pencarian untuk: "${query}"`} description={`Ditemukan ${data.total} artikel`} posts={data.hydratedPosts} pagination={totalPages > 1 ? { currentPage: pageNum, totalPages, basePath: `/search/${slug[1]}` } : undefined} />;
     }
 
     // ── Try to find a Post

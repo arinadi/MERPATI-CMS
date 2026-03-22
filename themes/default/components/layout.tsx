@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import Link from "next/link";
 import {
     Mail,
@@ -65,6 +68,18 @@ export default function ThemeLayout({
     footerMenu,
     cacheId
 }: ThemeLayoutProps) {
+    const [searchQuery, setSearchQuery] = useState("");
+    const router = useRouter();
+
+    function handleSearch(e: React.FormEvent) {
+        e.preventDefault();
+        const q = searchQuery.trim();
+        if (q) {
+            router.push(`/search/${encodeURIComponent(q)}`);
+            setSearchQuery("");
+        }
+    }
+
     return (
         <div className="flex flex-col min-h-screen bg-[#0B1120] font-sans text-gray-300 selection:bg-blue-500/30 selection:text-blue-200">
             {/* Navigation Header */}
@@ -89,12 +104,16 @@ export default function ThemeLayout({
 
                     <div className="flex items-center gap-3">
                         <div className="relative hidden md:block w-56 lg:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                            <input 
-                                type="text"
-                                placeholder="Cari artikel..." 
-                                className="w-full bg-[#1E293B] border border-white/5 rounded-full py-2 pl-10 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-inner"
-                            />
+                            <form onSubmit={handleSearch}>
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                <input 
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Cari artikel..." 
+                                    className="w-full bg-[#1E293B] border border-white/5 rounded-full py-2 pl-10 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-inner"
+                                />
+                            </form>
                         </div>
                         <button className="md:hidden p-2 -mr-2 text-gray-300 hover:text-white transition-colors">
                             <Menu className="w-6 h-6" />
