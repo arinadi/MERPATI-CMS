@@ -16,7 +16,7 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
                     {post.title}
                 </h1>
                 {post.excerpt && (
-                    <p className="mt-4 md:mt-8 text-lg md:text-xl font-light text-gray-400 max-w-3xl mx-auto leading-relaxed">
+                    <p className="hidden md:block mt-4 md:mt-8 text-lg md:text-xl font-light text-gray-400 max-w-3xl mx-auto leading-relaxed">
                         {post.excerpt}
                     </p>
                 )}

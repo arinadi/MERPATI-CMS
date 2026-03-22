@@ -172,6 +172,30 @@ Since layouts typically contain state (mobile menu toggle, scroll effects, etc.)
 
 Unless there is a specific reason (interactivity), leave other components as Server Components (without `"use client"`).
 
+### 6. Search Must Navigate to `/search/{query}`
+
+The search input in the layout MUST be wrapped in a `<form>` with an `onSubmit` handler that uses `useRouter` to navigate:
+
+```tsx
+const [searchQuery, setSearchQuery] = useState("");
+const router = useRouter();
+
+function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (q) {
+        router.push(`/search/${encodeURIComponent(q)}`);
+        setSearchQuery("");
+    }
+}
+```
+
+The `[...slug]` catch-all route handles `/search/{query}` and renders results via the `Archive` component. Search uses `ilike` for full-text matching on title, excerpt, and content.
+
+> [!NOTE]
+> Search results are also cached via `unstable_cache` with tag `posts`.
+> Clearing cache will refresh search results too.
+
 ---
 
 ## Data Architecture & Cache Flow
@@ -189,10 +213,11 @@ app/(public)/layout.tsx
     └── render ThemeLayout
          ↓
 app/(public)/[...slug]/page.tsx
-    ├── getCachedPost()          ← unstable_cache, tag: posts
-    ├── getCachedPage()          ← unstable_cache, tag: posts
-    ├── getCachedArchivePosts()  ← unstable_cache, tag: posts
-    ├── getCachedTaxonomyPosts() ← unstable_cache, tag: posts
+    ├── getCachedPost()            ← unstable_cache, tag: posts
+    ├── getCachedPage()            ← unstable_cache, tag: posts
+    ├── getCachedArchivePosts()    ← unstable_cache, tag: posts
+    ├── getCachedTaxonomyPosts()   ← unstable_cache, tag: posts
+    ├── getCachedSearchResults()   ← unstable_cache, tag: posts
     └── render SinglePost / SinglePage / Archive / NotFound
 ```
 
@@ -241,6 +266,20 @@ bash /tmp/cache_benchmark.sh
 
 ---
 
+## URL Routes Handled by `[...slug]`
+
+| URL Pattern | Handler | Component |
+|---|---|---|
+| `/{post-slug}` | `getCachedPost()` | `SinglePost` |
+| `/{page-slug}` | `getCachedPage()` | `SinglePage` |
+| `/archive` | `getCachedArchivePosts()` | `Archive` |
+| `/archive/page/2` | `getCachedArchivePosts()` | `Archive` (page 2) |
+| `/category/{slug}` | `getCachedTaxonomyPosts()` | `Archive` |
+| `/tag/{slug}` | `getCachedTaxonomyPosts()` | `Archive` |
+| `/search/{query}` | `getCachedSearchResults()` | `Archive` |
+
+---
+
 ## New Theme Checklist
 
 - [ ] All 6 components exported from `index.tsx`
@@ -249,6 +288,7 @@ bash /tmp/cache_benchmark.sh
 - [ ] `next/image` is not used
 - [ ] `new Date()` is not used in any component
 - [ ] Pagination is path-based (`/page/X`), not query params
+- [ ] Search form navigates to `/search/{query}` on Enter
 - [ ] Layout is marked `"use client"`
 - [ ] No hydration mismatches (test on a production build)
 - [ ] Build runs without errors (`npm run build`)
