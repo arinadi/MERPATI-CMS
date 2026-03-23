@@ -10,6 +10,10 @@
 **Media Editorial Ringkas, Praktis, Aman, Tetap Independen**
 > *"Press freedom starts with infrastructure independence."*
 
+🌍 **Live Demos:**
+- [Default Theme Demo](https://merpati-cms.vercel.app/)
+- [Portfolio Theme Demo](https://arinano.work/)
+
 MERPATI is a radical, high-performance publishing platform designed to eliminate hosting costs while delivering a premium WordPress-like experience. Built for the serverless era, it runs entirely on the **Vercel Free Tier** using a single-endpoint architecture.
 
 ---
