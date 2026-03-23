@@ -67,32 +67,32 @@ export default function Home({ posts }: ArchiveProps) {
 
             {/* List Section (4 Items) */}
             {listPosts.length > 0 && (
-                <section className="container mx-auto px-4 mb-20 max-w-5xl">
-                    <div className="flex flex-col gap-6 lg:gap-8">
+                <section className="container mx-auto px-4 mb-20">
+                    <div className="flex flex-col gap-12 lg:gap-16">
                         {listPosts.map((post) => (
-                            <Link key={post.id} href={`/${post.slug}`} className="group flex flex-col md:flex-row items-center md:items-start gap-6 lg:gap-8 p-4 md:p-6 rounded-3xl bg-[#1E293B]/30 hover:bg-[#1E293B]/80 border border-transparent hover:border-white/5 transition-all">
-                                <div className="w-full md:w-[320px] lg:w-[400px] aspect-[16/10] shrink-0 rounded-2xl overflow-hidden relative shadow-md">
+                            <Link key={post.id} href={`/${post.slug}`} className="group flex flex-col md:flex-row items-center md:items-start gap-6 lg:gap-12 transition-all">
+                                <div className="w-full md:w-[45%] lg:w-[40%] aspect-[16/10] shrink-0 rounded-2xl overflow-hidden relative shadow-lg">
                                     {post.featuredImage ? (
-                                        <FeaturedMedia src={post.featuredImage} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        <FeaturedMedia src={post.featuredImage} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                     ) : (
                                         <div className="w-full h-full bg-[#0F172A] flex items-center justify-center text-white/5">
-                                            <ImageIcon className="w-10 h-10" />
+                                            <ImageIcon className="w-12 h-12" />
                                         </div>
                                     )}
                                 </div>
-                                <div className="flex flex-col flex-1 py-1 md:py-3 justify-center h-full">
+                                <div className="flex flex-col flex-1 py-2 md:py-6 justify-center h-full">
                                     {post.categories?.[0] && (
-                                        <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-[#38BDF8] mb-3 block">
+                                        <span className="text-sm font-bold uppercase tracking-widest text-[#38BDF8] mb-4 block">
                                             {post.categories[0].name}
                                         </span>
                                     )}
-                                    <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-100 group-hover:text-white leading-snug mb-4 transition-colors">
+                                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-100 group-hover:text-blue-400 leading-tight mb-5 transition-colors">
                                         {post.title}
                                     </h3>
-                                    <p className="text-base md:text-lg text-gray-400 leading-relaxed line-clamp-2 md:line-clamp-3 mb-6">
+                                    <p className="text-lg text-gray-400 leading-relaxed line-clamp-2 md:line-clamp-3 mb-6">
                                         {post.excerpt}
                                     </p>
-                                    <div className="flex items-center gap-3 text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest mt-auto">
+                                    <div className="flex items-center gap-3 text-sm font-medium text-gray-500 mt-auto">
                                         {format(new Date(post.createdAt || new Date()), "d MMM yyyy", { locale: id })}
                                     </div>
                                 </div>
