@@ -1,11 +1,24 @@
+import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { getOption } from "@/lib/actions/options";
 
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppSidebar } from "@/components/admin/app-sidebar";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { Toaster } from "sonner";
+
+export async function generateMetadata(): Promise<Metadata> {
+    const siteTitle = await getOption("site_title");
+    const name = siteTitle || "MERPATI CMS";
+    return {
+        title: {
+            template: `%s | ${name} - MERPATI CMS`,
+            default: `${name} - MERPATI CMS`,
+        },
+    };
+}
 
 export default async function AdminLayout({
     children,
