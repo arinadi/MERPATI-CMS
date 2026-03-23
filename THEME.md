@@ -53,6 +53,50 @@ ACTIVE_THEME=your-theme
 
 ---
 
+## Theme Options
+
+Themes can define custom settings (Theme Options) that users can configure in the admin panel. These are useful for hero text, CTA links, or selecting featured posts.
+
+To define Theme Options, export an `options` array from your theme's `index.tsx`:
+
+```tsx
+import { ThemeOptionField } from "@/lib/themes";
+
+export const options: ThemeOptionField[] = [
+    {
+        id: "theme_mytheme_jumbo_text",
+        label: "Jumbo Text",
+        type: "text",
+        description: "Large text on the homepage.",
+    },
+    {
+        id: "theme_mytheme_featured_post",
+        label: "Featured Post",
+        type: "post",
+    }
+];
+```
+
+Supported types: `"text" | "textarea" | "number" | "url" | "select" | "post" | "image"`.
+
+Inside your Server Components (e.g., `Home`), fetch these options using `getCachedOptions`:
+
+```tsx
+import { getCachedOptions } from "@/lib/queries/options";
+
+export default async function Home() {
+    const options = await getCachedOptions([
+        "theme_mytheme_jumbo_text",
+        "theme_mytheme_featured_post"
+    ]);
+
+    const jumboText = options["theme_mytheme_jumbo_text"] || "Default Text";
+    // ... render your component
+}
+```
+
+---
+
 ## Props Interfaces (from `lib/themes.ts`)
 
 Each component receives props that MUST conform to the following interfaces:
@@ -142,10 +186,25 @@ import Image from "next/image";
 <img src={post.featuredImage} alt={post.title} className="..." />
 ```
 
-### 3. Responsive Embedded Media (YouTube)
+### 3. Typography & Content Styling (TipTap)
+
+The MERPATI CMS classic WYSIWYG editor (TipTap) generates raw HTML elements (`<p>`, `<h1>`, `<ul>`, etc.). Theme developers MUST rely on Tailwind's Typography plugin (`@tailwindcss/typography`) to automatically format this injected content.
+
+In your `single-post.tsx` and `single-page.tsx`:
+```tsx
+<div 
+    className="prose max-w-none prose-invert lg:prose-xl"
+    dangerouslySetInnerHTML={{ __html: post.content }} 
+/>
+```
+
+> [!NOTE]
+> The `@tailwindcss/typography` plugin has been integrated into `app/globals.css` via `@plugin`. Theme developers can simply use `.prose` and customize its specific modifiers (e.g. `prose-headings:text-white`).
+
+### 4. Responsive Embedded Media (YouTube)
 
 The classic editor allows authors to embed YouTube videos natively. These are rendered as `<iframe>` tags within the `post.content`.
-Theme developers MUST ensure that post content containers apply responsive styles to iframes (e.g., using Tailwind's `aspect-video w-full`).
+Theme developers MUST ensure that post content containers apply responsive styles to iframes (e.g., using Tailwind's `prose-iframe:aspect-video prose-iframe:w-full`).
 
 ```tsx
 <div 
@@ -296,6 +355,7 @@ bash /tmp/cache_benchmark.sh
 
 - [ ] All 6 components exported from `index.tsx`
 - [ ] Props conform to the interfaces in `lib/themes.ts`
+- [ ] Theme Options defined under an `options` array if applicable
 - [ ] `cacheId` is displayed in the footer layout
 - [ ] `next/image` is not used
 - [ ] `new Date()` is not used in any component

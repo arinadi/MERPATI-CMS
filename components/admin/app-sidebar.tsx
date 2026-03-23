@@ -52,12 +52,24 @@ const navItems: NavItem[] = [
     { title: "Settings", href: "/admin/settings", icon: Settings, superUserOnly: true },
 ];
 
-export function AppSidebar({ userRole }: { userRole?: string | null }) {
+export function AppSidebar({ userRole, hasThemeOptions }: { userRole?: string | null, hasThemeOptions?: boolean }) {
     const pathname = usePathname();
 
-    const filteredItems = navItems.filter(
-        (item) => !item.superUserOnly || isSuperUser(userRole)
-    );
+    const filteredItems = navItems.filter((item) => {
+        if (item.superUserOnly && !isSuperUser(userRole)) return false;
+        return true;
+    });
+
+    if (hasThemeOptions) {
+        // Insert Theme Options before Settings
+        const settingsIndex = filteredItems.findIndex(i => i.title === "Settings");
+        const themeOptionsItem = { title: "Theme Options", href: "/admin/theme-options", icon: Settings, superUserOnly: true };
+        if (settingsIndex !== -1) {
+            filteredItems.splice(settingsIndex, 0, themeOptionsItem);
+        } else {
+            filteredItems.push(themeOptionsItem);
+        }
+    }
 
     return (
         <Sidebar collapsible="icon">

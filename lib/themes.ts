@@ -89,6 +89,16 @@ export interface PostCardData {
 
 // ─── Theme Exports Interface ───────────────────────────────────────────────
 
+export type ThemeOptionType = "text" | "textarea" | "number" | "url" | "select" | "post" | "image";
+
+export interface ThemeOptionField {
+    id: string; // The key in the database options table
+    label: string; // The label shown in the form
+    type: ThemeOptionType;
+    description?: string;
+    options?: { label: string; value: string }[]; // For "select" type
+}
+
 export interface ThemeExports {
     ThemeLayout: ComponentType<ThemeLayoutProps>;
     Home?: ComponentType<ArchiveProps>;
@@ -96,6 +106,7 @@ export interface ThemeExports {
     SinglePage: ComponentType<SinglePageProps>;
     Archive: ComponentType<ArchiveProps>;
     NotFound: ComponentType<Record<string, never>>;
+    options?: ThemeOptionField[];
 }
 
 // ─── Static Theme Resolution ───────────────────────────────────────────────
@@ -104,9 +115,11 @@ export interface ThemeExports {
 // and the "cannot create components during render" error.
 
 import * as defaultTheme from "@/themes/default";
+import { portfolioTheme } from "@/themes/portfolio";
 
 const THEME_MAP: Record<string, ThemeExports> = {
     default: defaultTheme as ThemeExports,
+    portfolio: portfolioTheme as ThemeExports,
 };
 
 const activeThemeKey = process.env.ACTIVE_THEME || "default";
