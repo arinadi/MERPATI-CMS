@@ -67,31 +67,34 @@ export default function Home({ posts }: ArchiveProps) {
 
             {/* List Section (4 Items) */}
             {listPosts.length > 0 && (
-                <section className="container mx-auto px-4 mb-20">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                <section className="container mx-auto px-4 mb-20 max-w-5xl">
+                    <div className="flex flex-col gap-6 lg:gap-8">
                         {listPosts.map((post) => (
-                            <Link key={post.id} href={`/${post.slug}`} className="group flex items-center gap-6 p-4 rounded-2xl bg-[#1E293B]/30 hover:bg-[#1E293B] border border-transparent hover:border-white/5 transition-all">
-                                <div className="w-24 h-24 md:w-32 md:h-32 shrink-0 rounded-xl overflow-hidden relative shadow-sm">
+                            <Link key={post.id} href={`/${post.slug}`} className="group flex flex-col md:flex-row items-center md:items-start gap-6 lg:gap-8 p-4 md:p-6 rounded-3xl bg-[#1E293B]/30 hover:bg-[#1E293B]/80 border border-transparent hover:border-white/5 transition-all">
+                                <div className="w-full md:w-[320px] lg:w-[400px] aspect-[16/10] shrink-0 rounded-2xl overflow-hidden relative shadow-md">
                                     {post.featuredImage ? (
-                                        <FeaturedMedia src={post.featuredImage} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        <FeaturedMedia src={post.featuredImage} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                     ) : (
                                         <div className="w-full h-full bg-[#0F172A] flex items-center justify-center text-white/5">
-                                            <ImageIcon className="w-6 h-6" />
+                                            <ImageIcon className="w-10 h-10" />
                                         </div>
                                     )}
                                 </div>
-                                <div className="flex flex-col flex-1 py-1">
+                                <div className="flex flex-col flex-1 py-1 md:py-3 justify-center h-full">
                                     {post.categories?.[0] && (
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500 mb-2">
+                                        <span className="text-xs md:text-sm font-bold uppercase tracking-widest text-[#38BDF8] mb-3 block">
                                             {post.categories[0].name}
                                         </span>
                                     )}
-                                    <h3 className="text-base md:text-lg font-bold text-gray-200 group-hover:text-white leading-snug line-clamp-2 mb-2 transition-colors">
+                                    <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-100 group-hover:text-white leading-snug mb-4 transition-colors">
                                         {post.title}
                                     </h3>
-                                    <span className="text-xs font-medium text-gray-500 mt-auto">
+                                    <p className="text-base md:text-lg text-gray-400 leading-relaxed line-clamp-2 md:line-clamp-3 mb-6">
+                                        {post.excerpt}
+                                    </p>
+                                    <div className="flex items-center gap-3 text-xs md:text-sm font-bold text-gray-500 uppercase tracking-widest mt-auto">
                                         {format(new Date(post.createdAt || new Date()), "d MMM yyyy", { locale: id })}
-                                    </span>
+                                    </div>
                                 </div>
                             </Link>
                         ))}
