@@ -21,10 +21,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "MERPATI CMS",
-  description: "Media Editorial Ringkas, Praktis, Aman, Tetap Independen",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const faviconUrl = await getOption("favicon");
+  
+  return {
+    title: "MERPATI CMS",
+    description: "Media Editorial Ringkas, Praktis, Aman, Tetap Independen",
+    icons: {
+      icon: faviconUrl || "/favicon.ico",
+    },
+  };
+}
 
 export default async function RootLayout({
   children,

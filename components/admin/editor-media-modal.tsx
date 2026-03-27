@@ -19,9 +19,10 @@ interface EditorMediaModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onInsert: (url: string, alt?: string) => void;
+    insertLabel?: string;
 }
 
-export default function EditorMediaModal({ open, onOpenChange, onInsert }: EditorMediaModalProps) {
+export default function EditorMediaModal({ open, onOpenChange, onInsert, insertLabel = "Insert Media" }: EditorMediaModalProps) {
     const [urlInput, setUrlInput] = useState("");
     const [altInput, setAltInput] = useState("");
 
@@ -102,7 +103,7 @@ export default function EditorMediaModal({ open, onOpenChange, onInsert }: Edito
                             </div>
 
                             <Button type="submit" className="w-full" disabled={!urlInput.trim()}>
-                                Insert Image
+                                {insertLabel || "Insert Image"}
                             </Button>
                         </form>
                     </TabsContent>

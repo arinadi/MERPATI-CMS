@@ -15,17 +15,20 @@ interface GeneralSettingsProps {
     siteTagline: string;
     siteUrl: string;
     siteLogo: string;
+    favicon: string;
     postsPerPage: string;
 }
 
-export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: initialTagline, siteUrl: initialUrl, siteLogo: initialLogo, postsPerPage: initialPostsPerPage }: GeneralSettingsProps) {
+export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: initialTagline, siteUrl: initialUrl, siteLogo: initialLogo, favicon: initialFavicon, postsPerPage: initialPostsPerPage }: GeneralSettingsProps) {
     const [title, setTitle] = useState(initialTitle);
     const [tagline, setTagline] = useState(initialTagline);
     const [url, setUrl] = useState(initialUrl);
     const [logo, setLogo] = useState(initialLogo);
+    const [favicon, setFavicon] = useState(initialFavicon);
     const [postsPerPage, setPostsPerPage] = useState(initialPostsPerPage || "12");
     const [isSaving, setIsSaving] = useState(false);
     const [mediaModalOpen, setMediaModalOpen] = useState(false);
+    const [faviconModalOpen, setFaviconModalOpen] = useState(false);
 
     async function handleSave() {
         setIsSaving(true);
@@ -35,6 +38,7 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                 site_tagline: tagline,
                 site_url: url,
                 site_logo: logo,
+                favicon: favicon,
                 posts_per_page: postsPerPage
             });
 
@@ -139,6 +143,55 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                     </p>
                 </div>
                 <div className="space-y-2">
+                    <Label>Favicon</Label>
+                    {favicon ? (
+                        <div className="flex items-start gap-3">
+                            <div className="relative group w-16 h-16 rounded-lg border bg-muted/50 overflow-hidden flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={favicon}
+                                    alt="Favicon"
+                                    className="max-w-full max-h-full object-contain"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setFaviconModalOpen(true)}
+                                >
+                                    <ImageIcon className="mr-2 h-4 w-4" />
+                                    Change
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-destructive hover:text-destructive"
+                                    onClick={() => setFavicon("")}
+                                >
+                                    <X className="mr-2 h-4 w-4" />
+                                    Remove
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full h-20 border-dashed"
+                            onClick={() => setFaviconModalOpen(true)}
+                        >
+                            <ImageIcon className="mr-2 h-5 w-5 text-muted-foreground" />
+                            <span className="text-muted-foreground">Choose Favicon from Media</span>
+                        </Button>
+                    )}
+                    <p className="text-[12px] text-muted-foreground">
+                        Recommended: square PNG or ICO. Example dimensions: 32x32px or 512x512px.
+                    </p>
+                </div>
+                <div className="space-y-2">
                     <Label htmlFor="posts_per_page">Items Per Page</Label>
                     <Input
                         id="posts_per_page"
@@ -166,7 +219,19 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                 onOpenChange={setMediaModalOpen}
                 onInsert={(url) => {
                     setLogo(url);
+                    setMediaModalOpen(false);
                 }}
+                insertLabel="Use as Site Logo"
+            />
+            
+            <EditorMediaModal
+                open={faviconModalOpen}
+                onOpenChange={setFaviconModalOpen}
+                onInsert={(url) => {
+                    setFavicon(url);
+                    setFaviconModalOpen(false);
+                }}
+                insertLabel="Use as Favicon"
             />
         </Card>
     );

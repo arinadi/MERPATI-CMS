@@ -15,6 +15,7 @@ export default async function SettingsPage() {
         "site_tagline",
         "site_url",
         "site_logo",
+        "favicon",
         "site_contacts",
         "telegram_chat_id",
         "telegram_notify_post",
@@ -47,6 +48,7 @@ export default async function SettingsPage() {
                         siteTagline={settings.site_tagline || ""}
                         siteUrl={settings.site_url || ""}
                         siteLogo={settings.site_logo || ""}
+                        favicon={settings.favicon || ""}
                         postsPerPage={settings.posts_per_page || "12"}
                     />
                 </TabsContent>
