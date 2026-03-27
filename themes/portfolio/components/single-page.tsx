@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { SinglePageProps } from "@/lib/themes";
+import { FeaturedMedia, getFeaturedImageAlt } from "./featured-media";
 
 export default function SinglePage({ page }: SinglePageProps) {
     if (!page) {
@@ -28,12 +29,17 @@ export default function SinglePage({ page }: SinglePageProps) {
 
                 {/* Featured Image */}
                 {page.featuredImage && (
-                    <div className="w-full aspect-[21/9] rounded-2xl overflow-hidden mb-16 border border-zinc-800/50 bg-zinc-900">
-                        <img 
-                            src={page.featuredImage} 
-                            alt={page.title} 
-                            className="w-full h-full object-cover"
-                        />
+                    <div className="mb-16">
+                        <div className="w-full aspect-[21/9] rounded-2xl overflow-hidden border border-zinc-800/50 bg-zinc-900">
+                            <FeaturedMedia
+                                src={page.featuredImage}
+                                alt={page.title}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        {getFeaturedImageAlt(page.featuredImage) && getFeaturedImageAlt(page.featuredImage) !== page.title && (
+                            <p className="text-xs text-center text-zinc-500 mt-3 italic">{getFeaturedImageAlt(page.featuredImage)}</p>
+                        )}
                     </div>
                 )}
 

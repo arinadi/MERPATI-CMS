@@ -4,10 +4,12 @@ import { id } from "date-fns/locale";
 import { Image as ImageIcon } from "lucide-react";
 import type { PostCardData } from "@/lib/themes";
 import { FeaturedMedia } from "./featured-media";
+import { getFeaturedImageUrl } from "@/lib/utils/featured-image";
 
 export function PostCard({ post }: { post: PostCardData }) {
     const publishDate = post.createdAt ? new Date(post.createdAt) : new Date();
-    const isYoutube = post.featuredImage && (post.featuredImage.includes("youtube.com") || post.featuredImage.includes("youtu.be"));
+    const imgUrl = getFeaturedImageUrl(post.featuredImage);
+    const isYoutube = imgUrl && (imgUrl.includes("youtube.com") || imgUrl.includes("youtu.be"));
 
     return (
         <div className="group flex flex-col bg-[#1E293B] rounded-2xl border border-white/5 shadow-sm hover:shadow-xl hover:shadow-blue-900/10 transition-all transform hover:-translate-y-1 overflow-hidden h-full">

@@ -48,6 +48,7 @@ import {
 import CategoryCheckboxTree from "./terms/category-checkbox-tree";
 import TagCombobox from "./terms/tag-combobox";
 import EditorMediaModal from "./editor-media-modal";
+import { parseFeaturedImage, serializeFeaturedImage } from "@/lib/utils/featured-image";
 import {
     Sheet,
     SheetContent,
@@ -419,9 +420,9 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
     const [status, setStatus] = useState<"draft" | "published">(
         post?.status ?? "draft"
     );
-    const [featuredImage, setFeaturedImage] = useState(
-        post?.featuredImage ?? ""
-    );
+    const parsedFI = parseFeaturedImage(post?.featuredImage);
+    const [featuredImage, setFeaturedImage] = useState(parsedFI?.url ?? "");
+    const [featuredImageAlt, setFeaturedImageAlt] = useState(parsedFI?.altText ?? "");
     const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>(
         post?.relatedPosts ?? []
     );
@@ -585,6 +586,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                 <Label>Featured Image</Label>
 
                 {featuredImage ? (
+                    <>
                     <div className="relative group rounded-lg overflow-hidden border">
                         {featuredImage.includes("youtube.com") || featuredImage.includes("youtu.be") ? (
                             <div className="w-full h-40 bg-zinc-900 flex flex-col items-center justify-center text-white">
@@ -597,7 +599,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img
                                 src={featuredImage}
-                                alt="Featured"
+                                alt={featuredImageAlt || "Featured"}
                                 className="w-full h-40 object-cover"
                             />
                         )}
@@ -616,6 +618,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                                 variant="destructive"
                                 onClick={() => {
                                     setFeaturedImage("");
+                                    setFeaturedImageAlt("");
                                     setHasUnsavedChanges(true);
                                 }}
                             >
@@ -623,6 +626,21 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                             </Button>
                         </div>
                     </div>
+                    <div className="mt-2 space-y-1">
+                        <Label htmlFor="featuredImageAlt" className="text-xs">Alt Text</Label>
+                        <Input
+                            id="featuredImageAlt"
+                            type="text"
+                            placeholder="Describe the image..."
+                            value={featuredImageAlt}
+                            onChange={(e) => {
+                                setFeaturedImageAlt(e.target.value);
+                                setHasUnsavedChanges(true);
+                            }}
+                            className="h-8 text-xs"
+                        />
+                    </div>
+                    </>
                 ) : (
                     <div className="grid grid-cols-2 gap-2">
                         <button
@@ -817,7 +835,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                         content,
                         excerpt: currentExcerpt || undefined,
                         status,
-                        featuredImage: featuredImage || undefined,
+                        featuredImage: featuredImage ? serializeFeaturedImage(featuredImage, featuredImageAlt) : undefined,
                         relatedPostIds: relatedPosts.map((p) => p.id),
                         termIds: [...categoryIds, ...tagIds],
                     });
@@ -854,7 +872,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                         excerpt: currentExcerpt || undefined,
                         status,
                         type,
-                        featuredImage: featuredImage || undefined,
+                        featuredImage: featuredImage ? serializeFeaturedImage(featuredImage, featuredImageAlt) : undefined,
                         relatedPostIds: relatedPosts.map((p) => p.id),
                         termIds: [...categoryIds, ...tagIds],
                     });
@@ -870,10 +888,11 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                             type === "page"
                                 ? "/admin/pages"
                                 : "/admin/posts";
+                        const targetParam = type === "page" ? result.id : result.slug;
                         window.history.replaceState(
                             null,
                             "",
-                            `${basePath}/${result.id}`
+                            `${basePath}/${targetParam}`
                         );
                         if (!isAutosave) {
                             setMessage({
@@ -900,6 +919,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
             excerpt,
             status,
             featuredImage,
+            featuredImageAlt,
             relatedPosts,
             categoryIds,
             tagIds,

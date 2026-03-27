@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
     // Fast reject for common bot paths (WordPress, PHP, .env, etc.)

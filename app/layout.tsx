@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleTagManager } from "@next/third-parties/google";
+import Script from "next/script";
 import { getOption } from "@/lib/actions/options";
 import "./globals.css";
 
@@ -30,14 +31,23 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const gaId = await getOption("ga_measurement_id");
+  const gtmId = await getOption("gtm_id");
+  const cfToken = await getOption("cf_analytics_token");
   return (
     <html lang="id" className="dark" style={{ colorScheme: "dark" }}>
       <body
         className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        {gaId && <GoogleAnalytics gaId={gaId} />}
+        {gtmId && <GoogleTagManager gtmId={gtmId} />}
+        {cfToken && (
+          <Script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={`{"token": "${cfToken}"}`}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );

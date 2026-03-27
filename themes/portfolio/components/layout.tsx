@@ -2,7 +2,7 @@
 
 import "../theme.css";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import Link from "next/link";
@@ -35,7 +35,17 @@ const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
     phone: Phone,
 };
 
-function SiteLogo({ title }: { title: string }) {
+function SiteLogo({ title, logoUrl }: { title: string; logoUrl?: string }) {
+    if (logoUrl) {
+        return (
+            <div className="flex items-center gap-3 group">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#00e5b7]" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={logoUrl} alt={title || "Site Logo"} className="h-7 w-auto object-contain" />
+            </div>
+        );
+    }
+
     if (!title) return <span className="font-bold text-lg text-white">LOGO</span>;
     
     let parts = [];
@@ -69,13 +79,21 @@ export default function ThemeLayout({
     children,
     siteTitle,
     siteTagline,
+    siteLogo,
     contacts,
     primaryMenu,
     footerMenu,
     cacheId
 }: ThemeLayoutProps) {
     const [searchQuery, setSearchQuery] = useState("");
+    const [mobileOpen, setMobileOpen] = useState(false);
     const router = useRouter();
+
+    // Lock body scroll when mobile menu is open
+    useEffect(() => {
+        document.body.style.overflow = mobileOpen ? "hidden" : "";
+        return () => { document.body.style.overflow = ""; };
+    }, [mobileOpen]);
 
     function handleSearch(e: React.FormEvent) {
         e.preventDefault();
@@ -92,7 +110,7 @@ export default function ThemeLayout({
             <header className="sticky top-0 z-50 w-full border-b border-white/[0.05] bg-[#09090b]/90 backdrop-blur-md">
                 <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
                     <Link href="/" className="flex items-center">
-                        <SiteLogo title={siteTitle || "arinano.work"} />
+                        <SiteLogo title={siteTitle || "arinano.work"} logoUrl={siteLogo} />
                     </Link>
 
                     {/* Desktop Menu */}
@@ -108,8 +126,88 @@ export default function ThemeLayout({
                         ))}
                     </nav>
 
+                    <button
+                        className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+                        onClick={() => setMobileOpen(!mobileOpen)}
+                        aria-label="Toggle menu"
+                    >
+                        <Menu className="w-6 h-6" />
+                    </button>
                 </div>
             </header>
+
+            {/* Mobile Menu Overlay */}
+            {mobileOpen && (
+                <div className="fixed inset-0 z-[60] md:hidden">
+                    <div
+                        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        onClick={() => setMobileOpen(false)}
+                    />
+                    <nav className="absolute top-0 right-0 w-[80%] max-w-sm h-full bg-[#111113] border-l border-white/10 shadow-2xl flex flex-col">
+                        <div className="flex items-center justify-between p-5 border-b border-white/10">
+                            <SiteLogo title={siteTitle || "arinano.work"} logoUrl={siteLogo} />
+                            <button
+                                onClick={() => setMobileOpen(false)}
+                                className="p-2 text-gray-400 hover:text-white transition-colors"
+                                aria-label="Close menu"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="px-5 py-4 border-b border-white/10">
+                            <form onSubmit={(e) => { handleSearch(e); setMobileOpen(false); }}>
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="Search..."
+                                        className="w-full bg-zinc-900 border border-white/5 rounded-full py-2.5 pl-10 pr-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#00e5b7] font-mono"
+                                    />
+                                </div>
+                            </form>
+                        </div>
+                        <ul className="flex-1 overflow-y-auto py-4 px-5 space-y-1">
+                            {primaryMenu.map((item: MenuItem) => (
+                                <li key={item.id}>
+                                    <Link
+                                        href={item.url || `/${item.slug || ""}`}
+                                        onClick={() => setMobileOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-colors text-sm font-mono"
+                                    >
+                                        <ChevronRight className="w-4 h-4 text-[#00e5b7]" />
+                                        /{item.title.toLowerCase()}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                        {contacts && contacts.length > 0 && (
+                            <div className="p-5 border-t border-white/10">
+                                <div className="flex flex-wrap gap-3">
+                                    {contacts.map((contact: ContactItem) => {
+                                        const IconComp = ICON_MAP[contact.iconId] || Globe;
+                                        return (
+                                            <a
+                                                key={contact.id}
+                                                href={contact.url}
+                                                title={contact.title}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="p-2.5 rounded-full bg-zinc-900 text-gray-400 hover:bg-[#00e5b7] hover:text-black transition-all shadow-sm"
+                                            >
+                                                <IconComp className="w-4 h-4" />
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </nav>
+                </div>
+            )}
 
             {/* Main Content */}
             <main className="flex-1 w-full bg-[#09090b]">
@@ -121,7 +219,7 @@ export default function ThemeLayout({
                 <div className="container mx-auto px-4 grid gap-12 md:grid-cols-3">
                     <div className="space-y-6">
                         <Link href="/" className="inline-block group">
-                            <SiteLogo title={siteTitle || "MERPATI.CMS"} />
+                            <SiteLogo title={siteTitle || "MERPATI.CMS"} logoUrl={siteLogo} />
                         </Link>
                         <p className="text-sm leading-relaxed text-gray-400 max-w-xs">
                             {siteTagline || "The Ultimate Serverless WordPress Alternative for Modern Publishers. Ringkas, Praktis, Aman."}

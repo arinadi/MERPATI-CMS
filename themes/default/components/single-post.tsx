@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { FeaturedMedia } from "./featured-media";
+import { FeaturedMedia, getFeaturedImageAlt } from "./featured-media";
 import { ShareButtons } from "./share-buttons";
 import type { SinglePostProps } from "@/lib/themes";
 
@@ -29,11 +29,25 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
                         <FeaturedMedia
                             src={post.featuredImage}
                             alt={post.title}
-                            className="w-full h-full object-cover rounded-[2rem]"
+                            className="w-full h-full object-cover"
                             priority
                         />
                     )}
+                    {/* Category Badge Overlay */}
+                    {post.categories && post.categories.length > 0 && (
+                        <div className="absolute top-4 left-4 md:top-6 md:left-6">
+                            <Link 
+                                href={`/category/${post.categories[0].slug}`} 
+                                className="px-3 py-1.5 bg-black/50 backdrop-blur-md text-white font-bold uppercase tracking-widest text-[10px] rounded-full border border-white/20 hover:bg-blue-600 hover:border-blue-500 transition-colors"
+                            >
+                                {post.categories[0].name}
+                            </Link>
+                        </div>
+                    )}
                 </div>
+                {post.featuredImage && getFeaturedImageAlt(post.featuredImage) && getFeaturedImageAlt(post.featuredImage) !== post.title && (
+                    <p className="text-xs text-center text-gray-500 mt-3 italic">{getFeaturedImageAlt(post.featuredImage)}</p>
+                )}
             </div>
 
             {/* Content Layout */}
@@ -41,35 +55,24 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
                 <div className="flex flex-col lg:flex-row gap-8 md:gap-16 lg:gap-24">
                     {/* Left: Main Content */}
                     <div className="flex-1 lg:w-2/3">
-                        {/* 1. Category Badge */}
-                        {post.categories && post.categories.length > 0 && (
-                            <div className="mb-6 md:mb-8">
-                                <Link 
-                                    href={`/category/${post.categories[0].slug}`} 
-                                    className="px-4 py-2 bg-blue-600/10 text-blue-400 font-bold uppercase tracking-widest text-xs rounded-full border border-blue-500/20 hover:bg-blue-600 hover:text-white transition-colors"
-                                >
-                                    {post.categories[0].name}
-                                </Link>
-                            </div>
-                        )}
 
                         {/* 2. Author & Share Row */}
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 py-4 md:py-8 border-y border-white/10 mb-8 md:mb-12">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 md:py-4 border-y border-white/10 mb-6 md:mb-10">
                             {/* Author Info */}
-                            <div className="flex items-center gap-4 w-full md:w-auto">
-                                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-800 shrink-0 ring-2 ring-white/10">
+                            <div className="flex items-center gap-3 w-full md:w-auto">
+                                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-800 shrink-0 ring-2 ring-white/10">
                                     {post.author?.image ? (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={post.author.image} alt={post.author.name || "Author"} className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                                        <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
                                             {post.author?.name?.[0]?.toUpperCase() || "A"}
                                         </div>
                                     )}
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="font-bold text-white text-base">{post.author?.name || "Anonymous"}</span>
-                                    <span className="text-sm text-gray-500 font-medium">
+                                    <span className="font-bold text-white text-sm">{post.author?.name || "Anonymous"}</span>
+                                    <span className="text-xs text-gray-500 font-medium">
                                         {format(publishDate, "EEEE, dd MMMM yyyy", { locale: id })}
                                     </span>
                                 </div>
@@ -77,7 +80,7 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
 
                             {/* Share Buttons */}
                             <div className="w-full md:w-auto flex justify-end">
-                                <ShareButtons title={post.title} text={post.excerpt || ""} />
+                                <ShareButtons title={post.title} />
                             </div>
                         </div>
 

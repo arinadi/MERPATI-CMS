@@ -14,11 +14,13 @@ export default async function SettingsPage() {
         "site_title",
         "site_tagline",
         "site_url",
+        "site_logo",
         "site_contacts",
         "telegram_chat_id",
         "telegram_notify_post",
         "telegram_notify_user",
-        "ga_measurement_id",
+        "gtm_id",
+        "cf_analytics_token",
         "posts_per_page"
     ]);
 
@@ -44,6 +46,7 @@ export default async function SettingsPage() {
                         siteTitle={settings.site_title || ""}
                         siteTagline={settings.site_tagline || ""}
                         siteUrl={settings.site_url || ""}
+                        siteLogo={settings.site_logo || ""}
                         postsPerPage={settings.posts_per_page || "12"}
                     />
                 </TabsContent>
@@ -65,7 +68,8 @@ export default async function SettingsPage() {
 
                 <TabsContent value="tracking" className="space-y-4">
                     <TrackingSettings
-                        gaId={settings.ga_measurement_id || ""}
+                        gtmId={settings.gtm_id || ""}
+                        cfAnalyticsToken={settings.cf_analytics_token || ""}
                     />
                 </TabsContent>
             </Tabs>

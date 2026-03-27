@@ -56,6 +56,12 @@ export default function EditorMediaModal({ open, onOpenChange, onInsert }: Edito
                     </div>
 
                     <TabsContent value="library" className="flex-1 overflow-hidden p-6 mt-0">
+                        <p className="text-xs text-muted-foreground mb-2">
+                            Recommended: 1200×630px.{" "}
+                            <a href="https://tinypng.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                                Compress images at TinyPNG
+                            </a>
+                        </p>
                         <div className="h-full border rounded-xl bg-card overflow-hidden">
                             <MediaLibrary selectable onSelect={handleSelectMedia} />
                         </div>

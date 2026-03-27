@@ -1,4 +1,4 @@
-import { FeaturedMedia } from "./featured-media";
+import { FeaturedMedia, getFeaturedImageAlt } from "./featured-media";
 import type { SinglePageProps } from "@/lib/themes";
 
 export default function SinglePage({ page }: SinglePageProps) {
@@ -20,13 +20,18 @@ export default function SinglePage({ page }: SinglePageProps) {
             <div className="container mx-auto px-4 max-w-4xl">
                 <div className="bg-[#1E293B]/30 rounded-[2rem] border border-white/5 p-8 md:p-12 lg:p-16 shadow-2xl">
                     {page.featuredImage && (
-                        <div className="aspect-video relative rounded-2xl overflow-hidden shadow-xl bg-black border border-white/10 mb-12">
-                            <FeaturedMedia
-                                src={page.featuredImage}
-                                alt={page.title}
-                                className="w-full h-full object-cover"
-                                priority
-                            />
+                        <div className="mb-12">
+                            <div className="aspect-video relative rounded-2xl overflow-hidden shadow-xl bg-black border border-white/10">
+                                <FeaturedMedia
+                                    src={page.featuredImage}
+                                    alt={page.title}
+                                    className="w-full h-full object-cover"
+                                    priority
+                                />
+                            </div>
+                            {getFeaturedImageAlt(page.featuredImage) && getFeaturedImageAlt(page.featuredImage) !== page.title && (
+                                <p className="text-xs text-center text-gray-500 mt-3 italic">{getFeaturedImageAlt(page.featuredImage)}</p>
+                            )}
                         </div>
                     )}
                     
