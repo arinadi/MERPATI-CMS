@@ -21,9 +21,11 @@ interface EditorMediaModalProps {
     onInsert: (url: string, alt?: string) => void;
     insertLabel?: string;
     description?: React.ReactNode;
+    hideUrlTab?: boolean;
 }
 
-export default function EditorMediaModal({ open, onOpenChange, onInsert, insertLabel = "Insert Media", description }: EditorMediaModalProps) {
+export default function EditorMediaModal({ open, onOpenChange, onInsert, insertLabel = "Insert Media", description, hideUrlTab = false }: EditorMediaModalProps) {
+    const [activeTab, setActiveTab] = useState<string>("library");
     const [urlInput, setUrlInput] = useState("");
     const [altInput, setAltInput] = useState("");
 
@@ -49,64 +51,91 @@ export default function EditorMediaModal({ open, onOpenChange, onInsert, insertL
                     <DialogTitle>Insert Media</DialogTitle>
                 </DialogHeader>
 
-                <Tabs defaultValue="library" className="flex-1 flex flex-col h-full overflow-hidden">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col h-full overflow-hidden">
                     <div className="px-6 pt-4 shrink-0">
-                        <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+                        <TabsList className={`grid w-full max-w-[400px] ${hideUrlTab ? 'grid-cols-2' : 'grid-cols-3'}`}>
                             <TabsTrigger value="library">Media Library</TabsTrigger>
-                            <TabsTrigger value="url">Insert from URL</TabsTrigger>
+                            <TabsTrigger value="upload">Upload New</TabsTrigger>
+                            {!hideUrlTab && <TabsTrigger value="url">Insert from URL</TabsTrigger>}
                         </TabsList>
                     </div>
 
-                    <TabsContent value="library" className="flex-1 overflow-hidden p-6 mt-0">
-                        {description && (
-                            <div className="text-xs text-muted-foreground mb-4">
-                                {description}
-                            </div>
-                        )}
-                        <div className="h-full border rounded-xl bg-card overflow-hidden">
-                            <MediaLibrary selectable onSelect={handleSelectMedia} />
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value="url" className="flex-1 overflow-auto p-6 mt-0">
-                        <form onSubmit={handleInsertUrl} className="max-w-md mx-auto space-y-6 pt-8">
-                            <div className="space-y-2">
-                                <Label htmlFor="imageUrl">Image URL</Label>
-                                <div className="flex rounded-md shadow-sm">
-                                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted/50 text-muted-foreground sm:text-sm">
-                                        <LinkIcon className="h-4 w-4" />
-                                    </span>
-                                    <Input
-                                        id="imageUrl"
-                                        type="url"
-                                        placeholder="https://example.com/image.jpg"
-                                        className="rounded-l-none"
-                                        value={urlInput}
-                                        onChange={(e) => setUrlInput(e.target.value)}
-                                        required
-                                    />
+                    <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+                        <TabsContent value="library" className="flex-1 overflow-hidden p-6 mt-0 flex flex-col h-full">
+                            {description && (
+                                <div className="text-xs text-muted-foreground mb-4 shrink-0">
+                                    {description}
                                 </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="imageAlt">Alt Text (Optional)</Label>
-                                <Input
-                                    id="imageAlt"
-                                    type="text"
-                                    placeholder="Describe the image..."
-                                    value={altInput}
-                                    onChange={(e) => setAltInput(e.target.value)}
+                            )}
+                            <div className="flex-1 border rounded-xl bg-card overflow-hidden">
+                                <MediaLibrary 
+                                    selectable 
+                                    onSelect={handleSelectMedia} 
+                                    showTabs={false} 
+                                    activeTab="library"
                                 />
-                                <p className="text-xs text-muted-foreground">
-                                    Alt text is important for accessibility and SEO.
-                                </p>
                             </div>
+                        </TabsContent>
 
-                            <Button type="submit" className="w-full" disabled={!urlInput.trim()}>
-                                {insertLabel || "Insert Image"}
-                            </Button>
-                        </form>
-                    </TabsContent>
+                        <TabsContent value="upload" className="flex-1 overflow-hidden p-6 mt-0 flex flex-col h-full">
+                            {description && (
+                                <div className="text-xs text-muted-foreground mb-4 shrink-0">
+                                    {description}
+                                </div>
+                            )}
+                            <div className="flex-1 border rounded-xl bg-card overflow-hidden">
+                                <MediaLibrary 
+                                    selectable 
+                                    onSelect={handleSelectMedia} 
+                                    showTabs={false} 
+                                    activeTab="upload"
+                                    onTabChange={(tab) => setActiveTab(tab)}
+                                />
+                            </div>
+                        </TabsContent>
+
+                        {!hideUrlTab && (
+                            <TabsContent value="url" className="flex-1 overflow-auto p-6 mt-0">
+                                <form onSubmit={handleInsertUrl} className="max-w-md mx-auto space-y-6 pt-8">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="imageUrl">Image URL</Label>
+                                        <div className="flex rounded-md shadow-sm">
+                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted/50 text-muted-foreground sm:text-sm">
+                                                <LinkIcon className="h-4 w-4" />
+                                            </span>
+                                            <Input
+                                                id="imageUrl"
+                                                type="url"
+                                                placeholder="https://example.com/image.jpg"
+                                                className="rounded-l-none"
+                                                value={urlInput}
+                                                onChange={(e) => setUrlInput(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="imageAlt">Alt Text (Optional)</Label>
+                                        <Input
+                                            id="imageAlt"
+                                            type="text"
+                                            placeholder="Describe the image..."
+                                            value={altInput}
+                                            onChange={(e) => setAltInput(e.target.value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Alt text is important for accessibility and SEO.
+                                        </p>
+                                    </div>
+
+                                    <Button type="submit" className="w-full" disabled={!urlInput.trim()}>
+                                        {insertLabel || "Insert Image"}
+                                    </Button>
+                                </form>
+                            </TabsContent>
+                        )}
+                    </div>
                 </Tabs>
             </DialogContent>
         </Dialog>

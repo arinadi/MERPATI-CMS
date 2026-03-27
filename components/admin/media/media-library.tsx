@@ -11,10 +11,23 @@ import { getMedia, deleteMedia, updateMedia } from "@/lib/actions/media";
 interface MediaLibraryProps {
     onSelect?: (item: MediaItem) => void;
     selectable?: boolean;
+    showTabs?: boolean;
+    activeTab?: string;
+    onTabChange?: (tab: string) => void;
 }
 
-export default function MediaLibrary({ onSelect, selectable = false }: MediaLibraryProps) {
-    const [activeTab, setActiveTab] = useState<string>("library");
+export default function MediaLibrary({ onSelect, selectable = false, showTabs = true, activeTab: externalTab, onTabChange }: MediaLibraryProps) {
+    const [internalTab, setInternalTab] = useState<string>("library");
+    const activeTab = externalTab || internalTab;
+
+    const setActiveTab = (tab: string) => {
+        if (onTabChange) {
+            onTabChange(tab);
+        } else {
+            setInternalTab(tab);
+        }
+    };
+
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -78,24 +91,26 @@ export default function MediaLibrary({ onSelect, selectable = false }: MediaLibr
     return (
         <div className="flex flex-col h-full">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col">
-                <div className="flex items-center justify-between mb-6 pb-4 border-b">
-                    <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
-                        <TabsTrigger value="library">Media Library</TabsTrigger>
-                        <TabsTrigger value="upload">Upload New</TabsTrigger>
-                    </TabsList>
+                {showTabs && (
+                    <div className="flex items-center justify-between mb-6 pb-4 border-b">
+                        <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+                            <TabsTrigger value="library">Media Library</TabsTrigger>
+                            <TabsTrigger value="upload">Upload New</TabsTrigger>
+                        </TabsList>
 
-                    {activeTab === "library" && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fetchMedia(1, true)}
-                            disabled={isLoading}
-                        >
-                            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                            Refresh
-                        </Button>
-                    )}
-                </div>
+                        {activeTab === "library" && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => fetchMedia(1, true)}
+                                disabled={isLoading}
+                            >
+                                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </Button>
+                        )}
+                    </div>
+                )}
 
                 <TabsContent value="upload" className="mt-0 flex-1">
                     <div className="max-w-2xl mx-auto pt-8">

@@ -222,6 +222,8 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                     setMediaModalOpen(false);
                 }}
                 insertLabel="Use as Site Logo"
+                hideUrlTab={true}
+                description="Recommended: transparent PNG or SVG."
             />
             
             <EditorMediaModal
@@ -232,6 +234,8 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                     setFaviconModalOpen(false);
                 }}
                 insertLabel="Use as Favicon"
+                hideUrlTab={true}
+                description="Recommended: square PNG or ICO (32x32px or 512x512px)."
             />
         </Card>
     );
