@@ -1134,6 +1134,13 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                 onInsert={(url, alt) => {
                     editor?.chain().focus().setImage({ src: url, alt: alt || "" }).run();
                 }}
+                description={
+                    <>
+                        <a href="https://tinypng.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                            Compress images at TinyPNG
+                        </a> before uploading for better performance.
+                    </>
+                }
             />
 
             <EditorMediaModal
@@ -1143,6 +1150,15 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                     setFeaturedImage(url);
                     setHasUnsavedChanges(true);
                 }}
+                insertLabel="Set Featured Image"
+                description={
+                    <>
+                        Recommended: 1200×630px.{" "}
+                        <a href="https://tinypng.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                            Compress images at TinyPNG
+                        </a>
+                    </>
+                }
             />
 
             <Dialog open={isYoutubeModalOpen} onOpenChange={setIsYoutubeModalOpen}>

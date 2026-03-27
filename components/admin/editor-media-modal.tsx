@@ -20,9 +20,10 @@ interface EditorMediaModalProps {
     onOpenChange: (open: boolean) => void;
     onInsert: (url: string, alt?: string) => void;
     insertLabel?: string;
+    description?: React.ReactNode;
 }
 
-export default function EditorMediaModal({ open, onOpenChange, onInsert, insertLabel = "Insert Media" }: EditorMediaModalProps) {
+export default function EditorMediaModal({ open, onOpenChange, onInsert, insertLabel = "Insert Media", description }: EditorMediaModalProps) {
     const [urlInput, setUrlInput] = useState("");
     const [altInput, setAltInput] = useState("");
 
@@ -57,12 +58,11 @@ export default function EditorMediaModal({ open, onOpenChange, onInsert, insertL
                     </div>
 
                     <TabsContent value="library" className="flex-1 overflow-hidden p-6 mt-0">
-                        <p className="text-xs text-muted-foreground mb-2">
-                            Recommended: 1200×630px.{" "}
-                            <a href="https://tinypng.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
-                                Compress images at TinyPNG
-                            </a>
-                        </p>
+                        {description && (
+                            <div className="text-xs text-muted-foreground mb-4">
+                                {description}
+                            </div>
+                        )}
                         <div className="h-full border rounded-xl bg-card overflow-hidden">
                             <MediaLibrary selectable onSelect={handleSelectMedia} />
                         </div>
