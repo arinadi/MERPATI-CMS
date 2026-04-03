@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
 import Script from "next/script";
-import { getOption } from "@/lib/actions/options";
+import { getCachedOptions } from "@/lib/queries/options";
 import "./globals.css";
 
 const inter = Inter({
@@ -38,9 +38,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const gtmId = await getOption("gtm_id");
-  const gaId = await getOption("ga_id");
-  const cfToken = await getOption("cf_analytics_token");
+  const tracking = await getCachedOptions(["gtm_id", "ga_id", "cf_analytics_token"]);
+  const gtmId = tracking.gtm_id;
+  const gaId = tracking.ga_id;
+  const cfToken = tracking.cf_analytics_token;
   return (
     <html lang="id" className="dark" style={{ colorScheme: "dark" }}>
       <body
