@@ -44,6 +44,16 @@
 - Google OAuth credentials.
 - Vercel Blob (optional for production media).
 
+### Termux (Android) Development
+Due to issues with native Turbopack binaries on `aarch64` (WASM fallback), you must use the `--webpack` flag to start the development server in Termux:
+```bash
+# Using npm
+npm run dev -- --webpack
+
+# Using npx directly
+npx next dev --webpack
+```
+
 ### Initial Configuration
 Create a `.env.local` with:
 ```env
