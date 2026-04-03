@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
-import { GoogleTagManager } from "@next/third-parties/google";
+import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
 import Script from "next/script";
 import { getOption } from "@/lib/actions/options";
 import "./globals.css";
@@ -39,6 +39,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const gtmId = await getOption("gtm_id");
+  const gaId = await getOption("ga_id");
   const cfToken = await getOption("cf_analytics_token");
   return (
     <html lang="id" className="dark" style={{ colorScheme: "dark" }}>
@@ -47,6 +48,7 @@ export default async function RootLayout({
       >
         {children}
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
+        {gaId && <GoogleAnalytics gaId={gaId} />}
         {cfToken && (
           <Script
             defer

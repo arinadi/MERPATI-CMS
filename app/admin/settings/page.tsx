@@ -21,6 +21,7 @@ export default async function SettingsPage() {
         "telegram_notify_post",
         "telegram_notify_user",
         "gtm_id",
+        "ga_id",
         "cf_analytics_token",
         "posts_per_page"
     ]);
@@ -71,6 +72,7 @@ export default async function SettingsPage() {
                 <TabsContent value="tracking" className="space-y-4">
                     <TrackingSettings
                         gtmId={settings.gtm_id || ""}
+                        gaId={settings.ga_id || ""}
                         cfAnalyticsToken={settings.cf_analytics_token || ""}
                     />
                 </TabsContent>
