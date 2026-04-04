@@ -67,7 +67,4 @@ export function FeaturedMedia({
     );
 }
 
-/**
- * Re-export for use by parent components to render captions outside overflow containers.
- */
-export { getFeaturedImageAlt };
+

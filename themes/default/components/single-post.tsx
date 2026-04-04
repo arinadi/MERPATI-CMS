@@ -2,7 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { FeaturedMedia, getFeaturedImageAlt } from "./featured-media";
+import { FeaturedMedia } from "./featured-media";
+import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
 import { ShareButtons } from "./share-buttons";
 import type { SinglePostProps } from "@/lib/themes";
 

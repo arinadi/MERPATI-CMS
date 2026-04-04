@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { SinglePageProps } from "@/lib/themes";
-import { FeaturedMedia, getFeaturedImageAlt } from "./featured-media";
+import { FeaturedMedia } from "./featured-media";
+import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
 
 export default function SinglePage({ page }: SinglePageProps) {
     if (!page) {
