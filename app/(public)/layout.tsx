@@ -5,17 +5,14 @@ import { activeTheme } from "@/lib/themes";
 import type { ContactItem } from "@/lib/themes";
 import { redirect } from "next/navigation";
 import { dbGuard } from "@/lib/db-guard";
-import { headers } from "next/headers";
+import { getBaseUrl } from "@/lib/get-base-url";
 
 const ThemeLayout = activeTheme.ThemeLayout;
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
-    const headersList = await headers();
-    const host = headersList.get("x-forwarded-host") || headersList.get("host");
-    const protocol = host?.includes("localhost") ? "http" : "https";
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (host ? `${protocol}://${host}` : "http://localhost:3000");
+    const baseUrl = await getBaseUrl();
 
     const options = await getCachedOptions([
         "site_title",
