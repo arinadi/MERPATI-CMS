@@ -36,7 +36,7 @@ export function SafeImage({ src, alt, ...props }: ImageProps) {
             isSafeToOptimize = ALLOWED_DOMAINS.some(domain => 
                 hostname === domain || hostname.endsWith("." + domain)
             );
-        } catch (e) {
+        } catch {
             isSafeToOptimize = false;
         }
     }
@@ -53,6 +53,7 @@ export function SafeImage({ src, alt, ...props }: ImageProps) {
     // Use standard <img> for unknown domains to prevent Next.js SSR crashes
     if (!isSafeToOptimize && typeof src === "string") {
         return (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
                 src={src}
                 alt={alt || "Image"}
