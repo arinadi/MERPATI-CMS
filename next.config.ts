@@ -4,15 +4,18 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["isomorphic-dompurify"],
   trailingSlash: false,
   webpack: (config, { dev }) => {
-    if (dev) {
+    if (dev && process.env.PREFIX?.includes("com.termux")) {
+      // 1. Matikan disk cache untuk hindari 'Caching failed for pack'
+      config.cache = { type: "memory" };
+      
+      // 2. Cegah Watchpack melakukan scandir hingga ke root (/)
       config.watchOptions = {
         ...config.watchOptions,
-        // Cegah Webpack memantau root system di Termux Android
         ignored: [
           "**/node_modules",
-          "/data/data/**",
-          "/data/**",
-          "/.**",
+          "**/.git",
+          /^\/data\/(?!data\/com\.termux)/,
+          /^\/(?!data)/, 
         ],
       };
     }
