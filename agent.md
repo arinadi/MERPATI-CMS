@@ -54,6 +54,7 @@ npm run dev -- --webpack
 # Using npx directly
 npx next dev --webpack
 ```
+*Note: A custom webpack `watchOptions.ignored` config is included in `next.config.ts` to suppress `EACCES: permission denied` watcher errors caused by Termux's restricted root file system.*
 
 ### Pull Environment Variables from Vercel
 ```bash
