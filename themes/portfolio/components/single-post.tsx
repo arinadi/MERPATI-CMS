@@ -3,6 +3,8 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { SinglePostProps } from "@/lib/themes";
+import { FeaturedMedia, getFeaturedImageAlt } from "./featured-media";
+import { ShareButtons } from "./share-buttons";
 
 export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
     if (!post) {
@@ -47,12 +49,17 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
 
                 {/* Featured Image */}
                 {post.featuredImage && (
-                    <div className="w-full aspect-[21/9] rounded-2xl overflow-hidden mb-16 border border-zinc-800/50 bg-zinc-900">
-                        <img 
-                            src={post.featuredImage} 
-                            alt={post.title} 
-                            className="w-full h-full object-cover"
-                        />
+                    <div className="mb-16">
+                        <div className="w-full aspect-[21/9] rounded-2xl overflow-hidden border border-zinc-800/50 bg-zinc-900">
+                            <FeaturedMedia
+                                src={post.featuredImage}
+                                alt={post.title}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        {getFeaturedImageAlt(post.featuredImage) && getFeaturedImageAlt(post.featuredImage) !== post.title && (
+                            <p className="text-xs text-center text-zinc-500 mt-3 italic">{getFeaturedImageAlt(post.featuredImage)}</p>
+                        )}
                     </div>
                 )}
 
@@ -73,6 +80,11 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
                         ))}
                     </div>
                 )}
+
+                {/* Share Buttons */}
+                <div className="mt-10 pt-8 border-t border-zinc-800">
+                    <ShareButtons title={post.title} />
+                </div>
             </article>
 
             {/* Related Posts */}

@@ -7,21 +7,28 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { setOptions } from "@/lib/actions/options";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ImageIcon, X } from "lucide-react";
+import EditorMediaModal from "@/components/admin/editor-media-modal";
 
 interface GeneralSettingsProps {
     siteTitle: string;
     siteTagline: string;
     siteUrl: string;
+    siteLogo: string;
+    favicon: string;
     postsPerPage: string;
 }
 
-export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: initialTagline, siteUrl: initialUrl, postsPerPage: initialPostsPerPage }: GeneralSettingsProps) {
+export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: initialTagline, siteUrl: initialUrl, siteLogo: initialLogo, favicon: initialFavicon, postsPerPage: initialPostsPerPage }: GeneralSettingsProps) {
     const [title, setTitle] = useState(initialTitle);
     const [tagline, setTagline] = useState(initialTagline);
     const [url, setUrl] = useState(initialUrl);
+    const [logo, setLogo] = useState(initialLogo);
+    const [favicon, setFavicon] = useState(initialFavicon);
     const [postsPerPage, setPostsPerPage] = useState(initialPostsPerPage || "12");
     const [isSaving, setIsSaving] = useState(false);
+    const [mediaModalOpen, setMediaModalOpen] = useState(false);
+    const [faviconModalOpen, setFaviconModalOpen] = useState(false);
 
     async function handleSave() {
         setIsSaving(true);
@@ -30,6 +37,8 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                 site_title: title,
                 site_tagline: tagline,
                 site_url: url,
+                site_logo: logo,
+                favicon: favicon,
                 posts_per_page: postsPerPage
             });
 
@@ -85,6 +94,104 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                     </p>
                 </div>
                 <div className="space-y-2">
+                    <Label>Site Logo</Label>
+                    {logo ? (
+                        <div className="flex items-start gap-3">
+                            <div className="relative group w-32 h-16 rounded-lg border bg-muted/50 overflow-hidden flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={logo}
+                                    alt="Site logo"
+                                    className="max-w-full max-h-full object-contain"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setMediaModalOpen(true)}
+                                >
+                                    <ImageIcon className="mr-2 h-4 w-4" />
+                                    Change
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-destructive hover:text-destructive"
+                                    onClick={() => setLogo("")}
+                                >
+                                    <X className="mr-2 h-4 w-4" />
+                                    Remove
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full h-20 border-dashed"
+                            onClick={() => setMediaModalOpen(true)}
+                        >
+                            <ImageIcon className="mr-2 h-5 w-5 text-muted-foreground" />
+                            <span className="text-muted-foreground">Choose Logo from Media</span>
+                        </Button>
+                    )}
+                    <p className="text-[12px] text-muted-foreground">
+                        Recommended: transparent PNG or SVG. If empty, site title text will be used.
+                    </p>
+                </div>
+                <div className="space-y-2">
+                    <Label>Favicon</Label>
+                    {favicon ? (
+                        <div className="flex items-start gap-3">
+                            <div className="relative group w-16 h-16 rounded-lg border bg-muted/50 overflow-hidden flex items-center justify-center">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={favicon}
+                                    alt="Favicon"
+                                    className="max-w-full max-h-full object-contain"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setFaviconModalOpen(true)}
+                                >
+                                    <ImageIcon className="mr-2 h-4 w-4" />
+                                    Change
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-destructive hover:text-destructive"
+                                    onClick={() => setFavicon("")}
+                                >
+                                    <X className="mr-2 h-4 w-4" />
+                                    Remove
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full h-20 border-dashed"
+                            onClick={() => setFaviconModalOpen(true)}
+                        >
+                            <ImageIcon className="mr-2 h-5 w-5 text-muted-foreground" />
+                            <span className="text-muted-foreground">Choose Favicon from Media</span>
+                        </Button>
+                    )}
+                    <p className="text-[12px] text-muted-foreground">
+                        Recommended: square PNG or ICO. Example dimensions: 32x32px or 512x512px.
+                    </p>
+                </div>
+                <div className="space-y-2">
                     <Label htmlFor="posts_per_page">Items Per Page</Label>
                     <Input
                         id="posts_per_page"
@@ -106,6 +213,30 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                     Save Changes
                 </Button>
             </CardFooter>
+
+            <EditorMediaModal
+                open={mediaModalOpen}
+                onOpenChange={setMediaModalOpen}
+                onInsert={(url) => {
+                    setLogo(url);
+                    setMediaModalOpen(false);
+                }}
+                insertLabel="Use as Site Logo"
+                hideUrlTab={true}
+                description="Recommended: transparent PNG or SVG."
+            />
+            
+            <EditorMediaModal
+                open={faviconModalOpen}
+                onOpenChange={setFaviconModalOpen}
+                onInsert={(url) => {
+                    setFavicon(url);
+                    setFaviconModalOpen(false);
+                }}
+                insertLabel="Use as Favicon"
+                hideUrlTab={true}
+                description="Recommended: square PNG or ICO (32x32px or 512x512px)."
+            />
         </Card>
     );
 }

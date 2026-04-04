@@ -336,7 +336,7 @@ export async function createPost(data: {
     revalidatePath(parsed.data.type === "page" ? "/admin/pages" : "/admin/posts");
     revalidatePath("/");
 
-    return { success: true, id: newPost?.id };
+    return { success: true, id: newPost?.id, slug: finalSlug };
 }
 
 export async function updatePost(

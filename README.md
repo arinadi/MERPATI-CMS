@@ -4,7 +4,7 @@
 ### The Ultimate Serverless WordPress Alternative for Modern Publishers
 
 [![Vercel Deployment](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![Tailwind v4](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com)
 
 **Media Editorial Ringkas, Praktis, Aman, Tetap Independen**
@@ -40,12 +40,28 @@ MERPATI is a radical, high-performance publishing platform designed to eliminate
 | **🧭 Menu Manager** | Intuitive drag-and-drop navigation builder. |
 | **🔔 Push Alerts** | Real-time Telegram notifications for posts and users. |
 | **👁️ Live Preview**  | Instant "Visit Site" and "Visit Post" shortcuts from the admin dashboard. |
+| **📊 Analytics Ready** | Native support for Google Tag Manager, Google Analytics (GA4), and Cloudflare Web Analytics. |
+| **⚙️ Sidebar Settings** | Settings split into dedicated pages navigated via collapsible sidebar sub-menu. |
+
+---
+
+## 📊 Analytics & Tracking
+
+MERPATI supports multiple analytics providers configured directly from the Admin dashboard under **Settings → Tracking**:
+
+| Provider | ID Format | Notes |
+|---|---|---|
+| **Google Tag Manager** | `GTM-XXXXX` | Recommended. Load GA4, Pixel, etc. from one place. |
+| **Google Analytics (GA4)** | `G-XXXXX` | Direct GA4 if not using GTM. |
+| **Cloudflare Web Analytics** | Beacon Token | Privacy-friendly, no cookies. |
+
+> **Tip**: If you already have a Google Tag (`G-XXXXX`), you can either enter it directly in the GA4 field **or** add it inside your GTM container — not both.
 
 ---
 
 ## 📖 Documentation & Setup
 
-MERPATI features a **"Zero-Touch"** initialization flow perfectly suited for edge deployments. 
+MERPATI features a **"Zero-Touch"** initialization flow perfectly suited for edge deployments.
 
 All comprehensive technical documentation, including **Setup Guides**, **Prerequisites**, and **Architecture Layout**, has been neatly organized for developers.
 
@@ -56,7 +72,7 @@ All comprehensive technical documentation, including **Setup Guides**, **Prerequ
 ## 📁 Project Philosophy
 
 We separate **Admin Productivity** from **Public Performance**:
-- **Admin (`/admin`)**: A rich, interactive SPA-like experience using `shadcn/ui`.
+- **Admin (`/admin`)**: A rich, interactive SPA-like experience using `shadcn/ui`. Settings are organized as dedicated pages in a collapsible sidebar sub-menu — not tabs.
 - **Public (`/themes`)**: Pure Tailwind CSS v4 and RSC for a near-zero JavaScript footprint.
 
 ---

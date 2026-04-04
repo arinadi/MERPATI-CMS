@@ -21,19 +21,19 @@ export async function generateMetadata() {
 
     return {
         title: {
-            default: `${siteTitle} | ${siteTagline}`,
-            template: `%s | ${siteTitle}`,
+            default: `${siteTitle} — ${siteTagline}`,
+            template: `%s — ${siteTitle}`,
         },
         description: siteTagline,
         openGraph: {
-            title: siteTitle,
+            title: `${siteTitle} — ${siteTagline}`,
             description: siteTagline,
             siteName: siteTitle,
             type: "website",
         },
         twitter: {
             card: "summary_large_image",
-            title: siteTitle,
+            title: `${siteTitle} — ${siteTagline}`,
             description: siteTagline,
         },
     };
@@ -52,11 +52,13 @@ export default async function PublicLayout({
         const options = await getCachedOptions([
             "site_title",
             "site_tagline",
+            "site_logo",
             "site_contacts"
         ]);
 
         const siteTitle = options.site_title || "MERPATI CMS";
         const siteTagline = options.site_tagline || "Media Editorial Ringkas, Praktis...";
+        const siteLogo = options.site_logo || "";
 
         let contacts: ContactItem[] = [];
         try {
@@ -69,13 +71,14 @@ export default async function PublicLayout({
         const footerMenu = await getCachedMenuWithItems("footer");
         const cacheId = await getCacheTimestamp();
 
-        return { siteTitle, siteTagline, contacts, primaryMenu, footerMenu, cacheId };
+        return { siteTitle, siteTagline, siteLogo, contacts, primaryMenu, footerMenu, cacheId };
     });
 
     return (
         <ThemeLayout
             siteTitle={data.siteTitle}
             siteTagline={data.siteTagline}
+            siteLogo={data.siteLogo}
             contacts={data.contacts}
             primaryMenu={data.primaryMenu}
             footerMenu={data.footerMenu}

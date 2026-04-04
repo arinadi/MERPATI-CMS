@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { setOption } from "@/lib/actions/options";
+import { setOptions } from "@/lib/actions/options";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -17,17 +17,25 @@ import { toast } from "sonner";
 import { BarChart } from "lucide-react";
 
 interface TrackingSettingsProps {
+    gtmId: string;
     gaId: string;
+    cfAnalyticsToken: string;
 }
 
-export default function TrackingSettings({ gaId }: TrackingSettingsProps) {
-    const [measurementId, setMeasurementId] = useState(gaId);
+export default function TrackingSettings({ gtmId, gaId, cfAnalyticsToken }: TrackingSettingsProps) {
+    const [gtm, setGtm] = useState(gtmId);
+    const [ga, setGa] = useState(gaId);
+    const [cfToken, setCfToken] = useState(cfAnalyticsToken);
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const res = await setOption("ga_measurement_id", measurementId);
+            const res = await setOptions({
+                gtm_id: gtm,
+                ga_id: ga,
+                cf_analytics_token: cfToken,
+            });
             if (res.error) {
                 toast.error(res.error);
             } else {
@@ -48,20 +56,55 @@ export default function TrackingSettings({ gaId }: TrackingSettingsProps) {
                     Analytics & Tracking
                 </CardTitle>
                 <CardDescription>
-                    Configure third-party tracking like Google Analytics.
+                    Configure third-party tracking services.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
                 <div className="space-y-2 max-w-md">
-                    <Label htmlFor="gaId">Google Analytics Measurement ID</Label>
+                    <Label htmlFor="gtmId">Google Tag Manager ID</Label>
                     <Input
-                        id="gaId"
-                        value={measurementId}
-                        onChange={(e) => setMeasurementId(e.target.value)}
-                        placeholder="e.g., G-XXXXXXXXXX"
+                        id="gtmId"
+                        value={gtm}
+                        onChange={(e) => setGtm(e.target.value)}
+                        placeholder="e.g., GTM-XXXXXXX"
                     />
                     <p className="text-xs text-muted-foreground">
-                        Leave empty to disable Google Analytics entirely.
+                        GTM can load Google Analytics, Facebook Pixel, and other tags from its dashboard.
+                        Leave empty to disable.
+                    </p>
+                </div>
+                <div className="space-y-2 max-w-md">
+                    <Label htmlFor="gaId">Google Analytics ID (GA4)</Label>
+                    <Input
+                        id="gaId"
+                        value={ga}
+                        onChange={(e) => setGa(e.target.value)}
+                        placeholder="e.g., G-XXXXXXX"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                        The Google Tag ID (Measurement ID) for Google Analytics 4.
+                        Leave empty if you are already using GTM to load GA4.
+                    </p>
+                </div>
+                <div className="space-y-2 max-w-md">
+                    <Label htmlFor="cfToken">Cloudflare Web Analytics Token</Label>
+                    <Input
+                        id="cfToken"
+                        value={cfToken}
+                        onChange={(e) => setCfToken(e.target.value)}
+                        placeholder="e.g., abcdef1234567890"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                        Get your beacon token from{" "}
+                        <a
+                            href="https://dash.cloudflare.com/?to=/:account/web-analytics"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline text-indigo-400 hover:text-indigo-300"
+                        >
+                            Cloudflare Web Analytics
+                        </a>
+                        . Leave empty to disable.
                     </p>
                 </div>
             </CardContent>

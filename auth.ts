@@ -116,19 +116,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
 
         async jwt({ token, user }) {
+            // On initial sign-in, store the email in the token
             if (user?.email) {
+                token.email = user.email;
+            }
+
+            // Refresh user data from DB every 5 minutes (not every request)
+            const now = Date.now();
+            const lastRefresh = (token.lastRefresh as number) || 0;
+            if (token.email && (now - lastRefresh > 5 * 60 * 1000 || !token.id)) {
                 const dbUser = await db
                     .select({ id: users.id, role: users.role, status: users.status })
                     .from(users)
-                    .where(eq(users.email, user.email));
+                    .where(eq(users.email, token.email as string));
 
                 if (dbUser.length > 0) {
                     if (dbUser[0].status === "suspended") {
-                        return {}; // Invalidate token if suspended
+                        return {};
                     }
                     token.id = dbUser[0].id;
                     token.role = dbUser[0].role;
                     token.status = dbUser[0].status;
+                    token.lastRefresh = now;
                 }
             }
             return token;

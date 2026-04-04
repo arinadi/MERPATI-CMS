@@ -6,6 +6,7 @@ export interface ThemeLayoutProps {
     children: ReactNode;
     siteTitle: string;
     siteTagline: string;
+    siteLogo?: string;
     contacts: ContactItem[];
     primaryMenu: MenuItem[];
     footerMenu: MenuItem[];

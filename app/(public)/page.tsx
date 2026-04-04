@@ -50,9 +50,15 @@ const getCachedHomePosts = unstable_cache(
 
 export async function generateMetadata() {
     const options = await getCachedOptions(["site_title", "site_tagline"]);
+    const siteTitle = options.site_title || "MERPATI CMS";
+    const siteTagline = options.site_tagline || "";
+    const fullTitle = siteTagline ? `${siteTitle} — ${siteTagline}` : siteTitle;
+
     return {
-        title: options.site_title || "MERPATI CMS",
-        description: options.site_tagline,
+        title: {
+            absolute: fullTitle,
+        },
+        description: siteTagline || undefined,
     };
 }
 
