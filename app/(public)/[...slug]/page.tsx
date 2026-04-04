@@ -6,6 +6,7 @@ import type { PostCardData } from "@/lib/themes";
 import { getCachedOption } from "@/lib/queries/options";
 import { unstable_cache } from "next/cache";
 import { dbGuard } from "@/lib/db-guard";
+import { getBaseUrl } from "@/lib/get-base-url";
 
 const SinglePost = activeTheme.SinglePost;
 const SinglePage = activeTheme.SinglePage;
@@ -350,7 +351,7 @@ export async function generateMetadata({ params }: PublicPageProps) {
     const { slug } = await params;
     const fullSlug = slug.join("/");
     const meta = await getCachedMetadata(fullSlug, slug[0], slug[1]);
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const baseUrl = await getBaseUrl();
     const canonicalUrl = `${baseUrl}/${fullSlug}`;
 
     if (!meta) return {};
