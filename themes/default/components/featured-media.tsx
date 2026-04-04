@@ -1,9 +1,11 @@
+import Image from "next/image";
 import { getFeaturedImageUrl, getFeaturedImageAlt } from "@/lib/utils/featured-image";
 
 export function FeaturedMedia({
     src,
     alt,
     className,
+    priority = false,
 }: {
     src: string;
     alt: string;
@@ -39,11 +41,13 @@ export function FeaturedMedia({
     }
 
     return (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
             src={imageUrl}
             alt={imageAlt}
             className={className}
+            width={1200}
+            height={800}
+            priority={priority}
         />
     );
 }
