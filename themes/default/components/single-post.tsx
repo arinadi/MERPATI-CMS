@@ -1,10 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { FeaturedMedia } from "./featured-media";
 import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
 import { ShareButtons } from "./share-buttons";
+import { SafeImage } from "@/components/ui/safe-image";
 import type { SinglePostProps } from "@/lib/themes";
 
 export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
@@ -64,7 +64,7 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
                             <div className="flex items-center gap-3 w-full md:w-auto">
                                 <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-800 shrink-0 ring-2 ring-white/10 relative">
                                     {post.author?.image ? (
-                                        <Image src={post.author.image} alt={post.author.name || "Author"} fill className="object-cover" />
+                                        <SafeImage src={post.author.image} alt={post.author.name || "Author"} fill className="object-cover" />
                                     ) : (
                                         <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
                                             {post.author?.name?.[0]?.toUpperCase() || "A"}

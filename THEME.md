@@ -170,20 +170,27 @@ The `cacheId` prop on `ThemeLayout` is a timestamp that **freezes when the cache
 > This will cause a **hydration mismatch** between server and client,
 > because the server and browser times will differ.
 
-### 2. Do Not Use `next/image`
+### 2. Use `SafeImage` for All Images
 
-Use a plain `<img>` tag instead. Reasons:
-- Image sources can come from any external URL (Unsplash, etc.)
-- `next/image` requires domain configuration in `next.config.ts`
-- The `<img>` tag is more flexible for a CMS
+Do **NOT** use plain `next/image` or plain `<img>` tags directly. Instead, use the `@/components/ui/safe-image` component.
+
+Reasons:
+- `next/image` crashes the server (SSR) if a hostname is not configured in `next.config.ts`.
+- `SafeImage` automatically detects foreign domains and falls back to a standard `<img>` tag to prevent fatal errors.
+- It provides a built-in fallback icon if an image fails to load (404).
+- It remains compatible with `unstable_cache` and ISR caching systems.
 
 ```tsx
 // ❌ DON'T
 import Image from "next/image";
 <Image src={post.featuredImage} ... />
 
-// ✅ CORRECT
+// ❌ DON'T (No optimization, no automatic fallback icon)
 <img src={post.featuredImage} alt={post.title} className="..." />
+
+// ✅ CORRECT
+import { SafeImage } from "@/components/ui/safe-image";
+<SafeImage src={post.featuredImage} alt={post.title} className="..." />
 ```
 
 ### 3. Typography & Content Styling (TipTap)
@@ -357,7 +364,7 @@ bash /tmp/cache_benchmark.sh
 - [ ] Props conform to the interfaces in `lib/themes.ts`
 - [ ] Theme Options defined under an `options` array if applicable
 - [ ] `cacheId` is displayed in the footer layout
-- [ ] `next/image` is not used
+- [ ] `SafeImage` is used for all images (don't use `next/image` or plain `img`)
 - [ ] `new Date()` is not used in any component
 - [ ] Pagination is path-based (`/page/X`), not query params
 - [ ] Search form navigates to `/search/{query}` on Enter

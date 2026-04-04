@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Image as ImageIcon } from "lucide-react";
 import { getFeaturedImageUrl, getFeaturedImageAlt } from "@/lib/utils/featured-image";
+import { SafeImage } from "@/components/ui/safe-image";
 
 export function FeaturedMedia({
     src,
@@ -54,15 +54,15 @@ export function FeaturedMedia({
         );
     }
 
+    // Gunakan <img> biasa jika domain tidak terdaftar di next.config.ts
     return (
-        <Image
+        <SafeImage
             src={imageUrl}
             alt={imageAlt || "Image"}
             className={className}
             width={1200}
             height={800}
             priority={priority}
-            onError={() => setHasError(true)}
         />
     );
 }
