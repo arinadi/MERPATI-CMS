@@ -14,6 +14,11 @@ import {
     Menu as MenuIcon,
     DatabaseZap,
     ExternalLink,
+    Globe,
+    Phone,
+    Bell,
+    BarChart,
+    ChevronRight,
 } from "lucide-react";
 
 import {
@@ -25,10 +30,15 @@ import {
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
+    SidebarMenuSub,
+    SidebarMenuSubItem,
+    SidebarMenuSubButton,
     SidebarHeader,
     SidebarFooter,
     SidebarRail,
+    useSidebar,
 } from "@/components/ui/sidebar";
+import { Collapsible } from "radix-ui";
 import { isSuperUser } from "@/lib/rbac";
 
 interface NavItem {
@@ -37,6 +47,13 @@ interface NavItem {
     icon: React.ComponentType<{ className?: string }>;
     superUserOnly?: boolean;
 }
+
+const settingsSubItems = [
+    { title: "General", href: "/admin/settings/general", icon: Globe },
+    { title: "Contacts", href: "/admin/settings/contacts", icon: Phone },
+    { title: "Notifications", href: "/admin/settings/notifications", icon: Bell },
+    { title: "Tracking", href: "/admin/settings/tracking", icon: BarChart },
+];
 
 const navItems: NavItem[] = [
     { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -49,27 +66,26 @@ const navItems: NavItem[] = [
     { title: "Menus", href: "/admin/menus", icon: MenuIcon, superUserOnly: true },
     { title: "Users", href: "/admin/users", icon: Users, superUserOnly: true },
     { title: "Cache", href: "/admin/cache", icon: DatabaseZap, superUserOnly: true },
-    { title: "Settings", href: "/admin/settings", icon: Settings, superUserOnly: true },
 ];
 
 export function AppSidebar({ userRole, hasThemeOptions }: { userRole?: string | null, hasThemeOptions?: boolean }) {
     const pathname = usePathname();
+    const { isMobile, setOpenMobile } = useSidebar();
 
+    function handleNavClick() {
+        if (isMobile) setOpenMobile(false);
+    }
     const filteredItems = navItems.filter((item) => {
         if (item.superUserOnly && !isSuperUser(userRole)) return false;
         return true;
     });
 
     if (hasThemeOptions) {
-        // Insert Theme Options before Settings
-        const settingsIndex = filteredItems.findIndex(i => i.title === "Settings");
         const themeOptionsItem = { title: "Theme Options", href: "/admin/theme-options", icon: Settings, superUserOnly: true };
-        if (settingsIndex !== -1) {
-            filteredItems.splice(settingsIndex, 0, themeOptionsItem);
-        } else {
-            filteredItems.push(themeOptionsItem);
-        }
+        filteredItems.push(themeOptionsItem);
     }
+
+    const isSettingsActive = pathname.startsWith("/admin/settings");
 
     return (
         <Sidebar collapsible="icon">
@@ -104,7 +120,7 @@ export function AppSidebar({ userRole, hasThemeOptions }: { userRole?: string | 
                                             isActive={isActive}
                                             tooltip={item.title}
                                         >
-                                            <Link href={item.href} target={item.href === "/" ? "_blank" : undefined}>
+                                            <Link href={item.href} target={item.href === "/" ? "_blank" : undefined} onClick={handleNavClick}>
                                                 <item.icon className="h-4 w-4" />
                                                 <span>{item.title}</span>
                                             </Link>
@@ -112,6 +128,41 @@ export function AppSidebar({ userRole, hasThemeOptions }: { userRole?: string | 
                                     </SidebarMenuItem>
                                 );
                             })}
+
+                            {/* Settings collapsible sub-menu */}
+                            {isSuperUser(userRole) && (
+                                <Collapsible.Root defaultOpen={isSettingsActive} asChild>
+                                    <SidebarMenuItem>
+                                                        <Collapsible.Trigger asChild>
+                                                            <SidebarMenuButton
+                                                                isActive={isSettingsActive}
+                                                                tooltip="Settings"
+                                                            >
+                                                <Settings className="h-4 w-4" />
+                                                <span>Settings</span>
+                                                <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                                            </SidebarMenuButton>
+                                        </Collapsible.Trigger>
+                                        <Collapsible.Content>
+                                            <SidebarMenuSub>
+                                                {settingsSubItems.map((sub) => (
+                                                    <SidebarMenuSubItem key={sub.href}>
+                                                        <SidebarMenuSubButton
+                                                            asChild
+                                                            isActive={pathname === sub.href}
+                                                        >
+                                                            <Link href={sub.href} onClick={handleNavClick}>
+                                                                <sub.icon className="h-3.5 w-3.5" />
+                                                                <span>{sub.title}</span>
+                                                            </Link>
+                                                        </SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                ))}
+                                            </SidebarMenuSub>
+                                        </Collapsible.Content>
+                                    </SidebarMenuItem>
+                                </Collapsible.Root>
+                            )}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

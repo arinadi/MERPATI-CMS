@@ -18,11 +18,13 @@ import { BarChart } from "lucide-react";
 
 interface TrackingSettingsProps {
     gtmId: string;
+    gaId: string;
     cfAnalyticsToken: string;
 }
 
-export default function TrackingSettings({ gtmId, cfAnalyticsToken }: TrackingSettingsProps) {
+export default function TrackingSettings({ gtmId, gaId, cfAnalyticsToken }: TrackingSettingsProps) {
     const [gtm, setGtm] = useState(gtmId);
+    const [ga, setGa] = useState(gaId);
     const [cfToken, setCfToken] = useState(cfAnalyticsToken);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -31,6 +33,7 @@ export default function TrackingSettings({ gtmId, cfAnalyticsToken }: TrackingSe
         try {
             const res = await setOptions({
                 gtm_id: gtm,
+                ga_id: ga,
                 cf_analytics_token: cfToken,
             });
             if (res.error) {
@@ -68,6 +71,19 @@ export default function TrackingSettings({ gtmId, cfAnalyticsToken }: TrackingSe
                     <p className="text-xs text-muted-foreground">
                         GTM can load Google Analytics, Facebook Pixel, and other tags from its dashboard.
                         Leave empty to disable.
+                    </p>
+                </div>
+                <div className="space-y-2 max-w-md">
+                    <Label htmlFor="gaId">Google Analytics ID (GA4)</Label>
+                    <Input
+                        id="gaId"
+                        value={ga}
+                        onChange={(e) => setGa(e.target.value)}
+                        placeholder="e.g., G-XXXXXXX"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                        The Google Tag ID (Measurement ID) for Google Analytics 4.
+                        Leave empty if you are already using GTM to load GA4.
                     </p>
                 </div>
                 <div className="space-y-2 max-w-md">
