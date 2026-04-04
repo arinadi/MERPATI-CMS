@@ -8,14 +8,12 @@ const nextConfig: NextConfig = {
       // 1. Matikan disk cache untuk hindari 'Caching failed for pack'
       config.cache = { type: "memory" };
       
-      // 2. Cegah Watchpack melakukan scandir hingga ke root (/)
+      // 2. Cegah Watchpack melakukan scandir dengan pola glob string
       config.watchOptions = {
         ...config.watchOptions,
         ignored: [
-          "**/node_modules",
-          "**/.git",
-          /^\/data\/(?!data\/com\.termux)/,
-          /^\/(?!data)/, 
+          "**/node_modules/**",
+          "**/.git/**",
         ],
       };
     }
