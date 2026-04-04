@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
 import Script from "next/script";
-import { getCachedOptions } from "@/lib/queries/options";
+import { getCachedOptions, getCachedOption } from "@/lib/queries/options";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,7 +22,7 @@ const geistMono = Geist_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const faviconUrl = await getOption("favicon");
+  const faviconUrl = await getCachedOption("favicon");
   
   return {
     title: "MERPATI CMS",
