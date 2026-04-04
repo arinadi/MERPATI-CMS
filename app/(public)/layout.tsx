@@ -57,6 +57,7 @@ export default async function PublicLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const baseUrl = await getBaseUrl();
     const data = await dbGuard(async () => {
         const isInit = await getCachedOption("is_initialized");
         if (isInit !== "true") {
@@ -87,6 +88,19 @@ export default async function PublicLayout({
         return { siteTitle, siteTagline, siteLogo, contacts, primaryMenu, footerMenu, cacheId };
     });
 
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: data.siteTitle,
+        url: baseUrl,
+        description: data.siteTagline,
+        potentialAction: {
+            "@type": "SearchAction",
+            target: `${baseUrl}/search/{search_term_string}`,
+            "query-input": "required name=search_term_string"
+        }
+    };
+
     return (
         <ThemeLayout
             siteTitle={data.siteTitle}
@@ -97,6 +111,10 @@ export default async function PublicLayout({
             footerMenu={data.footerMenu}
             cacheId={data.cacheId}
         >
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             {children}
         </ThemeLayout>
     );

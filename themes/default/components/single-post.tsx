@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { FeaturedMedia, getFeaturedImageAlt } from "./featured-media";
+import { FeaturedMedia } from "./featured-media";
+import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
 import { ShareButtons } from "./share-buttons";
 import type { SinglePostProps } from "@/lib/themes";
 
@@ -60,10 +62,9 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 md:py-4 border-y border-white/10 mb-6 md:mb-10">
                             {/* Author Info */}
                             <div className="flex items-center gap-3 w-full md:w-auto">
-                                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-800 shrink-0 ring-2 ring-white/10">
+                                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-800 shrink-0 ring-2 ring-white/10 relative">
                                     {post.author?.image ? (
-                                        // eslint-disable-next-line @next/next/no-img-element
-                                        <img src={post.author.image} alt={post.author.name || "Author"} className="w-full h-full object-cover" />
+                                        <Image src={post.author.image} alt={post.author.name || "Author"} fill className="object-cover" />
                                     ) : (
                                         <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
                                             {post.author?.name?.[0]?.toUpperCase() || "A"}

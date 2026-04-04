@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { format } from "date-fns";
+import { FeaturedMedia } from "./featured-media";
 import { ArrowRight, Cpu, Terminal, Radio, Network, Database } from "lucide-react";
 import type { ArchiveProps, PostCardData } from "@/lib/themes";
 import { getCachedOptions } from "@/lib/queries/options";
@@ -46,8 +47,7 @@ function CardOne({ post, icon, status }: { post?: PostCardData, icon: string, st
         <Link href={`/${post.slug}`} className="relative block w-full h-full md:col-span-2 rounded-2xl overflow-hidden group bg-[#18181b] border border-white/5 p-6 md:p-10 flex flex-col justify-between min-h-[400px] md:min-h-[500px]">
             {post.featuredImage && (
                 <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={post.featuredImage} alt="" className="w-full h-full object-cover" />
+                    <FeaturedMedia src={post.featuredImage} alt={post.title} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#18181b] via-[#18181b]/80 to-transparent" />
                 </div>
             )}
@@ -75,8 +75,7 @@ function CardSmall({ post, icon, status }: { post?: PostCardData, icon: string, 
         <Link href={`/${post.slug}`} className="relative block w-full rounded-2xl overflow-hidden group bg-[#18181b] border border-white/5 p-6 md:p-8 flex flex-col justify-between min-h-[240px]">
             {post.featuredImage && (
                 <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500 pointer-events-none">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={post.featuredImage} alt="" className="w-full h-full object-cover" />
+                    <FeaturedMedia src={post.featuredImage} alt={post.title} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#18181b] to-transparent" />
                 </div>
             )}
@@ -188,8 +187,7 @@ export default async function Home({ posts }: ArchiveProps) {
                                 <div className="flex items-center gap-6">
                                     {post.featuredImage ? (
                                         <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 hidden md:block opacity-80 group-hover:opacity-100 transition-opacity">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={post.featuredImage} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                            <FeaturedMedia src={post.featuredImage} alt={post.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                                         </div>
                                     ) : (
                                         <div className="w-16 h-16 rounded-lg bg-white/5 shrink-0 hidden md:block" />

@@ -1,9 +1,15 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import { Image as ImageIcon } from "lucide-react";
 import { getFeaturedImageUrl, getFeaturedImageAlt } from "@/lib/utils/featured-image";
 
 export function FeaturedMedia({
     src,
     alt,
     className,
+    priority = false,
 }: {
     src: string;
     alt: string;
@@ -11,11 +17,21 @@ export function FeaturedMedia({
     priority?: boolean;
     showCaption?: boolean;
 }) {
+    const [hasError, setHasError] = useState(!src);
+
     // Parse JSON featured image format (backward-compatible with plain URLs)
     const imageUrl = getFeaturedImageUrl(src) || src;
     const imageAlt = getFeaturedImageAlt(src) || alt;
 
-    const isYoutube = imageUrl.includes("youtube.com") || imageUrl.includes("youtu.be");
+    const isYoutube = imageUrl?.includes("youtube.com") || imageUrl?.includes("youtu.be");
+
+    if (hasError || !imageUrl) {
+        return (
+            <div className={`flex items-center justify-center bg-[#0F172A] text-white/10 ${className}`}>
+                <ImageIcon className="w-12 h-12" />
+            </div>
+        );
+    }
 
     if (isYoutube) {
         let videoId = "";
@@ -39,16 +55,16 @@ export function FeaturedMedia({
     }
 
     return (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
             src={imageUrl}
-            alt={imageAlt}
+            alt={imageAlt || "Image"}
             className={className}
+            width={1200}
+            height={800}
+            priority={priority}
+            onError={() => setHasError(true)}
         />
     );
 }
 
-/**
- * Re-export for use by parent components to render captions outside overflow containers.
- */
-export { getFeaturedImageAlt };
+

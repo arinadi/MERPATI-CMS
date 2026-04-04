@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
+import { FeaturedMedia } from "./featured-media";
 import { ArrowLeft, Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -70,8 +71,7 @@ export default function Archive({ title, posts, pagination }: ArchiveProps) {
                                 <div className="flex items-center gap-6">
                                     {post.featuredImage ? (
                                         <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 hidden md:block opacity-80 group-hover:opacity-100 transition-opacity">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={post.featuredImage} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                            <FeaturedMedia src={post.featuredImage} alt={post.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                                         </div>
                                     ) : (
                                         <div className="w-16 h-16 rounded-lg bg-zinc-800 shrink-0 hidden md:block" />

@@ -54,6 +54,9 @@ npm run dev -- --webpack
 # Using npx directly
 npx next dev --webpack
 ```
+**Termux-Specific Webpack Quirks:**
+1. **Watchpack EACCES Errors**: A custom webpack `watchOptions.ignored` config is included in `next.config.ts` to suppress `EACCES: permission denied` watcher errors caused by Termux's restricted root file system.
+2. **Caching Warnings**: You may see `<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack...`. This is a harmless warning. Webpack fails to write persistent disk cache due to Android filesystem restrictions and will safely fallback to in-memory caching. You can safely ignore it.
 
 ### Pull Environment Variables from Vercel
 ```bash

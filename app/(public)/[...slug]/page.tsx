@@ -389,6 +389,7 @@ export async function generateMetadata({ params }: PublicPageProps) {
 export default async function PublicPage(props: PublicPageProps) {
     const params = await props.params;
     const rawSlug = params.slug;
+    const baseUrl = await getBaseUrl();
 
     // Extract page number if present
     let pageNum = 1;
@@ -457,8 +458,30 @@ export default async function PublicPage(props: PublicPageProps) {
     switch (result.type) {
         case "archive":
             return <Archive title={result.title} description={result.description} posts={result.posts} pagination={result.pagination} />;
-        case "post":
-            return <SinglePost post={result.post} relatedPosts={result.relatedPosts} />;
+        case "post": {
+            const articleJsonLd = {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                headline: result.post.title,
+                image: result.post.featuredImage ? [result.post.featuredImage] : [],
+                datePublished: result.post.createdAt,
+                dateModified: result.post.updatedAt || result.post.createdAt,
+                author: [{
+                    "@type": "Person",
+                    name: result.post.author?.name || "Editor",
+                    url: baseUrl
+                }]
+            };
+            return (
+                <>
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+                    />
+                    <SinglePost post={result.post} relatedPosts={result.relatedPosts} />
+                </>
+            );
+        }
         case "page":
             return <SinglePage page={result.page} />;
         default:
