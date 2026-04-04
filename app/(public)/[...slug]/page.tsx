@@ -350,28 +350,21 @@ export async function generateMetadata({ params }: PublicPageProps) {
     const { slug } = await params;
     const fullSlug = slug.join("/");
     const meta = await getCachedMetadata(fullSlug, slug[0], slug[1]);
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    const canonicalUrl = `${baseUrl}/${fullSlug}`;
 
     if (!meta) return {};
 
     const result: Record<string, unknown> = {
         title: meta.title,
         description: meta.description,
-        alternates: {
-            canonical: canonicalUrl,
-        },
-        openGraph: {
-            title: meta.title,
-            description: meta.description || undefined,
-            url: canonicalUrl,
-            type: "website",
-        },
     };
 
     if ("featuredImage" in meta && meta.featuredImage) {
-        (result.openGraph as Record<string, unknown>).images = [meta.featuredImage];
-        (result.openGraph as Record<string, unknown>).type = meta.type === "post" ? "article" : "website";
+        result.openGraph = {
+            title: meta.title,
+            description: meta.description || undefined,
+            images: [meta.featuredImage],
+            type: meta.type === "post" ? "article" : "website",
+        };
         result.twitter = {
             card: "summary_large_image",
             title: meta.title,
