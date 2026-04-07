@@ -12,11 +12,15 @@ import { Toaster } from "sonner";
 
 export async function generateMetadata(): Promise<Metadata> {
     const siteTitle = await getOption("site_title");
+    const faviconUrl = await getOption("favicon");
     const name = siteTitle || "MERPATI CMS";
     return {
         title: {
             template: `%s | ${name} - MERPATI CMS`,
             default: `${name} - MERPATI CMS`,
+        },
+        icons: {
+            icon: faviconUrl || "/favicon.ico",
         },
     };
 }

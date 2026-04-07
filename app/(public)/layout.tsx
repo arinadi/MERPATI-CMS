@@ -17,6 +17,7 @@ export async function generateMetadata() {
     const options = await getCachedOptions([
         "site_title",
         "site_tagline",
+        "favicon",
     ]);
 
     const siteTitle = options.site_title || "MERPATI CMS";
@@ -34,6 +35,9 @@ export async function generateMetadata() {
         },
         description,
         metadataBase: new URL(baseUrl),
+        icons: {
+            icon: options.favicon || "/favicon.ico",
+        },
         alternates: {
             canonical: baseUrl,
         },

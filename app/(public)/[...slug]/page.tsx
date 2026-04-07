@@ -351,6 +351,7 @@ export async function generateMetadata({ params }: PublicPageProps) {
     const { slug } = await params;
     const fullSlug = slug.join("/");
     const meta = await getCachedMetadata(fullSlug, slug[0], slug[1]);
+    const faviconUrl = await getCachedOption("favicon");
     const baseUrl = await getBaseUrl();
     const canonicalUrl = `${baseUrl}/${fullSlug}`;
 
@@ -359,6 +360,9 @@ export async function generateMetadata({ params }: PublicPageProps) {
     const result: Record<string, unknown> = {
         title: meta.title,
         description: meta.description,
+        icons: {
+            icon: faviconUrl || "/favicon.ico",
+        },
         alternates: {
             canonical: canonicalUrl,
         },
