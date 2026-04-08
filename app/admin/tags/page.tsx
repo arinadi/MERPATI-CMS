@@ -40,7 +40,8 @@ export default async function TagsPage({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                 <div className="md:col-span-1 bg-card border rounded-lg p-6 shadow-sm">
                     {/* Add/Edit Form */}
-                    <TermForm
+                     <TermForm
+                        key={editId || "new"}
                         taxonomy="tag"
                         initialTerm={editTerm}
                     />

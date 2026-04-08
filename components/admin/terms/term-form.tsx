@@ -38,6 +38,7 @@ export default function TermForm({
     taxonomy: "category" | "tag";
     terms?: Term[];
     initialTerm?: Term | null;
+    key?: string;
 }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);

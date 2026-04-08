@@ -53,6 +53,7 @@ export default async function CategoriesPage({
                 <div className="md:col-span-1 bg-card border rounded-lg p-6 shadow-sm">
                     {/* Add/Edit Form */}
                     <TermForm
+                        key={editId || "new"}
                         taxonomy="category"
                         terms={terms}
                         initialTerm={editTerm}
