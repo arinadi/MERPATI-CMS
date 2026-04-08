@@ -49,7 +49,7 @@ const getCachedHomePosts = unstable_cache(
 );
 
 export async function generateMetadata() {
-    const options = await getCachedOptions(["site_title", "site_tagline"]);
+    const options = await getCachedOptions(["site_title", "site_tagline", "favicon"]);
     const siteTitle = options.site_title || "MERPATI CMS";
     const siteTagline = options.site_tagline || "";
     const fullTitle = siteTagline ? `${siteTitle} — ${siteTagline}` : siteTitle;
@@ -59,6 +59,9 @@ export async function generateMetadata() {
             absolute: fullTitle,
         },
         description: siteTagline || undefined,
+        icons: {
+            icon: options.favicon || "/favicon.ico",
+        },
     };
 }
 

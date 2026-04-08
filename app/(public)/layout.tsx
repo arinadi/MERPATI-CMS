@@ -5,36 +5,53 @@ import { activeTheme } from "@/lib/themes";
 import type { ContactItem } from "@/lib/themes";
 import { redirect } from "next/navigation";
 import { dbGuard } from "@/lib/db-guard";
+import { getBaseUrl } from "@/lib/get-base-url";
 
 const ThemeLayout = activeTheme.ThemeLayout;
 
 export const revalidate = 3600;
 
 export async function generateMetadata() {
+    const baseUrl = await getBaseUrl();
+
     const options = await getCachedOptions([
         "site_title",
         "site_tagline",
+        "favicon",
     ]);
 
     const siteTitle = options.site_title || "MERPATI CMS";
-    const siteTagline = options.site_tagline || "Media Editorial Ringkas, Praktis...";
+    const siteTagline = options.site_tagline || "";
+    const description = siteTagline.length >= 70
+        ? siteTagline
+        : siteTagline
+            ? `${siteTagline} — Platform berita dan media digital yang ringkas, praktis, aman, dan tetap independen.`
+            : "Platform berita dan media digital yang ringkas, praktis, aman, dan tetap independen. Baca artikel terbaru seputar berita lokal dan nasional.";
 
     return {
         title: {
-            default: `${siteTitle} — ${siteTagline}`,
+            default: `${siteTitle} — ${siteTagline || "Berita Terkini"}`,
             template: `%s — ${siteTitle}`,
         },
-        description: siteTagline,
+        description,
+        metadataBase: new URL(baseUrl),
+        icons: {
+            icon: options.favicon || "/favicon.ico",
+        },
+        alternates: {
+            canonical: baseUrl,
+        },
         openGraph: {
-            title: `${siteTitle} — ${siteTagline}`,
-            description: siteTagline,
+            title: `${siteTitle} — ${siteTagline || "Berita Terkini"}`,
+            description,
             siteName: siteTitle,
             type: "website",
+            url: baseUrl,
         },
         twitter: {
             card: "summary_large_image",
-            title: `${siteTitle} — ${siteTagline}`,
-            description: siteTagline,
+            title: `${siteTitle} — ${siteTagline || "Berita Terkini"}`,
+            description,
         },
     };
 }
@@ -44,6 +61,7 @@ export default async function PublicLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const baseUrl = await getBaseUrl();
     const data = await dbGuard(async () => {
         const isInit = await getCachedOption("is_initialized");
         if (isInit !== "true") {
@@ -74,6 +92,19 @@ export default async function PublicLayout({
         return { siteTitle, siteTagline, siteLogo, contacts, primaryMenu, footerMenu, cacheId };
     });
 
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: data.siteTitle,
+        url: baseUrl,
+        description: data.siteTagline,
+        potentialAction: {
+            "@type": "SearchAction",
+            target: `${baseUrl}/search/{search_term_string}`,
+            "query-input": "required name=search_term_string"
+        }
+    };
+
     return (
         <ThemeLayout
             siteTitle={data.siteTitle}
@@ -84,6 +115,10 @@ export default async function PublicLayout({
             footerMenu={data.footerMenu}
             cacheId={data.cacheId}
         >
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             {children}
         </ThemeLayout>
     );

@@ -2,13 +2,10 @@ import { MetadataRoute } from 'next';
 import { db } from '@/db';
 import { posts, terms } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { headers } from 'next/headers';
+import { getBaseUrl } from '@/lib/get-base-url';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const headersList = await headers();
-    const host = headersList.get('x-forwarded-host') || headersList.get('host');
-    const protocol = host?.includes('localhost') ? 'http' : 'https';
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || (host ? `${protocol}://${host}` : 'http://localhost:3000');
+    const baseUrl = await getBaseUrl();
 
     // 1. Fetch Posts
     const dbPosts = await db

@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { options } from "@/db/schema";
 import { eq, inArray, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 /**
  * Get a single option value by key.
@@ -67,6 +67,7 @@ export async function setOption(key: string, value: string, autoload = true): Pr
             });
 
         revalidatePath("/", "layout");
+        revalidateTag("site-options", "default");
         return { success: true };
     } catch (error) {
         console.error(`Error setting option ${key}:`, error);
@@ -97,6 +98,7 @@ export async function setOptions(settings: Record<string, string>): Promise<{ su
             });
 
         revalidatePath("/", "layout");
+        revalidateTag("site-options", "default");
         return { success: true };
     } catch (error) {
         console.error("Error setting multiple options:", error);

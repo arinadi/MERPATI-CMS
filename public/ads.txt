@@ -1,0 +1,2 @@
+# ads.txt
+# Insert your authorized digital sellers here.

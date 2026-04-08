@@ -2,6 +2,7 @@
 
 import "../theme.css";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -36,12 +37,20 @@ const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
 };
 
 function SiteLogo({ title, logoUrl }: { title: string; logoUrl?: string }) {
-    if (logoUrl) {
+    const [imgError, setImgError] = useState(false);
+
+    if (logoUrl && !imgError) {
         return (
             <div className="flex items-center gap-3 group">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#00e5b7]" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={logoUrl} alt={title || "Site Logo"} className="h-7 w-auto object-contain" />
+                <Image 
+                    src={logoUrl} 
+                    alt={title || "Site Logo"} 
+                    width={150} 
+                    height={40} 
+                    className="h-7 w-auto object-contain"
+                    onError={() => setImgError(true)}
+                />
             </div>
         );
     }

@@ -188,7 +188,7 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                         </Button>
                     )}
                     <p className="text-[12px] text-muted-foreground">
-                        Recommended: square PNG or ICO. Example dimensions: 32x32px or 512x512px.
+                        Recommended: Square PNG (32x32px) or High-Resolution PNG/SVG for better quality. 32x32px ensures compatibility with browser tabs and Google Search.
                     </p>
                 </div>
                 <div className="space-y-2">
@@ -235,7 +235,7 @@ export default function GeneralSettings({ siteTitle: initialTitle, siteTagline: 
                 }}
                 insertLabel="Use as Favicon"
                 hideUrlTab={true}
-                description="Recommended: square PNG or ICO (32x32px or 512x512px)."
+                description="Recommended: Square PNG (32x32px) for best results in browser tabs and searches."
             />
         </Card>
     );

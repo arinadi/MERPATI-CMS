@@ -6,6 +6,7 @@ import type { PostCardData } from "@/lib/themes";
 import { getCachedOption } from "@/lib/queries/options";
 import { unstable_cache } from "next/cache";
 import { dbGuard } from "@/lib/db-guard";
+import { getBaseUrl } from "@/lib/get-base-url";
 
 const SinglePost = activeTheme.SinglePost;
 const SinglePage = activeTheme.SinglePage;
@@ -350,21 +351,32 @@ export async function generateMetadata({ params }: PublicPageProps) {
     const { slug } = await params;
     const fullSlug = slug.join("/");
     const meta = await getCachedMetadata(fullSlug, slug[0], slug[1]);
+    const faviconUrl = await getCachedOption("favicon");
+    const baseUrl = await getBaseUrl();
+    const canonicalUrl = `${baseUrl}/${fullSlug}`;
 
     if (!meta) return {};
 
     const result: Record<string, unknown> = {
         title: meta.title,
         description: meta.description,
+        icons: {
+            icon: faviconUrl || "/favicon.ico",
+        },
+        alternates: {
+            canonical: canonicalUrl,
+        },
+        openGraph: {
+            title: meta.title,
+            description: meta.description || undefined,
+            url: canonicalUrl,
+            type: "website",
+        },
     };
 
     if ("featuredImage" in meta && meta.featuredImage) {
-        result.openGraph = {
-            title: meta.title,
-            description: meta.description || undefined,
-            images: [meta.featuredImage],
-            type: meta.type === "post" ? "article" : "website",
-        };
+        (result.openGraph as Record<string, unknown>).images = [meta.featuredImage];
+        (result.openGraph as Record<string, unknown>).type = meta.type === "post" ? "article" : "website";
         result.twitter = {
             card: "summary_large_image",
             title: meta.title,
@@ -381,6 +393,7 @@ export async function generateMetadata({ params }: PublicPageProps) {
 export default async function PublicPage(props: PublicPageProps) {
     const params = await props.params;
     const rawSlug = params.slug;
+    const baseUrl = await getBaseUrl();
 
     // Extract page number if present
     let pageNum = 1;
@@ -449,8 +462,30 @@ export default async function PublicPage(props: PublicPageProps) {
     switch (result.type) {
         case "archive":
             return <Archive title={result.title} description={result.description} posts={result.posts} pagination={result.pagination} />;
-        case "post":
-            return <SinglePost post={result.post} relatedPosts={result.relatedPosts} />;
+        case "post": {
+            const articleJsonLd = {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                headline: result.post.title,
+                image: result.post.featuredImage ? [result.post.featuredImage] : [],
+                datePublished: result.post.createdAt,
+                dateModified: result.post.updatedAt || result.post.createdAt,
+                author: [{
+                    "@type": "Person",
+                    name: result.post.author?.name || "Editor",
+                    url: baseUrl
+                }]
+            };
+            return (
+                <>
+                    <script
+                        type="application/ld+json"
+                        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+                    />
+                    <SinglePost post={result.post} relatedPosts={result.relatedPosts} />
+                </>
+            );
+        }
         case "page":
             return <SinglePage page={result.page} />;
         default:

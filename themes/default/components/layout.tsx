@@ -2,6 +2,7 @@
 
 import "../theme.css";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -37,10 +38,18 @@ const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
 
 // Helper component for dynamic logo formatting (bold first part, thin second part)
 function SiteLogo({ title, logoUrl }: { title: string; logoUrl?: string }) {
-    if (logoUrl) {
+    const [imgError, setImgError] = useState(false);
+
+    if (logoUrl && !imgError) {
         return (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt={title || "Site Logo"} className="h-8 md:h-10 w-auto object-contain" />
+            <Image 
+                src={logoUrl} 
+                alt={title || "Site Logo"} 
+                width={200} 
+                height={60} 
+                className="h-8 md:h-10 w-auto object-contain"
+                onError={() => setImgError(true)} 
+            />
         );
     }
 

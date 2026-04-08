@@ -1,9 +1,14 @@
+"use client";
+
+import { Image as ImageIcon } from "lucide-react";
 import { getFeaturedImageUrl, getFeaturedImageAlt } from "@/lib/utils/featured-image";
+import { SafeImage } from "@/components/ui/safe-image";
 
 export function FeaturedMedia({
     src,
     alt,
     className,
+    priority = false,
 }: {
     src: string;
     alt: string;
@@ -15,7 +20,15 @@ export function FeaturedMedia({
     const imageUrl = getFeaturedImageUrl(src) || src;
     const imageAlt = getFeaturedImageAlt(src) || alt;
 
-    const isYoutube = imageUrl.includes("youtube.com") || imageUrl.includes("youtu.be");
+    const isYoutube = imageUrl?.includes("youtube.com") || imageUrl?.includes("youtu.be");
+
+    if (!imageUrl) {
+        return (
+            <div className={`flex items-center justify-center bg-[#0F172A] text-white/10 ${className}`}>
+                <ImageIcon className="w-12 h-12" />
+            </div>
+        );
+    }
 
     if (isYoutube) {
         let videoId = "";
@@ -38,17 +51,17 @@ export function FeaturedMedia({
         );
     }
 
+    // Gunakan <img> biasa jika domain tidak terdaftar di next.config.ts
     return (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <SafeImage
             src={imageUrl}
-            alt={imageAlt}
+            alt={imageAlt || "Image"}
             className={className}
+            width={1200}
+            height={800}
+            priority={priority}
         />
     );
 }
 
-/**
- * Re-export for use by parent components to render captions outside overflow containers.
- */
-export { getFeaturedImageAlt };
+
