@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { terms, termRelationships } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, asc } from "drizzle-orm";
 import { z } from "zod";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -33,7 +33,8 @@ export async function getTerms(taxonomy: "category" | "tag") {
         const result = await db
             .select()
             .from(terms)
-            .where(eq(terms.taxonomy, taxonomy));
+            .where(eq(terms.taxonomy, taxonomy))
+            .orderBy(asc(terms.name));
         return { terms: result };
     } catch (error) {
         console.error(`Failed to get ${taxonomy}s:`, error);

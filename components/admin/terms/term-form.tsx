@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createTerm, updateTerm } from "@/lib/actions/terms";
+import { toast } from "sonner";
 
 type Term = {
     id: string;
@@ -82,8 +83,10 @@ export default function TermForm({
 
         if (result.error) {
             setError(result.error);
+            toast.error(result.error);
             setIsLoading(false);
         } else {
+            toast.success(`${isCategory ? "Category" : "Tag"} ${isEdit ? "updated" : "added"} successfully.`);
             // Reset if creating new
             if (!isEdit) {
                 setName("");
