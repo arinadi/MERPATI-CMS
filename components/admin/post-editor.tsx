@@ -971,7 +971,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                     {!isSaving && lastSaved && !hasUnsavedChanges && (
                         <span className="text-sm text-muted-foreground">
                             Saved{" "}
-                            {lastSaved.toLocaleTimeString("id-ID", {
+                            {lastSaved.toLocaleTimeString("en-US", {
                                 hour: "2-digit",
                                 minute: "2-digit",
                             })}

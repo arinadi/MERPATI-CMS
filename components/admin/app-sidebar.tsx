@@ -51,6 +51,7 @@ interface NavItem {
 const settingsSubItems = [
     { title: "General", href: "/admin/settings/general", icon: Globe },
     { title: "Contacts", href: "/admin/settings/contacts", icon: Phone },
+    { title: "Sharing", href: "/admin/settings/sharing", icon: ExternalLink },
     { title: "Notifications", href: "/admin/settings/notifications", icon: Bell },
     { title: "Tracking", href: "/admin/settings/tracking", icon: BarChart },
 ];

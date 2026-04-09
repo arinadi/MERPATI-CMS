@@ -15,7 +15,7 @@ import {
 import { UserActionsMenu } from "@/components/admin/user-actions-menu";
 
 function formatDate(date: Date) {
-    return new Intl.DateTimeFormat("id-ID", {
+    return new Intl.DateTimeFormat("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",

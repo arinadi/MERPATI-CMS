@@ -7,11 +7,11 @@ import { getCachedOption } from "@/lib/queries/options";
 import { unstable_cache } from "next/cache";
 import { dbGuard } from "@/lib/db-guard";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { notFound } from "next/navigation";
 
 const SinglePost = activeTheme.SinglePost;
 const SinglePage = activeTheme.SinglePage;
 const Archive = activeTheme.Archive;
-const NotFoundComponent = activeTheme.NotFound;
 
 interface PublicPageProps {
     params: Promise<{ slug: string[] }>;
@@ -345,6 +345,12 @@ const getCachedSearchResults = unstable_cache(
     { revalidate: 3600, tags: ["posts"] }
 );
 
+const makeAbsolute = (url: string | null | undefined, baseUrl: string) => {
+    if (!url) return undefined;
+    if (url.startsWith("http")) return url;
+    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+};
+
 // ─── Metadata ──────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: PublicPageProps) {
@@ -352,10 +358,14 @@ export async function generateMetadata({ params }: PublicPageProps) {
     const fullSlug = slug.join("/");
     const meta = await getCachedMetadata(fullSlug, slug[0], slug[1]);
     const faviconUrl = await getCachedOption("favicon");
+    const siteTitle = await getCachedOption("site_title") || "MERPATI CMS";
+    const siteLogo = await getCachedOption("site_logo");
     const baseUrl = await getBaseUrl();
     const canonicalUrl = `${baseUrl}/${fullSlug}`;
 
     if (!meta) return {};
+
+    const imageUrl = makeAbsolute(meta.featuredImage, baseUrl) || makeAbsolute(siteLogo, baseUrl);
 
     const result: Record<string, unknown> = {
         title: meta.title,
@@ -371,17 +381,19 @@ export async function generateMetadata({ params }: PublicPageProps) {
             description: meta.description || undefined,
             url: canonicalUrl,
             type: "website",
+            siteName: siteTitle,
+            locale: "id_ID",
         },
     };
 
-    if ("featuredImage" in meta && meta.featuredImage) {
-        (result.openGraph as Record<string, unknown>).images = [meta.featuredImage];
+    if (imageUrl) {
+        (result.openGraph as Record<string, unknown>).images = [imageUrl];
         (result.openGraph as Record<string, unknown>).type = meta.type === "post" ? "article" : "website";
         result.twitter = {
             card: "summary_large_image",
             title: meta.title,
             description: meta.description || undefined,
-            images: [meta.featuredImage],
+            images: [imageUrl],
         };
     }
 
@@ -446,7 +458,8 @@ export default async function PublicPage(props: PublicPageProps) {
         // ── Try to find a Post
         const postData = await getCachedPost(fullSlug);
         if (postData) {
-            return { type: "post" as const, post: postData.post, relatedPosts: postData.relatedPosts };
+            const sharingPlatforms = await getCachedOption("sharing_platforms");
+            return { type: "post" as const, post: postData.post, relatedPosts: postData.relatedPosts, sharingPlatforms: sharingPlatforms || "" };
         }
 
         // ── Try to find a Page
@@ -467,6 +480,7 @@ export default async function PublicPage(props: PublicPageProps) {
                 "@context": "https://schema.org",
                 "@type": "Article",
                 headline: result.post.title,
+                description: result.post.excerpt || undefined,
                 image: result.post.featuredImage ? [result.post.featuredImage] : [],
                 datePublished: result.post.createdAt,
                 dateModified: result.post.updatedAt || result.post.createdAt,
@@ -474,7 +488,15 @@ export default async function PublicPage(props: PublicPageProps) {
                     "@type": "Person",
                     name: result.post.author?.name || "Editor",
                     url: baseUrl
-                }]
+                }],
+                publisher: {
+                    "@type": "Organization",
+                    name: await getCachedOption("site_title") || "MERPATI CMS",
+                    logo: {
+                        "@type": "ImageObject",
+                        url: makeAbsolute(await getCachedOption("site_logo"), baseUrl) || `${baseUrl}/favicon.ico`
+                    }
+                }
             };
             return (
                 <>
@@ -482,13 +504,13 @@ export default async function PublicPage(props: PublicPageProps) {
                         type="application/ld+json"
                         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
                     />
-                    <SinglePost post={result.post} relatedPosts={result.relatedPosts} />
+                    <SinglePost post={result.post} relatedPosts={result.relatedPosts} sharingPlatforms={result.sharingPlatforms} />
                 </>
             );
         }
         case "page":
             return <SinglePage page={result.page} />;
         default:
-            return <NotFoundComponent />;
+            notFound();
     }
 }

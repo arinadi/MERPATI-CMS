@@ -16,6 +16,7 @@ export interface ThemeLayoutProps {
 export interface SinglePostProps {
     post: PostData;
     relatedPosts?: PostCardData[];
+    sharingPlatforms?: string;
 }
 
 export interface SinglePageProps {

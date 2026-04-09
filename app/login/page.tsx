@@ -15,7 +15,7 @@ export default async function LoginPage() {
                         MERPATI CMS
                     </h1>
                     <p className="text-muted-foreground text-sm">
-                        Masuk ke dashboard
+                        Sign in to dashboard
                     </p>
                 </div>
 
@@ -54,7 +54,7 @@ export default async function LoginPage() {
                 </div>
 
                 <p className="text-center text-xs text-muted-foreground mt-6">
-                    Kebebasan pers dimulai dari kemandirian infrastrukturnya.
+                    Press freedom begins with the independence of its infrastructure.
                 </p>
             </div>
         </div>

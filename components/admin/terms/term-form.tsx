@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createTerm, updateTerm } from "@/lib/actions/terms";
+import { toast } from "sonner";
+import { Edit } from "lucide-react";
 
 type Term = {
     id: string;
@@ -82,8 +84,10 @@ export default function TermForm({
 
         if (result.error) {
             setError(result.error);
+            toast.error(result.error);
             setIsLoading(false);
         } else {
+            toast.success(`${isCategory ? "Category" : "Tag"} ${isEdit ? "updated" : "added"} successfully.`);
             // Reset if creating new
             if (!isEdit) {
                 setName("");
@@ -97,8 +101,24 @@ export default function TermForm({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <h3 className="text-lg font-medium">{isEdit ? `Edit ${isCategory ? "Category" : "Tag"}` : `Add New ${isCategory ? "Category" : "Tag"}`}</h3>
+        <form onSubmit={handleSubmit} className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-500">
+            <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold tracking-tight">
+                    {isEdit ? (
+                        <span className="flex items-center gap-2 text-primary">
+                            <Edit className="h-5 w-5" />
+                            Editing {isCategory ? "Category" : "Tag"}
+                        </span>
+                    ) : (
+                        `Add New ${isCategory ? "Category" : "Tag"}`
+                    )}
+                </h3>
+                {isEdit && (
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                        ID: {initialTerm.id.slice(0, 8)}...
+                    </span>
+                )}
+            </div>
 
             {error && (
                 <div className="bg-destructive/10 text-destructive text-sm px-4 py-3 rounded-md border border-destructive/20">
