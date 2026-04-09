@@ -1,4 +1,5 @@
 import { db } from "@/db";
+import { getFeaturedImageUrl } from "@/lib/utils/featured-image";
 import { posts, users, terms, termRelationships, postRelationships } from "@/db/schema";
 import { eq, and, desc, inArray, count, ilike, or } from "drizzle-orm";
 import { activeTheme } from "@/lib/themes";
@@ -175,7 +176,7 @@ const getCachedMetadata = unstable_cache(
         }
 
         if (firstSegment === "archive") {
-            return { title: "Semua Artikel", description: "Jelajahi kumpulan berita dan artikel terbaru kami." };
+            return { title: "All Articles", description: "Explore our collection of published news and articles." };
         }
 
         return null;
@@ -365,7 +366,7 @@ export async function generateMetadata({ params }: PublicPageProps) {
 
     if (!meta) return {};
 
-    const imageUrl = makeAbsolute(meta.featuredImage, baseUrl) || makeAbsolute(siteLogo, baseUrl);
+    const imageUrl = makeAbsolute(getFeaturedImageUrl(meta.featuredImage), baseUrl) || makeAbsolute(siteLogo, baseUrl);
 
     const result: Record<string, unknown> = {
         title: meta.title,
@@ -444,7 +445,7 @@ export default async function PublicPage(props: PublicPageProps) {
         if (slug[0] === "archive" && slug.length === 1) {
             const data = await getCachedArchivePosts(limit, offset);
             const totalPages = Math.ceil(data.total / limit);
-            return { type: "archive" as const, title: "Semua Artikel", description: "Jelajahi kumpulan berita dan artikel yang telah kami terbitkan.", posts: data.hydratedPosts, pagination: { currentPage: pageNum, totalPages, basePath: "/archive" } };
+            return { type: "archive" as const, title: "All Articles", description: "Explore our collection of published articles.", posts: data.hydratedPosts, pagination: { currentPage: pageNum, totalPages, basePath: "/archive" } };
         }
 
         // ── Search Route
@@ -452,7 +453,7 @@ export default async function PublicPage(props: PublicPageProps) {
             const query = decodeURIComponent(slug[1]);
             const data = await getCachedSearchResults(query, limit, offset);
             const totalPages = Math.ceil(data.total / limit);
-            return { type: "archive" as const, title: `Hasil pencarian untuk: "${query}"`, description: `Ditemukan ${data.total} artikel`, posts: data.hydratedPosts, pagination: totalPages > 1 ? { currentPage: pageNum, totalPages, basePath: `/search/${slug[1]}` } : undefined };
+            return { type: "archive" as const, title: `Search results for: "${query}"`, description: `Found ${data.total} articles`, posts: data.hydratedPosts, pagination: totalPages > 1 ? { currentPage: pageNum, totalPages, basePath: `/search/${slug[1]}` } : undefined };
         }
 
         // ── Try to find a Post
@@ -481,7 +482,7 @@ export default async function PublicPage(props: PublicPageProps) {
                 "@type": "Article",
                 headline: result.post.title,
                 description: result.post.excerpt || undefined,
-                image: result.post.featuredImage ? [result.post.featuredImage] : [],
+                image: getFeaturedImageUrl(result.post.featuredImage) ? [makeAbsolute(getFeaturedImageUrl(result.post.featuredImage), baseUrl)] : [],
                 datePublished: result.post.createdAt,
                 dateModified: result.post.updatedAt || result.post.createdAt,
                 author: [{

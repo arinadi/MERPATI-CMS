@@ -74,8 +74,8 @@ export default async function HomePage() {
 
     return (
         <HomeComp
-            title="Artikel Terbaru"
-            description={options.site_tagline || "Baca berita dan artikel terbaru kami."}
+            title="Latest Articles"
+            description={options.site_tagline || "Read our latest news and articles."}
             posts={hydratedPosts}
         />
     );
