@@ -7,7 +7,7 @@ import { ShareButtons } from "./share-buttons";
 import { SafeImage } from "@/components/ui/safe-image";
 import type { SinglePostProps } from "@/lib/themes";
 
-export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
+export default function SinglePost({ post, relatedPosts, sharingPlatforms }: SinglePostProps) {
     const publishDate = post.createdAt ? new Date(post.createdAt) : new Date();
 
     return (
@@ -81,7 +81,7 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
 
                             {/* Share Buttons */}
                             <div className="w-full md:w-auto flex justify-end">
-                                <ShareButtons title={post.title} />
+                                <ShareButtons title={post.title} excerpt={post.excerpt || ""} sharingPlatforms={sharingPlatforms} />
                             </div>
                         </div>
 

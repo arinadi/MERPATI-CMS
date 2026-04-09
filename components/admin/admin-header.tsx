@@ -58,7 +58,7 @@ export function AdminHeader({ userName, userEmail, userImage }: AdminHeaderProps
     const breadcrumbs = generateBreadcrumbs(pathname);
 
     const now = new Date();
-    const formattedDate = now.toLocaleDateString("id-ID", {
+    const formattedDate = now.toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
         month: "long",

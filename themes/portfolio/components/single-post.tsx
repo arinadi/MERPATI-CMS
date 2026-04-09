@@ -7,7 +7,7 @@ import { FeaturedMedia } from "./featured-media";
 import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
 import { ShareButtons } from "./share-buttons";
 
-export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
+export default function SinglePost({ post, relatedPosts, sharingPlatforms }: SinglePostProps) {
     if (!post) {
         return (
             <div className="container mx-auto px-4 py-32 text-center text-zinc-500 font-mono">
@@ -84,7 +84,7 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
 
                 {/* Share Buttons */}
                 <div className="mt-10 pt-8 border-t border-zinc-800">
-                    <ShareButtons title={post.title} />
+                    <ShareButtons title={post.title} excerpt={post.excerpt || ""} sharingPlatforms={sharingPlatforms} />
                 </div>
             </article>
 
