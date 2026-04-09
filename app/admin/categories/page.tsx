@@ -80,35 +80,42 @@ export default async function CategoriesPage({
                                         </td>
                                     </tr>
                                 ) : (
-                                    sortedTerms.map(({ term, depth }) => (
-                                        <tr key={term.id} className="hover:bg-muted/50 transition-colors">
-                                            <td className="px-4 py-3 font-medium">
-                                                <span
-                                                    className="inline-block text-muted-foreground mr-2 font-normal"
-                                                    style={{ marginLeft: `${depth * 1}rem` }}
-                                                >
-                                                    {depth > 0 && "—"} {term.name}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3 text-muted-foreground truncate max-w-[200px]">
-                                                {term.description || "—"}
-                                            </td>
-                                            <td className="px-4 py-3 text-muted-foreground">
-                                                {term.slug}
-                                            </td>
-                                            <td className="px-4 py-3 text-right">
-                                                <div className="flex items-center justify-end gap-1">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" asChild>
-                                                        <Link href={`/admin/categories?edit=${term.id}`}>
-                                                            <Edit className="h-4 w-4" />
-                                                            <span className="sr-only">Edit</span>
-                                                        </Link>
-                                                    </Button>
-                                                    <DeleteTermButton id={term.id} taxonomy="category" />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                    sortedTerms.map(({ term, depth }) => {
+                                        const isEditing = editId === term.id;
+                                        return (
+                                            <tr 
+                                                key={term.id} 
+                                                className={`hover:bg-muted/50 transition-all duration-300 origin-center ${isEditing ? "opacity-0 scale-95 pointer-events-none h-0 border-none overflow-hidden" : "opacity-100 scale-100"}`}
+                                                style={{ visibility: isEditing ? "hidden" : "visible" }}
+                                            >
+                                                <td className="px-4 py-3 font-medium">
+                                                    <span
+                                                        className="inline-block text-muted-foreground mr-2 font-normal"
+                                                        style={{ marginLeft: `${depth * 1}rem` }}
+                                                    >
+                                                        {depth > 0 && "—"} {term.name}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-muted-foreground truncate max-w-[200px]">
+                                                    {term.description || "—"}
+                                                </td>
+                                                <td className="px-4 py-3 text-muted-foreground">
+                                                    {term.slug}
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" asChild>
+                                                            <Link href={`/admin/categories?edit=${term.id}`}>
+                                                                <Edit className="h-4 w-4" />
+                                                                <span className="sr-only">Edit</span>
+                                                            </Link>
+                                                        </Button>
+                                                        <DeleteTermButton id={term.id} taxonomy="category" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>
@@ -121,37 +128,40 @@ export default async function CategoriesPage({
                                 No categories found.
                             </div>
                         ) : (
-                            sortedTerms.map(({ term, depth }) => (
-                                <div
-                                    key={term.id}
-                                    className="rounded-lg border bg-card p-4 shadow-sm space-y-3"
-                                    style={{ marginLeft: `${depth * 0.75}rem` }}
-                                >
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="min-w-0">
-                                            <h3 className="font-semibold truncate">
-                                                {term.name}
-                                            </h3>
-                                            <code className="text-[10px] text-muted-foreground bg-muted px-1 rounded">
-                                                {term.slug}
-                                            </code>
+                            sortedTerms.map(({ term, depth }) => {
+                                const isEditing = editId === term.id;
+                                return (
+                                    <div
+                                        key={term.id}
+                                        className={`rounded-lg border bg-card p-4 shadow-sm space-y-3 transition-all duration-300 origin-top ${isEditing ? "opacity-0 scale-95 translate-y-4 pointer-events-none h-0 p-0 border-none overflow-hidden" : "opacity-100 scale-100 translate-y-0"}`}
+                                        style={{ marginLeft: isEditing ? 0 : `${depth * 0.75}rem`, visibility: isEditing ? "hidden" : "visible" }}
+                                    >
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="min-w-0">
+                                                <h3 className="font-semibold truncate">
+                                                    {term.name}
+                                                </h3>
+                                                <code className="text-[10px] text-muted-foreground bg-muted px-1 rounded">
+                                                    {term.slug}
+                                                </code>
+                                            </div>
+                                            <div className="flex items-center gap-1 shrink-0">
+                                                <Button variant="outline" size="icon" className="h-9 w-9" asChild>
+                                                    <Link href={`/admin/categories?edit=${term.id}`}>
+                                                        <Edit className="h-4 w-4" />
+                                                    </Link>
+                                                </Button>
+                                                <DeleteTermButton id={term.id} taxonomy="category" />
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-1 shrink-0">
-                                            <Button variant="outline" size="icon" className="h-9 w-9" asChild>
-                                                <Link href={`/admin/categories?edit=${term.id}`}>
-                                                    <Edit className="h-4 w-4" />
-                                                </Link>
-                                            </Button>
-                                            <DeleteTermButton id={term.id} taxonomy="category" />
-                                        </div>
+                                        {term.description && (
+                                            <p className="text-sm text-muted-foreground line-clamp-2 italic">
+                                                {term.description}
+                                            </p>
+                                        )}
                                     </div>
-                                    {term.description && (
-                                        <p className="text-sm text-muted-foreground line-clamp-2 italic">
-                                            {term.description}
-                                        </p>
-                                    )}
-                                </div>
-                            ))
+                                );
+                            })
                         )}
                     </div>
                 </div>
