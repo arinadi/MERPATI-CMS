@@ -7,11 +7,11 @@ import { getCachedOption } from "@/lib/queries/options";
 import { unstable_cache } from "next/cache";
 import { dbGuard } from "@/lib/db-guard";
 import { getBaseUrl } from "@/lib/get-base-url";
+import { notFound } from "next/navigation";
 
 const SinglePost = activeTheme.SinglePost;
 const SinglePage = activeTheme.SinglePage;
 const Archive = activeTheme.Archive;
-const NotFoundComponent = activeTheme.NotFound;
 
 interface PublicPageProps {
     params: Promise<{ slug: string[] }>;
@@ -489,6 +489,6 @@ export default async function PublicPage(props: PublicPageProps) {
         case "page":
             return <SinglePage page={result.page} />;
         default:
-            return <NotFoundComponent />;
+            notFound();
     }
 }

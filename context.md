@@ -1,4 +1,18 @@
+---
+name: merpati-cms-agent
+description: Primary context agent for the MERPATI-CMS project. Integrated with Antigravity Kit (.agent) for domain-specific automation across Backend, Frontend, and Design.
+skills: clean-code, brainstorming, plan-writing, architecture, nodejs-best-practices, react-best-practices, tailwind-patterns, frontend-design, mobile-design
+---
+
 # MERPATI-CMS Agent Context & Development Guide
+
+## 0. AI Development Framework (Antigravity Kit)
+This repository is optimized for AI-driven development using the **Antigravity Kit**.
+- **System Map**: See [.agent/ARCHITECTURE.md](file:///d:/MERPATI-CMS-1/.agent/ARCHITECTURE.md) for a full overview of available specialists.
+- **Specialist Agents**: Located in `.agent/agents/`. Invoke them for domain-specific tasks (e.g., `@backend-specialist` for API work).
+- **Core Skills**: Defined in `.agent/skills/`. Use them to load deep domain knowledge.
+- **Scripts**: Master validation scripts reside in `.agent/scripts/`. Use `python .agent/scripts/checklist.py .` for priority checks.
+- **Theme Guide**: Detailed technical rules for theme development are in [THEME.md](file:///d:/MERPATI-CMS-1/THEME.md).
 
 ## 1. Project Identity & Philosophy
 **MERPATI** (Media Editorial Ringkas, Praktis, Aman, Tetap Independen) is a modern, serverless publishing platform designed as a zero-cost WordPress alternative for journalists.
@@ -140,6 +154,8 @@ Visiting `/admin/settings` redirects automatically to `/admin/settings/general`.
 ## 6. Theme & Child Theme System
 
 ### Architecture
+Detailed theme development guidelines, caching rules, and component requirements are documented in [THEME.md](file:///d:/MERPATI-CMS-1/THEME.md).
+
 Themes are located in `/themes`. The active theme is resolved at build time via the `ACTIVE_THEME` environment variable.
 
 ### Directory Structure
@@ -166,6 +182,24 @@ Currently, child themes are implemented via file-based duplication or extending 
    };
    ```
 4. Update `ACTIVE_THEME` in your `.env` to `my-custom-theme`.
+
+---
+
+## 7. AI Workflows (Slash Commands)
+Use these slash commands to trigger automated procedures defined in `.agent/workflows/`:
+
+| Command | Purpose |
+|---|---|
+| `/brainstorm` | Structured discovery & Socratic questioning. |
+| `/plan` | Generate a detailed `implementation_plan.md`. |
+| `/create` | Scaffolding new features or modules. |
+| `/enhance` | Refactoring or improving existing code. |
+| `/debug` | Systematic root cause analysis and fixing. |
+| `/ui-ux-pro-max` | Advanced UI design and implementation. |
+| `/test` | Generate and execute test suites. |
+| `/deploy` | Production pre-flight checks and deployment. |
+| `/status` | Check project and agent progress. |
+| `/orchestrate` | Coordinate multiple specialists for complex tasks. |
 
 ---
 
