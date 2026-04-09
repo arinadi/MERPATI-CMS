@@ -17,6 +17,13 @@
 - [Default Theme Demo](https://merpati-cms.vercel.app/)
 - [Portfolio Theme Demo](https://arinano.work/)
 
+### 🚀 Get Started
+
+1.  **Deploy Yourself**: Ready to fly? Check our [Setup Guide](./docs/setup.md) and get live in 60 seconds.
+2.  **Call your IT Friend**: Not a tech person? Just send them this link—they'll handle the setup while you grab a coffee. ☕
+3.  **Contact Me**: Need a custom setup or have questions? [Message me directly](mailto:arinadi.nur@gmail.com) 👋
+
+
 We have a **Love-Hate relationship with WordPress**. We love the power and the familiarity it gave us for decades. But we hate the slow speeds, the constant maintenance, and the expensive hosting bills that keep independent journalists from speaking their truth.
 
 **MERPATI CMS** is built for the storyteller who wants a professional home without the technical baggage. It’s what WordPress would be if it were born in 2025: lightning-fast, zero-cost to host, and focused entirely on your editorial productivity.
@@ -54,17 +61,7 @@ MERPATI is a zero-legacy, high-performance publishing engine built on:
 - **Tailwind CSS v4** for cutting-edge design flexibility.
 - **Drizzle ORM & Neon** for serverless, edge-ready data management.
 
-#### 🚀 Quick Start
-1.  **Deploy to Vercel**: Head over to our [Setup Guide](./docs/setup.md).
-2.  **Initialize**: Follow the zero-touch flow in your browser.
-3.  **Write**: Start your independent journey.
 
----
-
-### 📞 Get Started
-*   **Option 1**: [Get Started Now](./docs/setup.md) 🚀
-*   **Option 2**: Call your IT friend and send them this link—they'll have you live in 60 seconds!
-*   **Option 3**: Need a custom setup? [Contact Me](mailto:arinadi.nur@gmail.com) 👋
 
 ---
 

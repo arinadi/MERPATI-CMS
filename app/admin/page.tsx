@@ -61,7 +61,7 @@ export default async function AdminDashboard() {
                     Welcome back, {session?.user?.name ?? "User"}
                 </h1>
                 <p className="text-muted-foreground">
-                    MERPATI CMS Dashboard — Concise, Practical, Secure, and Independent Media Editorial.
+                    MERPATI CMS Dashboard — Media Editorial Ringkas, Praktis, Aman, Tetap Independen
                 </p>
             </div>
 
