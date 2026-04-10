@@ -64,7 +64,7 @@ const navItems: NavItem[] = [
     { title: "Menus", href: "/admin/menus", icon: MenuIcon, superUserOnly: true },
 ];
 
-export function AppSidebar({ userRole, hasThemeOptions }: { userRole?: string | null, hasThemeOptions?: boolean }) {
+export function AppSidebar({ userRole }: { userRole?: string | null }) {
     const pathname = usePathname();
     const { isMobile, setOpenMobile } = useSidebar();
 
@@ -76,7 +76,7 @@ export function AppSidebar({ userRole, hasThemeOptions }: { userRole?: string | 
         return true;
     });
 
-    if (hasThemeOptions) {
+    if (isSuperUser(userRole)) {
         const themeOptionsItem = { title: "Theme Options", href: "/admin/theme-options", icon: Settings, superUserOnly: true };
         filteredItems.push(themeOptionsItem);
     }
