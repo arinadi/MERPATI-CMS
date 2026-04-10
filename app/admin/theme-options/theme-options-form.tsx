@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { setOptions } from "@/lib/actions/options";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -18,6 +18,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import EditorMediaModal from "@/components/admin/editor-media-modal";
+import { ContactLinksManager } from "@/components/admin/theme-options/contact-links-manager";
 
 interface ThemeOptionsFormProps {
     schema: ThemeOptionField[];
@@ -53,104 +54,141 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
         }
     };
 
+    // Group fields by their group property
+    const groupedSchema = schema.reduce((acc, field) => {
+        const groupName = field.group || "General";
+        if (!acc[groupName]) acc[groupName] = [];
+        acc[groupName].push(field);
+        return acc;
+    }, {} as Record<string, typeof schema>);
+
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Configure Theme</CardTitle>
-                <CardDescription>
-                    Customize specific options for the currently active theme.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                {schema.map((field) => {
-                    const value = values[field.id] || "";
-
-                    return (
-                        <div key={field.id} className="space-y-2">
-                            <Label htmlFor={field.id}>{field.label}</Label>
-                            
-                            {(field.type === "text" || field.type === "url" || field.type === "number") && (
-                                <Input
-                                    id={field.id}
-                                    type={field.type === "number" ? "number" : "text"}
-                                    value={value}
-                                    onChange={(e) => handleChange(field.id, e.target.value)}
-                                />
-                            )}
-                            
-                            {field.type === "textarea" && (
-                                <Textarea
-                                    id={field.id}
-                                    value={value}
-                                    onChange={(e) => handleChange(field.id, e.target.value)}
-                                    rows={4}
-                                />
-                            )}
-
-                            {field.type === "select" && field.options && (
-                                <Select value={value} onValueChange={(val) => handleChange(field.id, val)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select an option" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {field.options.map((opt) => (
-                                            <SelectItem key={opt.value} value={opt.value}>
-                                                {opt.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            )}
-
-                            {field.type === "post" && (
-                                <Select value={value} onValueChange={(val) => handleChange(field.id, val)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a post" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availablePosts.map((post) => (
-                                            <SelectItem key={post.id} value={post.id}>
-                                                {post.title}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            )}
-
-                            {field.type === "image" && (
-                                <div className="flex items-center gap-2">
-                                    <Input 
-                                        id={field.id} 
-                                        value={value} 
-                                        onChange={(e) => handleChange(field.id, e.target.value)}
-                                        placeholder="https://..."
-                                    />
-                                    <Button 
-                                        type="button" 
-                                        variant="outline"
-                                        onClick={() => {
-                                            setActiveImageField(field.id);
-                                            setMediaModalOpen(true);
-                                        }}
-                                    >
-                                        Browse Media
-                                    </Button>
-                                </div>
-                            )}
-
-                            {field.description && (
-                                <p className="text-[12px] text-muted-foreground">{field.description}</p>
-                            )}
-                        </div>
-                    );
-                })}
-            </CardContent>
-            <CardFooter className="border-t bg-muted/50 px-6 py-4">
-                <Button onClick={handleSave} disabled={isSaving}>
+        <div className="space-y-8">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight">Configure Theme</h2>
+                    <p className="text-muted-foreground">
+                        Customize appearance and functionality settings.
+                    </p>
+                </div>
+                <Button onClick={handleSave} disabled={isSaving} size="lg">
                     {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Save Changes
+                    Save All Changes
                 </Button>
-            </CardFooter>
+            </div>
+
+            <div className="grid gap-6">
+                {Object.entries(groupedSchema).map(([groupName, fields]) => (
+                    <Card key={groupName} className="overflow-hidden">
+                        <CardHeader className="bg-muted/30 border-b">
+                            <CardTitle className="text-lg">{groupName}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6 space-y-6">
+                            {fields.map((field) => {
+                                const value = values[field.id] || "";
+
+                                return (
+                                    <div key={field.id} className="grid gap-4 md:grid-cols-[200px_1fr] items-start">
+                                        <div className="space-y-1">
+                                            <Label htmlFor={field.id} className="text-base">{field.label}</Label>
+                                            {field.description && (
+                                                <p className="text-xs text-muted-foreground">{field.description}</p>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="w-full">
+                                            {(field.type === "text" || field.type === "url" || field.type === "number") && (
+                                                <Input
+                                                    id={field.id}
+                                                    type={field.type === "number" ? "number" : "text"}
+                                                    value={value}
+                                                    onChange={(e) => handleChange(field.id, e.target.value)}
+                                                />
+                                            )}
+                                            
+                                            {field.type === "textarea" && (
+                                                <Textarea
+                                                    id={field.id}
+                                                    value={value}
+                                                    onChange={(e) => handleChange(field.id, e.target.value)}
+                                                    rows={4}
+                                                />
+                                            )}
+
+                                            {field.type === "color" && (
+                                                <div className="flex gap-2 items-center">
+                                                    <Input
+                                                        id={field.id}
+                                                        type="color"
+                                                        value={value || "#000000"}
+                                                        onChange={(e) => handleChange(field.id, e.target.value)}
+                                                        className="w-12 p-1 h-10 cursor-pointer"
+                                                    />
+                                                    <Input
+                                                        type="text"
+                                                        value={value}
+                                                        onChange={(e) => handleChange(field.id, e.target.value)}
+                                                        placeholder="#000000"
+                                                        className="font-mono"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {field.type === "contacts" && (
+                                                <ContactLinksManager 
+                                                    value={value}
+                                                    onChange={(val: string) => handleChange(field.id, val)}
+                                                />
+                                            )}
+
+                                            {(field.type === "select" || field.type === "post") && (
+                                                <Select value={value} onValueChange={(val) => handleChange(field.id, val)}>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder={`Select ${field.type === "post" ? "a post" : "an option"}`} />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {field.type === "select" && field.options?.map((opt) => (
+                                                            <SelectItem key={opt.value} value={opt.value}>
+                                                                {opt.label}
+                                                            </SelectItem>
+                                                        ))}
+                                                        {field.type === "post" && availablePosts.map((post) => (
+                                                            <SelectItem key={post.id} value={post.id}>
+                                                                {post.title}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+
+                                            {field.type === "image" && (
+                                                <div className="flex items-center gap-2">
+                                                    <Input 
+                                                        id={field.id} 
+                                                        value={value} 
+                                                        onChange={(e) => handleChange(field.id, e.target.value)}
+                                                        placeholder="https://..."
+                                                    />
+                                                    <Button 
+                                                        type="button" 
+                                                        variant="outline"
+                                                        onClick={() => {
+                                                            setActiveImageField(field.id);
+                                                            setMediaModalOpen(true);
+                                                        }}
+                                                    >
+                                                        Browse
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
 
             <EditorMediaModal
                 open={mediaModalOpen}
@@ -162,6 +200,6 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                     }
                 }}
             />
-        </Card>
+        </div>
     );
 }
