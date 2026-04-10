@@ -80,7 +80,11 @@ export function ShareButtons({
             id: "facebook",
             name: "Facebook",
             icon: Facebook,
-            href: `https://www.facebook.com/sharer/sharer.php?u=${getShareUrl("Facebook", url)}`,
+            href: (() => {
+                const shareUrl = getShareUrl("Facebook", url);
+                const text = `${title}${excerpt ? `\n\n${excerpt}` : ""}`;
+                return `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${encodeURIComponent(text)}`;
+            })(),
             hoverColor: "hover:bg-[#1877F2] hover:text-white",
         },
         {
@@ -96,7 +100,8 @@ export function ShareButtons({
             icon: TelegramIcon,
             href: (() => {
                 const utm = `${url}${url.includes("?") ? "&" : "?"}utm_source=telegram&utm_medium=social`;
-                const text = `${title}\n\n${utm}${excerpt ? `\n\n${excerpt}` : ""}`;
+                // Telegram share/url appends the url automatically, so text should only be title + excerpt
+                const text = `${title}${excerpt ? `\n\n${excerpt}` : ""}`;
                 return `https://t.me/share/url?url=${encodeURIComponent(utm)}&text=${encodeURIComponent(text)}`;
             })(),
             hoverColor: "hover:bg-[#0088cc] hover:text-white",
@@ -109,7 +114,7 @@ export function ShareButtons({
                     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
                 </svg>
             ),
-            href: `https://www.linkedin.com/sharing/share-offsite/?url=${getShareUrl("LinkedIn", url)}`,
+            href: `https://www.linkedin.com/sharing/share-offsite/?url=${getShareUrl("LinkedIn", url)}&title=${encodedTitle}&summary=${encodeURIComponent(excerpt)}`,
             hoverColor: "hover:bg-[#0A66C2] hover:text-white",
         },
         {
@@ -122,17 +127,6 @@ export function ShareButtons({
             ),
             href: `https://www.reddit.com/submit?url=${getShareUrl("Reddit", url)}&title=${encodedTitle}`,
             hoverColor: "hover:bg-[#FF4500] hover:text-white",
-        },
-        {
-            id: "pinterest",
-            name: "Pinterest",
-            icon: (props: React.SVGProps<SVGSVGElement>) => (
-                <svg {...props} viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.966 1.406-5.966s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.622 0 11.988-5.365 11.988-11.988C24.005 5.367 18.639 0 12.017 0z" />
-                </svg>
-            ),
-            href: `https://pinterest.com/pin/create/button/?url=${getShareUrl("Pinterest", url)}&description=${encodedTitle}`,
-            hoverColor: "hover:bg-[#E60023] hover:text-white",
         },
         {
             id: "threads",

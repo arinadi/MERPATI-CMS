@@ -161,7 +161,16 @@ const getCachedMetadata = unstable_cache(
         }
 
         const [post] = await db
-            .select()
+            .select({
+                id: posts.id,
+                title: posts.title,
+                excerpt: posts.excerpt,
+                content: posts.content,
+                featuredImage: posts.featuredImage,
+                type: posts.type,
+                createdAt: posts.createdAt,
+                updatedAt: posts.updatedAt,
+            })
             .from(posts)
             .where(and(eq(posts.slug, fullSlug), eq(posts.status, "published")))
             .limit(1);
@@ -170,9 +179,23 @@ const getCachedMetadata = unstable_cache(
             // Fallback description from content if excerpt is missing
             let description = post.excerpt;
             if (!description && post.content) {
-                // Strip HTML tags and truncate
                 const stripped = post.content.replace(/<[^>]*>/g, " ");
                 description = stripped.length > 160 ? stripped.substring(0, 157) + "..." : stripped;
+            }
+
+            // Fetch Taxonomy for Article Meta
+            let section: string | undefined;
+            let tags: string | undefined;
+
+            if (post.type === "post") {
+                const postTerms = await db
+                    .select({ name: terms.name, taxonomy: terms.taxonomy })
+                    .from(termRelationships)
+                    .innerJoin(terms, eq(termRelationships.termId, terms.id))
+                    .where(eq(termRelationships.objectId, post.id));
+
+                section = postTerms.find(t => t.taxonomy === "category")?.name;
+                tags = postTerms.filter(t => t.taxonomy === "tag").map(t => t.name).join(",");
             }
 
             return {
@@ -180,6 +203,10 @@ const getCachedMetadata = unstable_cache(
                 description: description,
                 featuredImage: post.featuredImage,
                 type: post.type,
+                publishedTime: post.createdAt.toISOString(),
+                modifiedTime: post.updatedAt?.toISOString() || post.createdAt.toISOString(),
+                section,
+                tags,
             };
         }
 
@@ -399,8 +426,24 @@ export async function generateMetadata({ params }: PublicPageProps) {
     };
 
     if (imageUrl) {
-        (result.openGraph as Record<string, unknown>).images = [imageUrl];
+        const ogImage = {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: meta.title,
+        };
+        (result.openGraph as Record<string, unknown>).images = [ogImage];
         (result.openGraph as Record<string, unknown>).type = meta.type === "post" ? "article" : "website";
+
+        if (meta.type === "post") {
+            const articleMeta: Record<string, string> = {};
+            if (meta.publishedTime) articleMeta.publishedTime = meta.publishedTime;
+            if (meta.modifiedTime) articleMeta.modifiedTime = meta.modifiedTime;
+            if (meta.section) articleMeta.section = meta.section;
+            if (meta.tags) articleMeta.tags = meta.tags;
+            (result.openGraph as Record<string, unknown>).article = articleMeta;
+        }
+
         result.twitter = {
             card: "summary_large_image",
             title: meta.title,
