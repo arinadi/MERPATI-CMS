@@ -11,6 +11,7 @@ import {
     Image as ImageIcon,
     Users,
     Settings,
+    Paintbrush,
     Menu as MenuIcon,
     DatabaseZap,
     ExternalLink,
@@ -77,7 +78,7 @@ export function AppSidebar({ userRole }: { userRole?: string | null }) {
     });
 
     if (isSuperUser(userRole)) {
-        const themeOptionsItem = { title: "Theme Options", href: "/admin/theme-options", icon: Settings, superUserOnly: true };
+        const themeOptionsItem = { title: "Theme Options", href: "/admin/theme-options", icon: Paintbrush, superUserOnly: true };
         filteredItems.push(themeOptionsItem);
     }
 

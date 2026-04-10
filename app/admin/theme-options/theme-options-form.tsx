@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { setOptions } from "@/lib/actions/options";
 import { toast } from "sonner";
 import { Loader2, ImageIcon, X } from "lucide-react";
@@ -76,10 +76,8 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
             <div className="columns-1 lg:columns-2 gap-8 space-y-8 lg:space-y-0">
                 {Object.entries(groupedSchema).map(([groupName, fields]) => (
                     <Card key={groupName} className="break-inside-avoid mb-8 border-none shadow-md bg-card/50 backdrop-blur-sm">
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-xl font-bold border-b pb-4">{groupName}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-8 pt-2">
+                        <CardContent className="space-y-8 pt-8">
+                            <h3 className="text-xl font-bold tracking-tight border-b pb-4 mb-2">{groupName}</h3>
                             {fields.map((field) => {
                                 const value = values[field.id] || "";
 
