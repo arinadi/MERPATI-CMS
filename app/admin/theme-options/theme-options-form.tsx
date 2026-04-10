@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { setOptions } from "@/lib/actions/options";
 import { toast } from "sonner";
@@ -66,16 +67,15 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
         <div className="relative min-h-[calc(100vh-120px)] pb-24">
             {/* Elegant Header */}
             <div className="mb-10">
-                <h1 className="text-3xl font-extrabold tracking-tight">Theme Options</h1>
                 <p className="text-muted-foreground mt-2 text-lg">
                     Customize your site&apos;s identity, appearance, and social integrations in one place.
                 </p>
             </div>
 
-            {/* 2-Column Card Grid */}
-            <div className="grid gap-8 grid-cols-1 lg:grid-cols-2 items-start">
+            {/* Waterfall (Masonry) Card Grid */}
+            <div className="columns-1 lg:columns-2 gap-8 space-y-8 lg:space-y-0">
                 {Object.entries(groupedSchema).map(([groupName, fields]) => (
-                    <Card key={groupName} className="border-none shadow-md bg-card/50 backdrop-blur-sm">
+                    <Card key={groupName} className="break-inside-avoid mb-8 border-none shadow-md bg-card/50 backdrop-blur-sm">
                         <CardHeader className="pb-4">
                             <CardTitle className="text-xl font-bold border-b pb-4">{groupName}</CardTitle>
                         </CardHeader>
@@ -93,7 +93,7 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                 <p className="text-xs text-muted-foreground italic">{field.description}</p>
                                             )}
                                         </div>
-                                        
+
                                         <div className="w-full">
                                             {(field.type === "text" || field.type === "url" || field.type === "number") && (
                                                 <Input
@@ -104,7 +104,7 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                     className="bg-background/50 focus-visible:ring-primary/50"
                                                 />
                                             )}
-                                            
+
                                             {field.type === "textarea" && (
                                                 <Textarea
                                                     id={field.id}
@@ -113,6 +113,39 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                     rows={4}
                                                     className="bg-background/50 focus-visible:ring-primary/50"
                                                 />
+                                            )}
+
+                                            {field.type === "checkbox-group" && (
+                                                <div className="grid gap-3 sm:grid-cols-2">
+                                                    {field.options?.map((option) => {
+                                                        let currentValues: Record<string, boolean> = {};
+                                                        try {
+                                                            currentValues = JSON.parse(value || "{}");
+                                                        } catch {
+                                                            currentValues = {};
+                                                        }
+                                                        const isChecked = currentValues[option.value] ?? false;
+
+                                                        return (
+                                                            <div key={option.value} className="flex items-center space-x-2 p-3 border rounded-lg bg-background/50 group hover:border-primary/30 transition-colors">
+                                                                <Checkbox
+                                                                    id={`${field.id}-${option.value}`}
+                                                                    checked={isChecked}
+                                                                    onCheckedChange={(checked) => {
+                                                                        const newValues = { ...currentValues, [option.value]: !!checked };
+                                                                        handleChange(field.id, JSON.stringify(newValues));
+                                                                    }}
+                                                                />
+                                                                <Label
+                                                                    htmlFor={`${field.id}-${option.value}`}
+                                                                    className="text-xs font-medium cursor-pointer select-none"
+                                                                >
+                                                                    {option.label}
+                                                                </Label>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
                                             )}
 
                                             {field.type === "color" && (
@@ -139,7 +172,7 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
 
                                             {field.type === "contacts" && (
                                                 <div className="rounded-lg border bg-muted/20 p-4">
-                                                    <ContactLinksManager 
+                                                    <ContactLinksManager
                                                         value={value}
                                                         onChange={(val: string) => handleChange(field.id, val)}
                                                     />
@@ -220,10 +253,10 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                             <span className="text-sm text-muted-foreground font-medium">Select {field.label}</span>
                                                         </Button>
                                                     )}
-                                                    
-                                                    <Input 
-                                                        id={field.id} 
-                                                        value={value} 
+
+                                                    <Input
+                                                        id={field.id}
+                                                        value={value}
                                                         onChange={(e) => handleChange(field.id, e.target.value)}
                                                         placeholder="Or paste URL here..."
                                                         className="h-8 text-[11px] font-mono opacity-40 focus:opacity-100 transition-opacity bg-transparent border-none p-0 focus-visible:ring-0"
@@ -241,10 +274,10 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
 
             {/* Sticky Save Bar */}
             <div className="fixed bottom-6 right-6 md:right-10 z-50 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <Button 
-                    onClick={handleSave} 
-                    disabled={isSaving} 
-                    size="lg" 
+                <Button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    size="lg"
                     className="h-14 px-8 rounded-full shadow-2xl hover:scale-105 transition-transform font-bold text-base"
                 >
                     {isSaving && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}

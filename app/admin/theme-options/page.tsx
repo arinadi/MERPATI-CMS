@@ -58,9 +58,19 @@ const GLOBAL_OPTIONS: ThemeOptionField[] = [
     {
         id: "sharing_platforms",
         label: "Sharing Platforms",
-        type: "text",
+        type: "checkbox-group",
         group: "Sharing",
-        description: "Comma-separated list (e.g., facebook, twitter, whatsapp)."
+        description: "Choose which platforms will be shown in the sharing menu.",
+        options: [
+            { label: "WhatsApp", value: "whatsapp" },
+            { label: "Facebook", value: "facebook" },
+            { label: "X (Twitter)", value: "twitter" },
+            { label: "Telegram", value: "telegram" },
+            { label: "LinkedIn", value: "linkedin" },
+            { label: "Reddit", value: "reddit" },
+            { label: "Pinterest", value: "pinterest" },
+            { label: "Threads", value: "threads" },
+        ]
     }
 ];
 
