@@ -167,9 +167,17 @@ const getCachedMetadata = unstable_cache(
             .limit(1);
 
         if (post) {
+            // Fallback description from content if excerpt is missing
+            let description = post.excerpt;
+            if (!description && post.content) {
+                // Strip HTML tags and truncate
+                const stripped = post.content.replace(/<[^>]*>/g, " ");
+                description = stripped.length > 160 ? stripped.substring(0, 157) + "..." : stripped;
+            }
+
             return {
                 title: post.title,
-                description: post.excerpt,
+                description: description,
                 featuredImage: post.featuredImage,
                 type: post.type,
             };
@@ -348,8 +356,11 @@ const getCachedSearchResults = unstable_cache(
 
 const makeAbsolute = (url: string | null | undefined, baseUrl: string) => {
     if (!url) return undefined;
-    if (url.startsWith("http")) return url;
-    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+    const trimmed = url.trim();
+    if (trimmed.startsWith("http") || trimmed.startsWith("//")) return trimmed;
+    const cleanBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+    const cleanUrl = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+    return `${cleanBase}${cleanUrl}`;
 };
 
 // ─── Metadata ──────────────────────────────────────────────────────────

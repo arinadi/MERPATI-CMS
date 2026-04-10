@@ -63,14 +63,17 @@ export function ShareButtons({
     };
 
     const encodedTitle = encodeURIComponent(title);
-    const encodedExcerpt = encodeURIComponent(excerpt);
 
     const shareLinks = [
         {
             id: "whatsapp",
             name: "WhatsApp",
             icon: WhatsAppIcon,
-            href: `https://wa.me/?text=*${encodedTitle}*%0A%0A${decodeURIComponent(getShareUrl("WhatsApp", url))}${excerpt ? `%0A%0A${encodedExcerpt}` : ""}`,
+            href: (() => {
+                const utm = `${url}${url.includes("?") ? "&" : "?"}utm_source=whatsapp&utm_medium=social`;
+                const text = `${title}\n\n${utm}${excerpt ? `\n\n${excerpt}` : ""}`;
+                return `https://wa.me/?text=${encodeURIComponent(text)}`;
+            })(),
             hoverColor: "hover:bg-[#25D366] hover:text-white",
         },
         {
@@ -91,7 +94,11 @@ export function ShareButtons({
             id: "telegram",
             name: "Telegram",
             icon: TelegramIcon,
-            href: `https://t.me/share/url?url=${getShareUrl("Telegram", url)}&text=${encodedTitle}${excerpt ? `%0A%0A${encodedExcerpt}` : ""}`,
+            href: (() => {
+                const utm = `${url}${url.includes("?") ? "&" : "?"}utm_source=telegram&utm_medium=social`;
+                const text = `${title}\n\n${utm}${excerpt ? `\n\n${excerpt}` : ""}`;
+                return `https://t.me/share/url?url=${encodeURIComponent(utm)}&text=${encodeURIComponent(text)}`;
+            })(),
             hoverColor: "hover:bg-[#0088cc] hover:text-white",
         },
         {
