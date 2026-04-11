@@ -91,6 +91,7 @@ ON CONFLICT (id) DO NOTHING;
 
 -- ═══════════════════════════════════════════════════════════════════════════
 
+
 -- MOCK CATEGORIES (TEKNOLOGI & PUBLISHING)
 INSERT INTO terms (id, name, slug, taxonomy, description) VALUES
     ('-cat-1', 'Architecture', 'architecture', 'category', 'Artikel tentang arsitektur software dan sistem.'),
@@ -102,7 +103,7 @@ INSERT INTO terms (id, name, slug, taxonomy, description) VALUES
     ('-cat-7', 'Editorial', 'editorial', 'category', 'Opini editorial dan analisis industri media.')
 ON CONFLICT (id) DO NOTHING;
 
--- MOCK POSTS (CLEANUP-FRIENDLY NEGATIVE IDS)
+-- MOCK POSTS & PAGES (CLEANUP-FRIENDLY NEGATIVE IDS)
 INSERT INTO posts (id, title, slug, content, excerpt, status, type, author_id, featured_image, created_at, updated_at) VALUES
 ('-1', 'Mengapa Serverless adalah Masa Depan Jurnalisme Digital', 'architecture-mock-1', '<h2>Pendahuluan</h2>
 <p>Industri media sering kali terjebak dalam biaya infrastruktur yang membengkak seiring dengan naiknya trafik.</p>
@@ -607,7 +608,16 @@ INSERT INTO posts (id, title, slug, content, excerpt, status, type, author_id, f
 <li>Sistem Cache yang cerdas dan tervalidasi menggunakan <code>unstable_cache</code></li>
 <li>Database ringan via poolless connection</li>
 </ul>
-<blockquote><p>Inovasi sejati terjadi saat kompleksitas backend tidak lagi menghalangi jurnalis dalam merilis laporan beritanya.</p></blockquote>', 'Kita memasuki era di mana konten yang Anda terbitkan dapat dengan cepat dicerna dan didaur ulang oleh model AI. Artikel ini membahas studi kasus dan praktik terbaik mengenai cara mengelola cdn caching yang efektif untuk gambar.', 'published', 'post', __SUPER_USER_ID__, '{"url":"https://images.unsplash.com/photo-1455390582262-044cdead2708?auto=format&fit=crop&q=80&w=1200","alt_text":"Ilustrasi Editorial Content (Unsplash)"}', '2026-03-30 12:00:00', '2026-03-30 12:00:00')
+<blockquote><p>Inovasi sejati terjadi saat kompleksitas backend tidak lagi menghalangi jurnalis dalam merilis laporan beritanya.</p></blockquote>', 'Kita memasuki era di mana konten yang Anda terbitkan dapat dengan cepat dicerna dan didaur ulang oleh model AI. Artikel ini membahas studi kasus dan praktik terbaik mengenai cara mengelola cdn caching yang efektif untuk gambar.', 'published', 'post', __SUPER_USER_ID__, '{"url":"https://images.unsplash.com/photo-1455390582262-044cdead2708?auto=format&fit=crop&q=80&w=1200","alt_text":"Ilustrasi Editorial Content (Unsplash)"}', '2026-03-30 12:00:00', '2026-03-30 12:00:00'),
+('page-tentang', 'Tentang Kami', 'tentang-kami', '<h2>Tentang Redaksi</h2>
+<p>MERPATI CMS dirancang khusus sebagai solusi bagi pengelola media independen. Kami percaya ruang baca digital harus cepat, modern, dan tidak membebani pembaca.</p>
+<p>Tim kami terdiri dari developer dan eks-jurnalis yang paham betul sakit kepala mengurus website berbasis arsitektur monolit (seperti WordPress).</p>', 'Informasi selengkapnya mengenai media dan visi misi redaksi kami.', 'published', 'page', __SUPER_USER_ID__, null, '2026-04-10 00:00:00', '2026-04-10 00:00:00'),
+('page-kontak', 'Kontak & Bantuan', 'kontak', '<h2>Hubungi Kami</h2>
+<p>Punya pertanyaan, feedback, atau ingin berkolaborasi? Hubungi kami langsung melalui surel di <strong>redaksi@merpaticms.demo</strong>.</p>', 'Informasi kontak dan email untuk pertanyaan serta laporan isu web.', 'published', 'page', __SUPER_USER_ID__, null, '2026-04-10 00:00:00', '2026-04-10 00:00:00'),
+('page-privasi', 'Kebijakan Privasi', 'kebijakan-privasi', '<h2>Kebijakan Privasi (Privacy Policy)</h2>
+<p>Kami sangat menghargai data privasi pengunjung situs. Karena dibangun di atas MERPATI CMS, pelacakan pengguna diminimalisir hanya untuk pemantauan performa internal menggunakan tool privasi yang ramah.</p>', 'Cara kami menangani dan menjaga keamanan data perambaan Anda.', 'published', 'page', __SUPER_USER_ID__, null, '2026-04-10 00:00:00', '2026-04-10 00:00:00'),
+('page-ketentuan', 'Ketentuan Layanan', 'ketentuan-layanan', '<h2>Ketentuan Penggunaan Platform</h2>
+<p>Dengan mengakses platform kami, Anda setuju untuk tidak melakukan penambangan data ilegal atau scraping otomatis tanpa persetujuan API.</p>', 'Syarat dan pemakaian atau penulisan ulasan platform ini.', 'published', 'page', __SUPER_USER_ID__, null, '2026-04-10 00:00:00', '2026-04-10 00:00:00')
 ON CONFLICT (id) DO NOTHING;
 
 -- MOCK TERM RELATIONSHIPS
@@ -801,7 +811,12 @@ INSERT INTO menu_items (id, menu_id, title, url, object_id, type, sort_order) VA
     ('mi-cat-5', 'menu-main', 'Strategy', NULL, '-cat-5', 'category', 5),
     ('mi-cat-6', 'menu-main', 'Performance', NULL, '-cat-6', 'category', 6),
     ('mi-cat-7', 'menu-main', 'Editorial', NULL, '-cat-7', 'category', 7),
-    ('mi-tentang', 'menu-main', 'Tentang', NULL, 'page-tentang', 'page', 8),
+    ('mi-tentang', 'menu-main', 'Tentang Kami', NULL, 'page-tentang', 'page', 8),
+    ('mi-kontak', 'menu-main', 'Kontak', NULL, 'page-kontak', 'page', 9),
+    
     ('mi-footer-home', 'menu-footer', 'Beranda', '/', NULL, 'custom', 0),
-    ('mi-footer-tentang', 'menu-footer', 'Tentang', NULL, 'page-tentang', 'page', 1)
+    ('mi-footer-tentang', 'menu-footer', 'Tentang Kami', NULL, 'page-tentang', 'page', 1),
+    ('mi-footer-kontak', 'menu-footer', 'Kontak', NULL, 'page-kontak', 'page', 2),
+    ('mi-footer-privasi', 'menu-footer', 'Kebijakan Privasi', NULL, 'page-privasi', 'page', 3),
+    ('mi-footer-ketentuan', 'menu-footer', 'Ketentuan Layanan', NULL, 'page-ketentuan', 'page', 4)
 ON CONFLICT (id) DO NOTHING;

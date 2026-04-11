@@ -102,9 +102,16 @@ const RANDOM_INTRO = [
   "SEO bukan lagi sekadar memasukkan kata kunci ke dalam teks. Mesin pencari modern membutuhkan konteks.",
   "Kami membuang paradigma lama di mana dashboard harus diakses melalui layar desktop yang lebar.",
   "Ketergantungan pada lalu lintas media sosial membuat banyak media rentan terhadap perubahan algoritma yang tiba-tiba.",
-  "Situs berita sering kali lambat karena banyaknya iklan, pelacak, dan gambar yang tidak dioptimalkan.",
-  "Kita memasuki era di mana konten yang Anda terbitkan dapat dengan cepat dicerna dan didaur ulang oleh model AI."
-];
+    "Situs berita sering kali lambat karena banyaknya iklan, pelacak, dan gambar yang tidak dioptimalkan.",
+    "Kita memasuki era di mana konten yang Anda terbitkan dapat dengan cepat dicerna dan didaur ulang oleh model AI."
+  ];
+  
+  const MOCK_PAGES = [
+    { id: 'page-tentang', title: 'Tentang Kami', slug: 'tentang-kami', content: '<h2>Tentang Redaksi</h2>\n<p>MERPATI CMS dirancang khusus sebagai solusi bagi pengelola media independen. Kami percaya ruang baca digital harus cepat, modern, dan tidak membebani pembaca.</p>\n<p>Tim kami terdiri dari developer dan eks-jurnalis yang paham betul sakit kepala mengurus website berbasis arsitektur monolit (seperti WordPress).</p>', excerpt: 'Informasi selengkapnya mengenai media dan visi misi redaksi kami.' },
+    { id: 'page-kontak', title: 'Kontak & Bantuan', slug: 'kontak', content: '<h2>Hubungi Kami</h2>\n<p>Punya pertanyaan, feedback, atau ingin berkolaborasi? Hubungi kami langsung melalui surel di <strong>redaksi@merpaticms.demo</strong>.</p>', excerpt: 'Informasi kontak dan email untuk pertanyaan serta laporan isu web.' },
+    { id: 'page-privasi', title: 'Kebijakan Privasi', slug: 'kebijakan-privasi', content: '<h2>Kebijakan Privasi (Privacy Policy)</h2>\n<p>Kami sangat menghargai data privasi pengunjung situs. Karena dibangun di atas MERPATI CMS, pelacakan pengguna diminimalisir hanya untuk pemantauan performa internal menggunakan tool privasi yang ramah.</p>', excerpt: 'Cara kami menangani dan menjaga keamanan data perambaan Anda.' },
+    { id: 'page-ketentuan', title: 'Ketentuan Layanan', slug: 'ketentuan-layanan', content: '<h2>Ketentuan Penggunaan Platform</h2>\n<p>Dengan mengakses platform kami, Anda setuju untuk tidak melakukan penambangan data ilegal atau scraping otomatis tanpa persetujuan API.</p>', excerpt: 'Syarat dan pemakaian atau penulisan ulasan platform ini.' }
+  ];
 
 function generateFeaturedImageJSON(url, categoryName) {
   return JSON.stringify({
@@ -160,8 +167,8 @@ async function main() {
   const seedPath = path.join(dbDir, 'seed.sql');
   let seedContent = fs.readFileSync(seedPath, 'utf8');
 
-  // We'll locate the mock posts block
-  const mockStartIndicator = '-- MOCK POSTS — Rich Format Content';
+  // We'll locate the mock categories block
+  const mockStartIndicator = '-- MOCK CATEGORIES (TEKNOLOGI & PUBLISHING)';
   
   const parts = seedContent.split(mockStartIndicator);
   if (parts.length < 2) {
@@ -172,15 +179,21 @@ async function main() {
 
   const { posts, relationships } = generatePosts();
 
+  const dateStr = new Date('2026-04-10T00:00:00Z').toISOString().replace('T', ' ').substring(0, 19);
+  const pages = MOCK_PAGES.map(p => 
+    `('${p.id}', '${escapeSql(p.title)}', '${p.slug}', '${escapeSql(p.content)}', '${escapeSql(p.excerpt)}', 'published', 'page', __SUPER_USER_ID__, null, '${dateStr}', '${dateStr}')`
+  );
+
   let newMockSql = `
 -- MOCK CATEGORIES (TEKNOLOGI & PUBLISHING)
 INSERT INTO terms (id, name, slug, taxonomy, description) VALUES
 ${CATEGORIES.map(c => `    ('${c.id}', '${c.name}', '${c.slug}', 'category', '${escapeSql(c.desc)}')`).join(',\n')}
 ON CONFLICT (id) DO NOTHING;
 
--- MOCK POSTS (CLEANUP-FRIENDLY NEGATIVE IDS)
+-- MOCK POSTS & PAGES (CLEANUP-FRIENDLY NEGATIVE IDS)
 INSERT INTO posts (id, title, slug, content, excerpt, status, type, author_id, featured_image, created_at, updated_at) VALUES
-${posts.join(',\n')}
+${posts.join(',\n')},
+${pages.join(',\n')}
 ON CONFLICT (id) DO NOTHING;
 
 -- MOCK TERM RELATIONSHIPS
@@ -227,9 +240,14 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO menu_items (id, menu_id, title, url, object_id, type, sort_order) VALUES
     ('mi-home', 'menu-main', 'Beranda', '/', NULL, 'custom', 0),
 ${CATEGORIES.map((cat, idx) => `    ('mi-cat-${idx + 1}', 'menu-main', '${cat.name}', NULL, '${cat.id}', 'category', ${idx + 1})`).join(',\n')},
-    ('mi-tentang', 'menu-main', 'Tentang', NULL, 'page-tentang', 'page', ${CATEGORIES.length + 1}),
+    ('mi-tentang', 'menu-main', 'Tentang Kami', NULL, 'page-tentang', 'page', ${CATEGORIES.length + 1}),
+    ('mi-kontak', 'menu-main', 'Kontak', NULL, 'page-kontak', 'page', ${CATEGORIES.length + 2}),
+    
     ('mi-footer-home', 'menu-footer', 'Beranda', '/', NULL, 'custom', 0),
-    ('mi-footer-tentang', 'menu-footer', 'Tentang', NULL, 'page-tentang', 'page', 1)
+    ('mi-footer-tentang', 'menu-footer', 'Tentang Kami', NULL, 'page-tentang', 'page', 1),
+    ('mi-footer-kontak', 'menu-footer', 'Kontak', NULL, 'page-kontak', 'page', 2),
+    ('mi-footer-privasi', 'menu-footer', 'Kebijakan Privasi', NULL, 'page-privasi', 'page', 3),
+    ('mi-footer-ketentuan', 'menu-footer', 'Ketentuan Layanan', NULL, 'page-ketentuan', 'page', 4)
 ON CONFLICT (id) DO NOTHING;
 `;
 
