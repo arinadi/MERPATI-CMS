@@ -10,12 +10,13 @@ export default async function TrackingSettingsPage() {
         "gtm_id",
         "ga_id",
         "cf_analytics_token",
+        "ga_dashboard_url",
     ]);
 
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
             <div>
-                <h1 className="text-2xl font-bold tracking-tight">Tracking</h1>
+                <h1 className="text-2xl font-bold tracking-tight">Tracking Settings</h1>
                 <p className="text-muted-foreground">
                     Configure third-party analytics and tracking services.
                 </p>
@@ -24,6 +25,7 @@ export default async function TrackingSettingsPage() {
                 gtmId={settings.gtm_id || ""}
                 gaId={settings.ga_id || ""}
                 cfAnalyticsToken={settings.cf_analytics_token || ""}
+                gaDashboardUrl={settings.ga_dashboard_url || ""}
             />
         </div>
     );

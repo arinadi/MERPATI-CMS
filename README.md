@@ -1,83 +1,71 @@
 # 🕊️ MERPATI CMS
 ![MERPATI CMS Banner](merpati-cms-banner.png)
 
-### The Ultimate Serverless WordPress Alternative for Modern Publishers
+## The Post-Legacy Publishing Platform for Independent Media
+**Media Editorial Ringkas, Praktis, Aman, Tetap Independen**
 
 [![Vercel Deployment](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![Tailwind v4](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com)
 
-**Media Editorial Ringkas, Praktis, Aman, Tetap Independen**
-> *"Press freedom starts with infrastructure independence."*
+---
+
+### 🗞️ The Independent Media Manifesto
+**"Press freedom starts with the independence of its infrastructure."**
 
 🌍 **Live Demos:**
 - [Default Theme Demo](https://merpati-cms.vercel.app/)
 - [Portfolio Theme Demo](https://arinano.work/)
 
-MERPATI is a radical, high-performance publishing platform designed to eliminate hosting costs while delivering a premium WordPress-like experience. Built for the serverless era, it runs entirely on the **Vercel Free Tier** using a single-endpoint architecture.
+### 🚀 Get Started
+
+1.  **Deploy Yourself**: Ready to fly? Check our [Setup Guide](./docs/setup.md) and get live in 60 seconds.
+2.  **Call your IT Friend**: Not a tech person? Just send them this link—they'll handle the setup while you grab a coffee. ☕
+3.  **Contact Me**: Need a custom setup or have questions? [Message me directly](mailto:arinadi.nur@gmail.com) 👋
+
+
+We have a **Love-Hate relationship with WordPress**. We love the power and the familiarity it gave us for decades. But we hate the slow speeds, the constant maintenance, and the expensive hosting bills that keep independent journalists from speaking their truth.
+
+**MERPATI CMS** is built for the storyteller who wants a professional home without the technical baggage. It’s what WordPress would be if it were born in 2025: lightning-fast, zero-cost to host, and focused entirely on your editorial productivity.
 
 ---
 
-## 🚀 Why MERPATI?
+### ✨ Why Journalists Love MERPATI
 
-- **⚡ Blazing Fast Performance**: Zero-overhead React Server Components (RSC) ensure sub-200ms page loads.
-- **💰 Honestly Free**: Designed to stay within Vercel's Free Tier forever. No hidden database costs with Neon.
-- **📱 Mobile-First Radicalism**: A dashboard and public interface built first for the thumb, then for the desk.
-- **🛡️ Secure by Design**: Post-legacy architecture with Google OAuth 2.0 and strict HTML sanitization.
-- **📈 Native SEO Power**: Automated JSON-LD, Sitemaps, and RSS feeds to dominate search rankings.
+*   **⚡ Blazing Fast Speed**: Sub-200ms page loads powered by Next.js Server Components. Your readers will never wait again.
+*   **💰 Honestly Free**: Designed to stay within Vercel's Free Tier forever. No hidden server costs, no hosting bills.
+*   **📈 Built-in Analytics**: See your traffic directly from the admin dashboard with integrated Google Analytics (Looker Studio).
+*   **🔍 SEO Masterclass**: Automated JSON-LD, Article Schema, Sitemaps, and RSS feeds are included. You focus on writing; we handle the search engines.
+*   **📱 Modern Admin Experience**: A beautiful dashboard built first for the thumb (on your mobile) and perfected for the desk.
+*   **🛡️ Private & Secure**: Zero tracking on the public side. No cookies (unless you add them). Just pure content.
 
 ---
 
-## ✨ Features at a Glance
+### 📝 Core Features
 
-| Feature | Description |
+| Feature | For Your Newsroom |
 |---|---|
-| **📝 Classic Editor** | Familiar WYSIWYG writing with HTML toggle & robust autosave. |
-| **🖼️ Media Library** | Instant Vercel Blob uploads or remote URL integration. |
-| **▶️ YouTube Embeds** | Native YouTube video embedding in posts and media library integration. |
-| **🎨 Modular Themes** | Isolated `/themes` directory for infinite design freedom. |
-| **👤 Invite-Only Auth** | Secure author management via Google OAuth. Roles and status. |
-| **🧭 Menu Manager** | Intuitive drag-and-drop navigation builder. |
-| **🔔 Push Alerts** | Real-time Telegram notifications for posts and users. |
-| **👁️ Live Preview**  | Instant "Visit Site" and "Visit Post" shortcuts from the admin dashboard. |
-| **📊 Analytics Ready** | Native support for Google Tag Manager, Google Analytics (GA4), and Cloudflare Web Analytics. |
-| **⚙️ Sidebar Settings** | Settings split into dedicated pages navigated via collapsible sidebar sub-menu. |
+| **Editorial Suite** | Familiar editor with robust autosave and HTML control. |
+| **Media Library** | One-click image uploads or YouTube video integration. |
+| **Social Growth** | Built-in smart sharing controls with UTM tracking for every platform. |
+| **Theme Freedom** | Swap designs instantly with our modular `/themes` structure. |
+| **Team Control** | Secure Google login. Invite authors and manage roles with zero friction. |
+| **Direct Alerts** | Get notified on Telegram the moment your team publishes a story. |
 
 ---
 
-## 📊 Analytics & Tracking
+### 🛠️ The Technical Side (The 10%)
 
-MERPATI supports multiple analytics providers configured directly from the Admin dashboard under **Settings → Tracking**:
+MERPATI is a zero-legacy, high-performance publishing engine built on:
+- **Next.js 15 (RSC)** for near-zero client-side JavaScript.
+- **Tailwind CSS v4** for cutting-edge design flexibility.
+- **Drizzle ORM & Neon** for serverless, edge-ready data management.
 
-| Provider | ID Format | Notes |
-|---|---|---|
-| **Google Tag Manager** | `GTM-XXXXX` | Recommended. Load GA4, Pixel, etc. from one place. |
-| **Google Analytics (GA4)** | `G-XXXXX` | Direct GA4 if not using GTM. |
-| **Cloudflare Web Analytics** | Beacon Token | Privacy-friendly, no cookies. |
 
-> **Tip**: If you already have a Google Tag (`G-XXXXX`), you can either enter it directly in the GA4 field **or** add it inside your GTM container — not both.
 
 ---
 
-## 📖 Documentation & Setup
-
-MERPATI features a **"Zero-Touch"** initialization flow perfectly suited for edge deployments.
-
-All comprehensive technical documentation, including **Setup Guides**, **Prerequisites**, and **Architecture Layout**, has been neatly organized for developers.
-
-👉 **[View the Official Documentation in the `/docs` directory](./docs)**
-
----
-
-## 📁 Project Philosophy
-
-We separate **Admin Productivity** from **Public Performance**:
-- **Admin (`/admin`)**: A rich, interactive SPA-like experience using `shadcn/ui`. Settings are organized as dedicated pages in a collapsible sidebar sub-menu — not tabs.
-- **Public (`/themes`)**: Pure Tailwind CSS v4 and RSC for a near-zero JavaScript footprint.
-
----
-
-## 📄 License
+### 📄 License
 MIT © 2024 MERPATI CMS Project.
 
 *Build it fabulously. Keep it independent.*

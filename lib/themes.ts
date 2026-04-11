@@ -11,11 +11,18 @@ export interface ThemeLayoutProps {
     primaryMenu: MenuItem[];
     footerMenu: MenuItem[];
     cacheId?: string;
+    themeOptions?: Record<string, unknown>;
+}
+
+export interface HomeProps {
+    posts?: PostCardData[];
+    themeOptions?: Record<string, unknown>;
 }
 
 export interface SinglePostProps {
     post: PostData;
     relatedPosts?: PostCardData[];
+    sharingPlatforms?: string;
 }
 
 export interface SinglePageProps {
@@ -90,7 +97,7 @@ export interface PostCardData {
 
 // ─── Theme Exports Interface ───────────────────────────────────────────────
 
-export type ThemeOptionType = "text" | "textarea" | "number" | "url" | "select" | "post" | "image";
+export type ThemeOptionType = "text" | "textarea" | "number" | "url" | "select" | "post" | "image" | "color" | "contacts" | "checkbox-group" | "category" | "category-multi";
 
 export interface ThemeOptionField {
     id: string; // The key in the database options table
@@ -98,6 +105,8 @@ export interface ThemeOptionField {
     type: ThemeOptionType;
     description?: string;
     options?: { label: string; value: string }[]; // For "select" type
+    group?: string; // Optional group name for UI cards
+    defaultValue?: string; // Optional default value if not set in DB
 }
 
 export interface ThemeExports {
@@ -116,10 +125,12 @@ export interface ThemeExports {
 // and the "cannot create components during render" error.
 
 import * as defaultTheme from "@/themes/default";
+import * as newsTheme from "@/themes/news";
 import { portfolioTheme } from "@/themes/portfolio";
 
 const THEME_MAP: Record<string, ThemeExports> = {
     default: defaultTheme as ThemeExports,
+    news: newsTheme as ThemeExports,
     portfolio: portfolioTheme as ThemeExports,
 };
 

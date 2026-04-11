@@ -4,6 +4,7 @@ import { FeaturedMedia } from "./featured-media";
 import { ArrowRight, Cpu, Terminal, Radio, Network, Database } from "lucide-react";
 import type { ArchiveProps, PostCardData } from "@/lib/themes";
 import { getCachedOptions } from "@/lib/queries/options";
+import { getDefault } from "../options";
 
 const IconMap: Record<string, React.ElementType> = {
     "cpu": Cpu,
@@ -110,10 +111,10 @@ export default async function Home({ posts }: ArchiveProps) {
         "theme_portfolio_cta_url"
     ]);
 
-    const jumbo1 = options["theme_portfolio_jumbo_text_1"] || "Atomic Ideas,";
-    const jumbo2 = options["theme_portfolio_jumbo_text_2"] || "Scalable Products.";
-    const smallText = options["theme_portfolio_small_text"] || "Menjembatani pemikiran fundamental (Atomic) dengan eksekusi rekayasa yang terukur (Scalable). Berfokus pada arsitektur sistem, pengalaman pengembang, dan antarmuka industrial.";
-    const ctaUrl = options["theme_portfolio_cta_url"] || "/archive";
+    const jumbo1 = options["theme_portfolio_jumbo_text_1"] || getDefault("theme_portfolio_jumbo_text_1");
+    const jumbo2 = options["theme_portfolio_jumbo_text_2"] || getDefault("theme_portfolio_jumbo_text_2");
+    const smallText = options["theme_portfolio_small_text"] || getDefault("theme_portfolio_small_text");
+    const ctaUrl = options["theme_portfolio_cta_url"] || getDefault("theme_portfolio_cta_url");
 
     const post1Id = options["theme_portfolio_post_1"];
     const post2Id = options["theme_portfolio_post_2"];
@@ -123,12 +124,12 @@ export default async function Home({ posts }: ArchiveProps) {
     const post2 = posts.find(p => p.id === post2Id) || posts[1];
     const post3 = posts.find(p => p.id === post3Id) || posts[2];
 
-    const icon1 = options["theme_portfolio_post_1_icon"] || "cpu";
-    const status1 = options["theme_portfolio_post_1_status"] || "live";
-    const icon2 = options["theme_portfolio_post_2_icon"] || "terminal";
-    const status2 = options["theme_portfolio_post_2_status"] || "in-development";
-    const icon3 = options["theme_portfolio_post_3_icon"] || "radio";
-    const status3 = options["theme_portfolio_post_3_status"] || "live";
+    const icon1 = options["theme_portfolio_post_1_icon"] || getDefault("theme_portfolio_post_1_icon");
+    const status1 = options["theme_portfolio_post_1_status"] || getDefault("theme_portfolio_post_1_status");
+    const icon2 = options["theme_portfolio_post_2_icon"] || getDefault("theme_portfolio_post_2_icon");
+    const status2 = options["theme_portfolio_post_2_status"] || getDefault("theme_portfolio_post_2_status");
+    const icon3 = options["theme_portfolio_post_3_icon"] || getDefault("theme_portfolio_post_3_icon");
+    const status3 = options["theme_portfolio_post_3_status"] || getDefault("theme_portfolio_post_3_status");
 
     const selectedIds = [post1?.id, post2?.id, post3?.id].filter(Boolean);
     const remainingPosts = posts.filter(p => !selectedIds.includes(p.id)).slice(0, 5);

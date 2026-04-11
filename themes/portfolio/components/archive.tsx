@@ -7,6 +7,7 @@ import { ArrowLeft, Search } from "lucide-react";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import type { ArchiveProps } from "@/lib/themes";
+import { getPaginationUrl } from "@/lib/utils/navigation";
 
 export default function Archive({ title, posts, pagination }: ArchiveProps) {
     const isSearch = title.toLowerCase().includes("pencarian") || title.toLowerCase().includes("search");
@@ -96,7 +97,7 @@ export default function Archive({ title, posts, pagination }: ArchiveProps) {
                     <div className="flex items-center justify-between mt-16 pt-8 border-t border-zinc-800 font-mono text-sm">
                         {pagination.currentPage > 1 ? (
                             <Link 
-                                href={pagination.currentPage - 1 === 1 ? pagination.basePath : `${pagination.basePath}/page/${pagination.currentPage - 1}`}
+                                href={getPaginationUrl(pagination.basePath, pagination.currentPage - 1)}
                                 className="text-[#00e5b7] hover:text-white transition-colors"
                             >
                                 &lt; Previous Frame
@@ -109,7 +110,7 @@ export default function Archive({ title, posts, pagination }: ArchiveProps) {
 
                         {pagination.currentPage < pagination.totalPages ? (
                             <Link 
-                                href={`${pagination.basePath}/page/${pagination.currentPage + 1}`}
+                                href={getPaginationUrl(pagination.basePath, pagination.currentPage + 1)}
                                 className="text-[#00e5b7] hover:text-white transition-colors"
                             >
                                 Next Frame &gt;

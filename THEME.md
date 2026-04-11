@@ -53,11 +53,45 @@ ACTIVE_THEME=your-theme
 
 ---
 
+## Core Libraries & Helpers
+
+To keep themes "DRY" (Don't Repeat Yourself), always use the following shared libraries for non-design logic.
+
+### 1. Data Queries (`@/lib/queries`)
+Centralized database calls with `unstable_cache` for maximum performance. Core logic is moved here from the main catch-all route.
+
+- `getCachedTaxonomyPosts(slug, taxonomy, limit, offset)`: Fetches posts for a specific category or tag. Returns `{ posts, total, term, hydratedPosts }`.
+- `getLatestPosts(limit)`: Fetches most recent posts globally.
+- `getCachedOptions(keys)`: Fetches key-value pairs from the `site_options` table.
+
+### 2. Social Sharing (`@/lib/utils/social`)
+Handles social media URL generation with UTM tracking and platform-specific quirks (e.g. standardizing WhatsApp and Telegram text formats).
+
+```tsx
+import { getSocialShareLinks } from "@/lib/utils/social";
+
+const shareLinks = getSocialShareLinks(title, url, excerpt, platforms);
+// returns array of standardized sharing objects
+```
+
+### 3. Navigation & Pagination (`@/lib/utils/navigation`)
+Ensures URL consistency across all themes and handles edge cases like `/page/1` redirection.
+
+```tsx
+import { getPaginationUrl } from "@/lib/utils/navigation";
+
+const nextUrl = getPaginationUrl(basePath, currentPage + 1);
+```
+
+---
+
 ## Theme Options
 
 Themes can define custom settings (Theme Options) that users can configure in the admin panel. These are useful for hero text, CTA links, or selecting featured posts.
 
-To define Theme Options, export an `options` array from your theme's `index.tsx`:
+To keep your Server Components and Client Components properly separated while reusing theme defaults, extracting theme options to an `options.ts` file is considered a best practice.
+
+1. **Create `options.ts` in your theme folder:**
 
 ```tsx
 import { ThemeOptionField } from "@/lib/themes";
@@ -68,6 +102,7 @@ export const options: ThemeOptionField[] = [
         label: "Jumbo Text",
         type: "text",
         description: "Large text on the homepage.",
+        defaultValue: "Welcome to My Theme"
     },
     {
         id: "theme_mytheme_featured_post",
@@ -75,22 +110,45 @@ export const options: ThemeOptionField[] = [
         type: "post",
     }
 ];
+
+export const getDefault = (id: string) => options.find((o) => o.id === id)?.defaultValue || "";
 ```
 
-Supported types: `"text" | "textarea" | "number" | "url" | "select" | "post" | "image"`.
+2. **Register it in `index.tsx`:**
+
+```tsx
+import { options } from "./options";
+export { ThemeLayout, Archive, SinglePost, SinglePage, NotFound, Home, options };
+
+export const myTheme: ThemeExports = {
+    ThemeLayout,
+    Archive,
+    SinglePost,
+    SinglePage,
+    NotFound,
+    Home,
+    options
+};
+```
+
+Supported types: `"text" | "textarea" | "number" | "url" | "select" | "post" | "image" | "color" | "contacts" | "checkbox-group" | "category" | "category-multi"`.
+
+> [!NOTE]
+> For `"checkbox-group"` and `"category-multi"`, the selected values are saved as a JSON-stringified array limit in the database. When retrieving them via `getCachedOptions()`, you must `JSON.parse()` the returned string to get the array of strings/slugs.
 
 Inside your Server Components (e.g., `Home`), fetch these options using `getCachedOptions`:
 
 ```tsx
 import { getCachedOptions } from "@/lib/queries/options";
+import { getDefault } from "../options";
 
 export default async function Home() {
-    const options = await getCachedOptions([
+    const optionsRaw = await getCachedOptions([
         "theme_mytheme_jumbo_text",
         "theme_mytheme_featured_post"
     ]);
 
-    const jumboText = options["theme_mytheme_jumbo_text"] || "Default Text";
+    const jumboText = optionsRaw["theme_mytheme_jumbo_text"] || getDefault("theme_mytheme_jumbo_text");
     // ... render your component
 }
 ```
@@ -291,11 +349,8 @@ app/(public)/layout.tsx
     └── render ThemeLayout
          ↓
 app/(public)/[...slug]/page.tsx
-    ├── getCachedPost()            ← unstable_cache, tag: posts
-    ├── getCachedPage()            ← unstable_cache, tag: posts
-    ├── getCachedArchivePosts()    ← unstable_cache, tag: posts
-    ├── getCachedTaxonomyPosts()   ← unstable_cache, tag: posts
-    ├── getCachedSearchResults()   ← unstable_cache, tag: posts
+    ├── Resolve route type (Post, Page, Category, Tag, Search)
+    ├── Call centralized @/lib/queries (getCachedPost, getCachedTaxonomyPosts, etc.)
     └── render SinglePost / SinglePage / Archive / NotFound
 ```
 

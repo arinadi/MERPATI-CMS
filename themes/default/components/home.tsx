@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { Calendar, ArrowRight, Image as ImageIcon } from "lucide-react";
 import type { ArchiveProps } from "@/lib/themes";
 import { PostCard } from "./post-card";
@@ -10,7 +10,7 @@ export default function Home({ posts }: ArchiveProps) {
     if (!posts || posts.length === 0) {
         return (
             <div className="container mx-auto px-4 py-32 text-center text-gray-400">
-                <p>Belum ada artikel untuk ditampilkan.</p>
+                <p>No articles to display yet.</p>
             </div>
         );
     }
@@ -53,10 +53,10 @@ export default function Home({ posts }: ArchiveProps) {
                             <div className="flex items-center gap-6 mt-auto">
                                 <span className="flex items-center gap-2 text-sm font-medium text-gray-500">
                                     <Calendar className="w-4 h-4" />
-                                    {format(new Date(featuredPost.createdAt || new Date()), "d MMM yyyy", { locale: id })}
+                                    {format(new Date(featuredPost.createdAt || new Date()), "d MMM yyyy", { locale: enUS })}
                                 </span>
                                 <Link href={`/${featuredPost.slug}`} className="hidden sm:flex items-center gap-2 text-blue-400 font-bold ml-auto hover:text-white transition-colors group">
-                                    Baca Selengkapnya
+                                    Read More
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </Link>
                             </div>
@@ -93,7 +93,7 @@ export default function Home({ posts }: ArchiveProps) {
                                         {post.excerpt}
                                     </p>
                                     <div className="flex items-center gap-3 text-sm font-medium text-gray-500 mt-auto">
-                                        {format(new Date(post.createdAt || new Date()), "d MMM yyyy", { locale: id })}
+                                        {format(new Date(post.createdAt || new Date()), "d MMM yyyy", { locale: enUS })}
                                     </div>
                                 </div>
                             </Link>

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getOption } from "@/lib/actions/options";
-import { activeTheme } from "@/lib/themes";
 
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -39,7 +38,7 @@ export default async function AdminLayout({
     return (
         <TooltipProvider>
             <SidebarProvider>
-                <AppSidebar userRole={session.user.role} hasThemeOptions={!!activeTheme.options?.length} />
+                <AppSidebar userRole={session.user.role} />
                 <SidebarInset>
                     <AdminHeader
                         userName={session.user.name}

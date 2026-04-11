@@ -1,31 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import { Image as ImageIcon } from "lucide-react";
 import { getFeaturedImageUrl, getFeaturedImageAlt } from "@/lib/utils/featured-image";
+
+interface FeaturedMediaProps {
+    src: string;
+    alt: string;
+    className?: string;
+    priority?: boolean;
+}
 
 export function FeaturedMedia({
     src,
     alt,
     className,
     priority = false,
-}: {
-    src: string;
-    alt: string;
-    className?: string;
-    priority?: boolean;
-    showCaption?: boolean;
-}) {
-    const [hasError, setHasError] = useState(!src);
-
+}: FeaturedMediaProps) {
     // Parse JSON featured image format (backward-compatible with plain URLs)
     const imageUrl = getFeaturedImageUrl(src) || src;
     const imageAlt = getFeaturedImageAlt(src) || alt;
 
     const isYoutube = imageUrl?.includes("youtube.com") || imageUrl?.includes("youtu.be");
 
-    if (hasError || !imageUrl) {
+    if (!imageUrl) {
         return (
             <div className={`flex items-center justify-center bg-[#0F172A] text-white/10 ${className}`}>
                 <ImageIcon className="w-12 h-12" />
@@ -55,16 +53,13 @@ export function FeaturedMedia({
     }
 
     return (
-        <Image
+        <SafeImage
             src={imageUrl}
             alt={imageAlt || "Image"}
             className={className}
             width={1200}
             height={800}
             priority={priority}
-            onError={() => setHasError(true)}
         />
     );
 }
-
-

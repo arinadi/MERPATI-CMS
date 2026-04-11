@@ -11,11 +11,9 @@ import {
     Image as ImageIcon,
     Users,
     Settings,
+    Paintbrush,
     Menu as MenuIcon,
-    DatabaseZap,
     ExternalLink,
-    Globe,
-    Phone,
     Bell,
     BarChart,
     ChevronRight,
@@ -49,10 +47,9 @@ interface NavItem {
 }
 
 const settingsSubItems = [
-    { title: "General", href: "/admin/settings/general", icon: Globe },
-    { title: "Contacts", href: "/admin/settings/contacts", icon: Phone },
-    { title: "Notifications", href: "/admin/settings/notifications", icon: Bell },
     { title: "Tracking", href: "/admin/settings/tracking", icon: BarChart },
+    { title: "Notifications", href: "/admin/settings/notifications", icon: Bell },
+    { title: "Users", href: "/admin/users", icon: Users },
 ];
 
 const navItems: NavItem[] = [
@@ -64,11 +61,9 @@ const navItems: NavItem[] = [
     { title: "Pages", href: "/admin/pages", icon: FileStack },
     { title: "Media", href: "/admin/media", icon: ImageIcon },
     { title: "Menus", href: "/admin/menus", icon: MenuIcon, superUserOnly: true },
-    { title: "Users", href: "/admin/users", icon: Users, superUserOnly: true },
-    { title: "Cache", href: "/admin/cache", icon: DatabaseZap, superUserOnly: true },
 ];
 
-export function AppSidebar({ userRole, hasThemeOptions }: { userRole?: string | null, hasThemeOptions?: boolean }) {
+export function AppSidebar({ userRole }: { userRole?: string | null }) {
     const pathname = usePathname();
     const { isMobile, setOpenMobile } = useSidebar();
 
@@ -80,8 +75,8 @@ export function AppSidebar({ userRole, hasThemeOptions }: { userRole?: string | 
         return true;
     });
 
-    if (hasThemeOptions) {
-        const themeOptionsItem = { title: "Theme Options", href: "/admin/theme-options", icon: Settings, superUserOnly: true };
+    if (isSuperUser(userRole)) {
+        const themeOptionsItem = { title: "Theme Options", href: "/admin/theme-options", icon: Paintbrush, superUserOnly: true };
         filteredItems.push(themeOptionsItem);
     }
 

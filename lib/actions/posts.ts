@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { posts, users, postRelationships, termRelationships, terms } from "@/db/schema";
 import { syncPostTerms } from "./terms";
-import { eq, and, desc, count, ilike, ne } from "drizzle-orm";
+import { eq, and, desc, count, ilike, ne, inArray, asc } from "drizzle-orm";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
@@ -63,9 +63,42 @@ function extractExcerpt(html: string, maxLength = 200): string {
 export async function getPosts(
     type: "post" | "page" = "post",
     page = 1,
-    limit = 20
+    limit = 20,
+    search?: string,
+    statusFilter?: "published" | "draft" | "all",
+    sortBy: "createdAt" | "updatedAt" | "title" | "status" = "createdAt",
+    sortOrder: "asc" | "desc" = "desc"
 ) {
     const offset = (page - 1) * limit;
+
+    const conditions = [eq(posts.type, type)];
+    
+    if (search?.trim()) {
+        conditions.push(ilike(posts.title, `%${search.trim()}%`));
+    }
+    if (statusFilter && statusFilter !== "all") {
+        conditions.push(eq(posts.status, statusFilter));
+    }
+
+    const sortDir = sortOrder === "asc" ? asc : desc;
+    let orderByClause;
+    switch (sortBy) {
+        case "title":
+            orderByClause = sortDir(posts.title);
+            break;
+        case "status":
+            orderByClause = sortDir(posts.status);
+            break;
+        case "createdAt":
+            orderByClause = sortDir(posts.createdAt);
+            break;
+        case "updatedAt":
+            orderByClause = sortDir(posts.updatedAt);
+            break;
+        default:
+            orderByClause = sortDir(posts.createdAt);
+            break;
+    }
 
     const [items, total] = await Promise.all([
         db
@@ -82,14 +115,14 @@ export async function getPosts(
             })
             .from(posts)
             .leftJoin(users, eq(posts.authorId, users.id))
-            .where(eq(posts.type, type))
-            .orderBy(desc(posts.updatedAt))
+            .where(and(...conditions))
+            .orderBy(orderByClause)
             .limit(limit)
             .offset(offset),
         db
             .select({ count: count() })
             .from(posts)
-            .where(eq(posts.type, type)),
+            .where(and(...conditions)),
     ]);
 
     return {
@@ -478,4 +511,55 @@ export async function deletePost(id: string) {
     revalidatePath(basePath);
 
     return { success: true };
+}
+
+export async function bulkActionPosts(
+    ids: string[], 
+    action: "delete" | "publish" | "draft", 
+    type: "post" | "page" = "post"
+) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return { error: "Unauthorized" };
+    }
+
+    if (!ids || ids.length === 0) {
+        return { error: "No items selected" };
+    }
+
+    try {
+        if (action === "delete") {
+            await db.delete(posts).where(
+                and(
+                    inArray(posts.id, ids),
+                    eq(posts.type, type)
+                )
+            );
+        } else if (action === "publish" || action === "draft") {
+            const newStatus = action === "publish" ? "published" : "draft";
+            await db.update(posts)
+                .set({ 
+                    status: newStatus,
+                    updatedAt: new Date(), 
+                })
+                .where(
+                    and(
+                        inArray(posts.id, ids),
+                        eq(posts.type, type)
+                    )
+                );
+        } else {
+            return { error: "Invalid action" };
+        }
+
+        const basePath = type === "page" ? "/admin/pages" : "/admin/posts";
+        revalidatePath(basePath);
+        // We shouldn't strictly block revalidating frontend because bulk operations could affect it
+        revalidatePath("/");
+        
+        return { success: true };
+    } catch (error) {
+        console.error(`Error performing bulk action '${action}':`, error);
+        return { error: "An error occurred during bulk operation" };
+    }
 }
