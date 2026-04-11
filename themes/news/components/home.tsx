@@ -123,7 +123,7 @@ export default async function Home({ themeOptions }: HomeProps) {
 
   return (
     <>
-      <section className="container mx-auto px-4 mt-8 mb-12">
+      <section className="container mx-auto px-4 mt-6 md:mt-8 mb-8 md:mb-12">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Hero Post */}
           {heroPost && (
@@ -192,7 +192,7 @@ export default async function Home({ themeOptions }: HomeProps) {
 
       {/* Marquee Section (Featured Category) */}
       {finalFeatured && finalFeatured.hydratedPosts.length > 0 && (
-        <section className="container mx-auto px-4 mb-12 overflow-hidden">
+        <section className="container mx-auto px-4 mb-8 md:mb-12 overflow-hidden">
           <SectionHeader title={finalFeatured.term.name} />
           <div className="relative w-full overflow-hidden">
             <div className="flex gap-6 animate-marquee w-max hover:pause">
@@ -230,7 +230,7 @@ export default async function Home({ themeOptions }: HomeProps) {
 
       {/* Grid Categories Section (Dynamic from checkbox selection) */}
       {gridCategories.length > 0 && (
-        <section className="container mx-auto px-4 mb-12">
+        <section className="container mx-auto px-4 mb-8 md:mb-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-12">
             {gridCategories.map((cat) => (
               <CategoryBlock key={cat.term.slug} title={cat.term.name} posts={cat.hydratedPosts} />
@@ -241,7 +241,7 @@ export default async function Home({ themeOptions }: HomeProps) {
 
       {/* Video Category Section */}
       {finalVideo && finalVideo.hydratedPosts.length > 0 && (
-        <section className="container mx-auto px-4 mb-16">
+        <section className="container mx-auto px-4 mb-10 md:mb-16">
           <SectionHeader title={finalVideo.term.name} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {finalVideo.hydratedPosts.map((post) => (

@@ -59,6 +59,18 @@ export function getSocialShareLinks(
             name: "LinkedIn",
             href: `https://www.linkedin.com/sharing/share-offsite/?url=${getTargetUrlWithUtm("LinkedIn")}`,
             color: "#0A66C2"
+        },
+        {
+            id: "reddit",
+            name: "Reddit",
+            href: `https://reddit.com/submit?url=${getTargetUrlWithUtm("Reddit")}&title=${encodedTitle}`,
+            color: "#FF4500"
+        },
+        {
+            id: "threads",
+            name: "Threads",
+            href: `https://www.threads.net/intent/post?text=${encodedTitle}%0A${getTargetUrlWithUtm("Threads")}`,
+            color: "#000000"
         }
     ];
 

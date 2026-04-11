@@ -87,7 +87,7 @@ export default function ThemeLayout({
     >
       <header className="text-white sticky top-0 z-50 transition-colors" style={{ backgroundColor: primaryColor }}>
         {/* Top Bar */}
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-2.5 md:py-4 flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="font-black text-3xl italic tracking-tighter flex items-center transition-colors" style={{ color: accentColor }}>
@@ -130,7 +130,7 @@ export default function ThemeLayout({
 
         {/* Navigation Bar */}
         <div className="border-t border-gray-700 hidden lg:block" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
-          <div className="container mx-auto px-4 flex justify-between items-center py-3">
+          <div className="container mx-auto px-4 flex justify-between items-center py-2 md:py-3">
             <nav className="flex gap-6 font-bold text-sm">
               {primaryMenu.map((item) => (
                 <Link key={item.id} href={resolveMenuUrl(item)} className="transition-colors relative group">
@@ -187,7 +187,7 @@ export default function ThemeLayout({
         {children}
       </main>
 
-      <footer className="text-white pt-12 pb-6 border-t-4" style={{ backgroundColor: primaryColor, borderTopColor: accentColor }}>
+      <footer className="text-white pt-8 pb-4 md:pt-12 md:pb-6 border-t-4" style={{ backgroundColor: primaryColor, borderTopColor: accentColor }}>
         <div className="container mx-auto px-4">
           {/* Top Footer Section (WA Channel / Google News) */}
           <div className="flex flex-col md:flex-row justify-center items-center mb-10 pb-10 border-b border-gray-700 gap-6">
