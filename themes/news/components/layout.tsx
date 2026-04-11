@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { SafeImage } from '@/components/ui/safe-image';
 import { useRouter } from 'next/navigation';
 import { 
   Search, 
@@ -46,6 +47,7 @@ export default function ThemeLayout({
   children,
   siteTitle,
   siteTagline,
+  siteLogo,
   contacts,
   primaryMenu,
   footerMenu,
@@ -90,14 +92,22 @@ export default function ThemeLayout({
         <div className="container mx-auto px-4 py-2.5 md:py-4 flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="font-black text-3xl italic tracking-tighter flex items-center transition-colors" style={{ color: accentColor }}>
-              <span className="text-white mr-1 group-hover:animate-pulse">⚡</span>
-              {siteTitle.toUpperCase()}
-              <span className="text-white ml-1 group-hover:animate-pulse">⚡</span>
-            </div>
-            <div className="hidden md:block text-xs font-bold tracking-widest mt-1">
-              {siteTagline.toUpperCase()}
-            </div>
+            {siteLogo ? (
+              <SafeImage
+                src={siteLogo}
+                alt={siteTitle}
+                width={200}
+                height={50}
+                className="h-8 md:h-10 w-auto object-contain"
+                priority
+              />
+            ) : (
+              <div className="font-black text-3xl italic tracking-tighter flex items-center transition-colors" style={{ color: accentColor }}>
+                <span className="text-white mr-1 group-hover:animate-pulse">⚡</span>
+                {siteTitle.toUpperCase()}
+                <span className="text-white ml-1 group-hover:animate-pulse">⚡</span>
+              </div>
+            )}
           </Link>
 
           {/* Desktop Actions */}
@@ -212,11 +222,23 @@ export default function ThemeLayout({
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
             <div className="lg:col-span-1">
-              <div className="font-black text-3xl italic tracking-tighter flex items-center mb-4 transition-colors" style={{ color: accentColor }}>
-                <span className="text-white mr-1">⚡</span>
-                {siteTitle.toUpperCase()}
-                <span className="text-white ml-1">⚡</span>
-              </div>
+              {siteLogo ? (
+                <div className="mb-4">
+                  <SafeImage
+                    src={siteLogo}
+                    alt={siteTitle}
+                    width={200}
+                    height={50}
+                    className="h-10 w-auto object-contain brightness-0 invert"
+                  />
+                </div>
+              ) : (
+                <div className="font-black text-3xl italic tracking-tighter flex items-center mb-4 transition-colors" style={{ color: accentColor }}>
+                  <span className="text-white mr-1">⚡</span>
+                  {siteTitle.toUpperCase()}
+                  <span className="text-white ml-1">⚡</span>
+                </div>
+              )}
               <p className="text-sm text-gray-400 mb-6">{siteTagline}</p>
             </div>
             

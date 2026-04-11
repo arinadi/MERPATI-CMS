@@ -31,7 +31,6 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
   const primaryCat = post.categories?.[0] || { name: "UMUM", slug: "umum" };
   const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   
-  const postUrl = `/${post.slug}`;
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-10">
@@ -53,7 +52,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
           {/* Featured Image */}
           {post.featuredImage && (
             <div className="mb-6 md:mb-8">
-              <div className="relative aspect-[16/9]">
+              <div className="relative aspect-[4/3]">
                 <SafeImage 
                   src={post.featuredImage} 
                   alt="Featured" 
@@ -88,7 +87,6 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
             <div className="flex items-center md:hidden">
               <ShareButtons 
                 title={post.title} 
-                url={postUrl} 
                 excerpt={post.excerpt || ""} 
               />
             </div>
@@ -100,7 +98,6 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
             <div className="hidden md:flex flex-col gap-2 sticky top-[140px] h-max z-30">
               <ShareButtons 
                 title={post.title} 
-                url={postUrl} 
                 excerpt={post.excerpt || ""} 
                 orientation="vertical"
               />

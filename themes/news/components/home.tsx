@@ -128,7 +128,7 @@ export default async function Home({ themeOptions }: HomeProps) {
           {/* Main Hero Post */}
           {heroPost && (
             <Link href={`/${heroPost.slug}`} className="lg:w-2/3 group cursor-pointer block">
-              <div className="relative overflow-hidden rounded-sm aspect-[16/9] lg:aspect-auto lg:h-[450px]">
+              <div className="relative overflow-hidden rounded-sm aspect-[4/3] lg:aspect-auto lg:h-[450px]">
                 <SafeImage 
                   src={heroPost.featuredImage || ""} 
                   alt={heroPost.title} 
