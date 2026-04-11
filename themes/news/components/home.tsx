@@ -156,6 +156,14 @@ export default async function Home({ themeOptions }: HomeProps) {
 
           {/* Latest Posts Sidebar */}
           <div className="lg:w-1/3 flex flex-col">
+            {/* Ad/Banner Space Placeholder */}
+            <div className="w-full bg-slate-50 border border-slate-200 rounded-sm mb-6 flex flex-col items-center justify-center min-h-[120px] relative overflow-hidden group">
+              <span className="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-semibold mb-2">Advertisement</span>
+              <p className="text-xs text-slate-400 text-center px-4">Ruang Iklan / Banner</p>
+              {/* Subtle design element */}
+              <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-slate-200/50 to-transparent rounded-bl-full"></div>
+            </div>
+
             <div className="flex items-center mb-4">
               <div className="text-white px-4 py-1.5 font-bold text-sm tracking-wider uppercase" style={{ backgroundColor: 'var(--news-accent)', color: 'var(--news-primary)' }}>
                 TERBARU
