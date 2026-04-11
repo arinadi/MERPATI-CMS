@@ -13,7 +13,6 @@ import {
     Settings,
     Paintbrush,
     Menu as MenuIcon,
-    DatabaseZap,
     ExternalLink,
     Bell,
     BarChart,
@@ -51,7 +50,6 @@ const settingsSubItems = [
     { title: "Tracking", href: "/admin/settings/tracking", icon: BarChart },
     { title: "Notifications", href: "/admin/settings/notifications", icon: Bell },
     { title: "Users", href: "/admin/users", icon: Users },
-    { title: "Cache", href: "/admin/cache", icon: DatabaseZap },
 ];
 
 const navItems: NavItem[] = [

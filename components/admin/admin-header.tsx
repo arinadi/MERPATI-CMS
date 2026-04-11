@@ -3,8 +3,10 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LogOut, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon, DatabaseZap } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
+import { CacheManager } from "@/components/admin/cache/cache-manager";
 
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -94,6 +96,21 @@ export function AdminHeader({ userName, userEmail, userImage }: AdminHeaderProps
             <span className="hidden text-xs text-muted-foreground md:block" suppressHydrationWarning>
                 {formattedDate}
             </span>
+
+            {/* Clear Cache Modal */}
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-8 gap-2 border-dashed border-amber-500/50 hover:border-amber-500 hover:bg-amber-500/10 text-amber-600 dark:text-amber-500 dark:hover:text-amber-400">
+                        <DatabaseZap className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">Clear Cache</span>
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-xl p-0 border-none bg-transparent shadow-none" aria-describedby="clear-cache-dialog-description">
+                    <DialogTitle className="sr-only">Clear Cache</DialogTitle>
+                    <div id="clear-cache-dialog-description" className="sr-only">Clear global site cache to refresh Content on frontend.</div>
+                    <CacheManager />
+                </DialogContent>
+            </Dialog>
 
             {/* User Dropdown */}
             <DropdownMenu>
