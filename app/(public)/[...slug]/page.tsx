@@ -178,11 +178,19 @@ export default async function PublicPage(props: PublicPageProps) {
             const articleJsonLd = {
                 "@context": "https://schema.org",
                 "@type": "Article",
+                mainEntityOfPage: {
+                    "@type": "WebPage",
+                    "@id": `${baseUrl}/${result.post.slug}`
+                },
                 headline: result.post.title,
                 description: result.post.excerpt || undefined,
                 image: getFeaturedImageUrl(result.post.featuredImage) ? [makeAbsolute(getFeaturedImageUrl(result.post.featuredImage), baseUrl)] : [],
                 datePublished: result.post.createdAt,
                 dateModified: result.post.updatedAt || result.post.createdAt,
+                url: `${baseUrl}/${result.post.slug}`,
+                inLanguage: "id-ID",
+                articleSection: result.post.categories?.map(c => c.name) || [],
+                keywords: result.post.tags?.map(t => t.name) || [],
                 author: [{
                     "@type": "Person",
                     name: result.post.author?.name || "Editor",

@@ -24,11 +24,15 @@ export const getCachedOption = unstable_cache(
         } catch (error: unknown) {
             const err = error as Error & { code?: string; cause?: { message?: string } };
             const errorText = err?.message + " " + (err?.cause?.message || "");
+            
+            // Only gracefully return null if the table genuinely does not exist (uninitialized)
             if (err?.code === '42P01' || errorText.includes('relation "options" does not exist')) {
                 return null;
             }
-            console.warn(`Warning getting option ${key}:`, errorText);
-            return null;
+            
+            // For other errors (like transient network failures), THROW so unstable_cache doesn't cache a failure!
+            console.error(`Error getting option ${key}:`, errorText);
+            throw error;
         }
     },
     ["site-option"],
@@ -53,11 +57,13 @@ export const getCachedOptions = unstable_cache(
         } catch (error: unknown) {
             const err = error as Error & { code?: string; cause?: { message?: string } };
             const errorText = err?.message + " " + (err?.cause?.message || "");
+            
             if (err?.code === '42P01' || errorText.includes('relation "options" does not exist')) {
                 return {};
             }
-            console.warn("Warning getting multiple options:", errorText);
-            return {};
+            
+            console.error("Error getting multiple options:", errorText);
+            throw error;
         }
     },
     ["site-options"],

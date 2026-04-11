@@ -63,21 +63,28 @@ export function ShareButtons({
     };
 
     const encodedTitle = encodeURIComponent(title);
-    const encodedExcerpt = encodeURIComponent(excerpt);
 
     const shareLinks = [
         {
             id: "whatsapp",
             name: "WhatsApp",
             icon: WhatsAppIcon,
-            href: `https://wa.me/?text=*${encodedTitle}*%0A%0A${decodeURIComponent(getShareUrl("WhatsApp", url))}${excerpt ? `%0A%0A${encodedExcerpt}` : ""}`,
+            href: (() => {
+                const utm = `${url}${url.includes("?") ? "&" : "?"}utm_source=whatsapp&utm_medium=social`;
+                const text = `${title}\n\n${utm}${excerpt ? `\n\n${excerpt}` : ""}`;
+                return `https://wa.me/?text=${encodeURIComponent(text)}`;
+            })(),
             hoverColor: "hover:bg-[#25D366] hover:text-white",
         },
         {
             id: "facebook",
             name: "Facebook",
             icon: Facebook,
-            href: `https://www.facebook.com/sharer/sharer.php?u=${getShareUrl("Facebook", url)}`,
+            href: (() => {
+                const shareUrl = getShareUrl("Facebook", url);
+                const text = `${title}${excerpt ? `\n\n${excerpt}` : ""}`;
+                return `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${encodeURIComponent(text)}`;
+            })(),
             hoverColor: "hover:bg-[#1877F2] hover:text-white",
         },
         {
@@ -91,7 +98,12 @@ export function ShareButtons({
             id: "telegram",
             name: "Telegram",
             icon: TelegramIcon,
-            href: `https://t.me/share/url?url=${getShareUrl("Telegram", url)}&text=${encodedTitle}${excerpt ? `%0A%0A${encodedExcerpt}` : ""}`,
+            href: (() => {
+                const utm = `${url}${url.includes("?") ? "&" : "?"}utm_source=telegram&utm_medium=social`;
+                // Telegram share/url appends the url automatically, so text should only be title + excerpt
+                const text = `${title}${excerpt ? `\n\n${excerpt}` : ""}`;
+                return `https://t.me/share/url?url=${encodeURIComponent(utm)}&text=${encodeURIComponent(text)}`;
+            })(),
             hoverColor: "hover:bg-[#0088cc] hover:text-white",
         },
         {
@@ -102,7 +114,11 @@ export function ShareButtons({
                     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
                 </svg>
             ),
-            href: `https://www.linkedin.com/sharing/share-offsite/?url=${getShareUrl("LinkedIn", url)}`,
+            href: (() => {
+                const utm = `${url}${url.includes("?") ? "&" : "?"}utm_source=linkedin&utm_medium=social`;
+                const text = `${title}${excerpt ? `\n\n${excerpt}` : ""}\n\n${utm}`;
+                return `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
+            })(),
             hoverColor: "hover:bg-[#0A66C2] hover:text-white",
         },
         {

@@ -52,7 +52,7 @@ const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] 
         <div className="xl:w-1/2 flex flex-col gap-4">
           {list.map((post) => (
             <Link href={`/${post.slug}`} key={post.id} className="flex gap-3 group cursor-pointer">
-              <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">
+              <div className="w-28 aspect-[4/3] flex-shrink-0 overflow-hidden rounded-sm relative">
                 <SafeImage 
                   src={post.featuredImage || ""} 
                   alt={post.title} 
@@ -128,7 +128,7 @@ export default async function Home({ themeOptions }: HomeProps) {
           {/* Main Hero Post */}
           {heroPost && (
             <Link href={`/${heroPost.slug}`} className="lg:w-2/3 group cursor-pointer block">
-              <div className="relative overflow-hidden rounded-sm aspect-[16/9] lg:aspect-auto lg:h-[450px]">
+              <div className="relative overflow-hidden rounded-sm aspect-[4/3] w-full">
                 <SafeImage 
                   src={heroPost.featuredImage || ""} 
                   alt={heroPost.title} 
@@ -166,7 +166,7 @@ export default async function Home({ themeOptions }: HomeProps) {
             <div className="flex flex-col gap-5 flex-grow justify-between">
               {sideLatest.map((post) => (
                 <Link href={`/${post.slug}`} key={post.id} className="flex gap-4 group cursor-pointer">
-                  <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">
+                  <div className="w-28 aspect-[4/3] flex-shrink-0 overflow-hidden rounded-sm relative">
                     <SafeImage 
                       src={post.featuredImage || ""} 
                       alt={post.title} 

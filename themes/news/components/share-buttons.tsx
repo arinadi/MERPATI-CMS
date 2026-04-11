@@ -39,7 +39,6 @@ function ThreadsIcon({ className }: { className?: string }) {
 
 export interface ShareButtonsProps {
   title: string;
-  url: string;
   excerpt?: string;
   platforms?: Record<string, boolean>;
   orientation?: "horizontal" | "vertical";
@@ -48,28 +47,22 @@ export interface ShareButtonsProps {
 
 export function ShareButtons({
   title,
-  url,
   excerpt = "",
   platforms,
   orientation = "horizontal",
   className = "",
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [url, setUrl] = useState("");
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
+    setUrl(window.location.href);
   }, []);
 
-  if (!mounted) return null;
+  if (!url) return null;
 
-  // If url is relative, make it absolute if window exists
-  const absoluteUrl = url.startsWith('/') 
-    ? typeof window !== 'undefined' ? `${window.location.origin}${url}` : url
-    : url;
-
-  const shareLinks = getSocialShareLinks(title, absoluteUrl, excerpt, platforms);
+  const shareLinks = getSocialShareLinks(title, url, excerpt, platforms);
 
   const iconMap: Record<string, React.ElementType> = {
     whatsapp: WhatsAppIcon,
@@ -93,7 +86,7 @@ export function ShareButtons({
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(absoluteUrl);
+      await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
