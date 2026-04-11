@@ -4,9 +4,29 @@ import { SafeImage } from "@/components/ui/safe-image";
 import { Facebook, Twitter, MessageCircle } from "lucide-react";
 import { getSocialShareLinks } from "@/lib/utils/social";
 import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
-import type { SinglePostProps } from "@/lib/themes";
+import type { SinglePostProps, PostCardData } from "@/lib/themes";
+import { getCachedTaxonomyPosts, getLatestPosts } from "@/lib/queries/posts";
+import { getCachedOptions } from "@/lib/queries/options";
 
-export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
+export default async function SinglePost({ post, relatedPosts }: SinglePostProps) {
+  let popularPosts: PostCardData[] = [];
+  try {
+    const optionsRaw = await getCachedOptions(["theme_news_featured_cat"]);
+    const popularCat = optionsRaw["theme_news_featured_cat"];
+    
+    if (popularCat) {
+      const taxonomyResult = await getCachedTaxonomyPosts(popularCat, "category", 5, 0);
+      if (taxonomyResult) {
+        popularPosts = taxonomyResult.hydratedPosts;
+      }
+    }
+    
+    if (popularPosts.length === 0) {
+      popularPosts = await getLatestPosts(5);
+    }
+  } catch {
+    popularPosts = await getLatestPosts(5);
+  }
   const authorName = post.author?.name || "REDAKSI";
   const authorImage = post.author?.image || "https://ui-avatars.com/api/?name=" + encodeURIComponent(authorName) + "&background=random";
   const primaryCat = post.categories?.[0] || { name: "UMUM", slug: "umum" };
@@ -140,7 +160,7 @@ export default function SinglePost({ post, relatedPosts }: SinglePostProps) {
           </div>
           
           <div className="flex flex-col gap-6 mb-12">
-            {relatedPosts ? relatedPosts.slice(0, 5).map((sidebarPost) => {
+            {popularPosts.length > 0 ? popularPosts.slice(0, 5).map((sidebarPost) => {
               const relDate = new Date(sidebarPost.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
               return (
                 <Link href={`/${sidebarPost.slug}`} key={sidebarPost.id} className="flex gap-4 group cursor-pointer">

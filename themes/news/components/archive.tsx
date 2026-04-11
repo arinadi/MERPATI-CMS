@@ -4,17 +4,28 @@ import { getPaginationUrl } from "@/lib/utils/navigation";
 import { SafeImage } from "@/components/ui/safe-image";
 import type { ArchiveProps, PostCardData } from "@/lib/themes";
 // Import getLatestPosts if possible, but actually we should just rely on props or a server action
-import { getLatestPosts } from "@/lib/queries/posts";
+import { getLatestPosts, getCachedTaxonomyPosts } from "@/lib/queries/posts";
+import { getCachedOptions } from "@/lib/queries/options";
 
 export default async function Archive({ title, description, posts, pagination }: ArchiveProps) {
-  // Try to fetch latest posts for the sidebar. Since it's a server component we can call the query
-  // Wait, getLatestPosts might not be guaranteed. But THEME.md says `@/lib/queries` uses `getCachedTaxonomyPosts` etc.
-  // Actually getLatestPosts(5) is listed in THEME.md.
-  let latestPosts: PostCardData[] = [];
+  let popularPosts: PostCardData[] = [];
   try {
-    latestPosts = await getLatestPosts(5);
+    const optionsRaw = await getCachedOptions(["theme_news_featured_cat"]);
+    const popularCat = optionsRaw["theme_news_featured_cat"];
+    
+    if (popularCat) {
+      const taxonomyResult = await getCachedTaxonomyPosts(popularCat, "category", 5, 0);
+      if (taxonomyResult) {
+         popularPosts = taxonomyResult.hydratedPosts;
+      }
+    }
+    
+    // Fallback to latest posts if category is empty or not set
+    if (popularPosts.length === 0) {
+      popularPosts = await getLatestPosts(5);
+    }
   } catch {
-    // silently fail if getLatestPosts is not available or errors out
+    // silently fail if not available
   }
 
   return (
@@ -111,15 +122,15 @@ export default async function Archive({ title, description, posts, pagination }:
         {/* Sidebar */}
         <div className="lg:w-1/3">
           <div className="flex items-center mb-6">
-            <div className="font-bold text-lg flex items-center gap-2">
+            <div className="font-bold text-lg flex items-center gap-2 uppercase tracking-wide">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9.5a2.5 2.5 0 0 0-2.5-2.5H17" /></svg>
-              Artikel Terbaru
+              TERPOPULER
             </div>
             <div className="flex-grow h-px bg-gray-200 ml-4"></div>
           </div>
           
           <div className="flex flex-col gap-6 sticky top-24">
-            {latestPosts.length > 0 ? latestPosts.map((post: PostCardData) => {
+            {popularPosts.length > 0 ? popularPosts.map((post: PostCardData) => {
               const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
               return (
                 <Link href={`/${post.slug}`} key={post.id} className="flex gap-4 group cursor-pointer">
@@ -143,7 +154,7 @@ export default async function Archive({ title, description, posts, pagination }:
                 </Link>
               );
             }) : (
-              <div className="text-sm text-gray-500">Belum ada artikel terbaru.</div>
+              <div className="text-sm text-gray-500">Belum ada artikel.</div>
             )}
           </div>
         </div>
