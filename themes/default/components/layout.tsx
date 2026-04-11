@@ -2,7 +2,7 @@
 
 import "../theme.css";
 
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/safe-image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -38,17 +38,14 @@ const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
 
 // Helper component for dynamic logo formatting (bold first part, thin second part)
 function SiteLogo({ title, logoUrl }: { title: string; logoUrl?: string }) {
-    const [imgError, setImgError] = useState(false);
-
-    if (logoUrl && !imgError) {
+    if (logoUrl) {
         return (
-            <Image 
+            <SafeImage 
                 src={logoUrl} 
                 alt={title || "Site Logo"} 
                 width={200} 
                 height={60} 
                 className="h-8 md:h-10 w-auto object-contain"
-                onError={() => setImgError(true)} 
             />
         );
     }

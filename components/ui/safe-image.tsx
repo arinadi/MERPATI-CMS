@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image, { ImageProps } from "next/image";
 import { Image as ImageIcon } from "lucide-react";
+import { parseFeaturedImage } from "@/lib/utils/featured-image";
 
 /**
  * SafeImage Component
@@ -25,13 +26,18 @@ const ALLOWED_DOMAINS = [
 ];
 
 export function SafeImage({ src, alt, ...props }: ImageProps) {
-    const [isLoadError, setIsLoadError] = useState(!src);
+    // Parse featured image data (handles JSON strings from DB)
+    const mediaData = typeof src === "string" ? parseFeaturedImage(src) : null;
+    const finalSrc = mediaData ? mediaData.url : src;
+    const finalAlt = (mediaData?.altText) || alt || "Image";
+
+    const [isLoadError, setIsLoadError] = useState(!finalSrc);
     
     // Check if the domain is configured for next/image optimization
     let isSafeToOptimize = true;
-    if (typeof src === "string" && (src.startsWith("http://") || src.startsWith("https://"))) {
+    if (typeof finalSrc === "string" && (finalSrc.startsWith("http://") || finalSrc.startsWith("https://"))) {
         try {
-            const url = new URL(src);
+            const url = new URL(finalSrc);
             const hostname = url.hostname;
             isSafeToOptimize = ALLOWED_DOMAINS.some(domain => 
                 hostname === domain || hostname.endsWith("." + domain)
@@ -51,12 +57,12 @@ export function SafeImage({ src, alt, ...props }: ImageProps) {
     }
 
     // Use standard <img> for unknown domains to prevent Next.js SSR crashes
-    if (!isSafeToOptimize && typeof src === "string") {
+    if (!isSafeToOptimize && typeof finalSrc === "string") {
         return (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
-                src={src}
-                alt={alt || "Image"}
+                src={finalSrc}
+                alt={finalAlt}
                 className={props.className}
                 onError={() => setIsLoadError(true)}
                 style={props.fill ? { position: "absolute", height: "100%", width: "100%", inset: 0, objectFit: "cover" } : props.style}
@@ -68,8 +74,8 @@ export function SafeImage({ src, alt, ...props }: ImageProps) {
     return (
         <Image
             {...props}
-            src={src}
-            alt={alt || "Image"}
+            src={finalSrc as string | ImageProps["src"]}
+            alt={finalAlt}
             onError={() => setIsLoadError(true)}
         />
     );

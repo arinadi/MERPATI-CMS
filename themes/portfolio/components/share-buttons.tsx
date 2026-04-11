@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Check, Link2, Facebook, Twitter } from "lucide-react";
+import { getSocialShareLinks } from "@/lib/utils/social";
 
 // WhatsApp and Telegram icons as simple SVG components
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -56,95 +57,45 @@ export function ShareButtons({
         }
     })();
 
-    const getShareUrl = (platform: string, base: string) => {
-        const separator = base.includes("?") ? "&" : "?";
-        const utm = `${separator}utm_source=${platform.toLowerCase()}&utm_medium=social`;
-        return encodeURIComponent(url + utm);
+    const shareLinks = getSocialShareLinks(title, url, excerpt, platforms);
+
+    const iconMap: Record<string, React.ElementType> = {
+        whatsapp: WhatsAppIcon,
+        facebook: Facebook,
+        twitter: Twitter,
+        telegram: TelegramIcon,
+        linkedin: (props: React.SVGProps<SVGSVGElement>) => (
+            <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
+            </svg>
+        ),
+        reddit: (props: React.SVGProps<SVGSVGElement>) => (
+            <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.056 1.597.04.21.06.423.06.637 0 2.506-3.497 4.545-7.81 4.545-4.313 0-7.809-2.039-7.809-4.545 0-.218.019-.432.06-.643a1.745 1.745 0 0 1-1.051-1.59c0-.968.786-1.754 1.754-1.754.463 0 .875.18 1.179.475 1.196-.834 2.83-1.388 4.634-1.47l.88-4.132a.25.25 0 0 1 .203-.193l2.8-.588c.08-.014.16-.021.242-.021zM8.38 11.854a1.187 1.187 0 1 0 0 2.374 1.187 1.187 0 0 0 0-2.374zm7.234 0a1.187 1.187 0 1 0 0 2.374 1.187 1.187 0 0 0 0-2.374zM12 15.546c-1.558 0-2.859.54-3.408.88a.227.227 0 0 0-.012.373c.125.101.309.083.421.012.434-.27 1.442-.647 2.999-.647 1.557 0 2.565.377 2.999.647.112.071.296.089.421-.012a.227.227 0 0 0-.012-.373c-.549-.34-1.85-.88-3.408-.88z" />
+            </svg>
+        ),
+        pinterest: (props: React.SVGProps<SVGSVGElement>) => (
+            <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.966 1.406-5.966s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.622 0 11.988-5.365 11.988-11.988C24.005 5.367 18.639 0 12.017 0z" />
+            </svg>
+        ),
+        threads: (props: React.SVGProps<SVGSVGElement>) => (
+             <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm3.5 14h-7c-.828 0-1.5-.672-1.5-1.5V11c0-.828.672-1.5 1.5-1.5h7c.828 0 1.5.672 1.5 1.5v3.5c0 .828-.672 1.5-1.5 1.5zm-7-2.5h7V11h-7v2.5z" />
+            </svg>
+        ),
     };
 
-    const encodedTitle = encodeURIComponent(title);
-    const encodedExcerpt = encodeURIComponent(excerpt);
-
-    const shareLinks = [
-        {
-            id: "whatsapp",
-            name: "WhatsApp",
-            icon: WhatsAppIcon,
-            href: `https://wa.me/?text=*${encodedTitle}*%0A%0A${decodeURIComponent(getShareUrl("WhatsApp", url))}${excerpt ? `%0A%0A${encodedExcerpt}` : ""}`,
-            hoverColor: "hover:bg-[#25D366] hover:text-white",
-        },
-        {
-            id: "facebook",
-            name: "Facebook",
-            icon: Facebook,
-            href: `https://www.facebook.com/sharer/sharer.php?u=${getShareUrl("Facebook", url)}`,
-            hoverColor: "hover:bg-[#1877F2] hover:text-white",
-        },
-        {
-            id: "twitter",
-            name: "X",
-            icon: Twitter,
-            href: `https://twitter.com/intent/tweet?url=${getShareUrl("X", url)}&text=${encodedTitle}`,
-            hoverColor: "hover:bg-black hover:text-white",
-        },
-        {
-            id: "telegram",
-            name: "Telegram",
-            icon: TelegramIcon,
-            href: `https://t.me/share/url?url=${getShareUrl("Telegram", url)}&text=${encodedTitle}${excerpt ? `%0A%0A${encodedExcerpt}` : ""}`,
-            hoverColor: "hover:bg-[#0088cc] hover:text-white",
-        },
-        {
-            id: "linkedin",
-            name: "LinkedIn",
-            icon: (props: React.SVGProps<SVGSVGElement>) => (
-                <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>
-                </svg>
-            ),
-            href: `https://www.linkedin.com/sharing/share-offsite/?url=${getShareUrl("LinkedIn", url)}`,
-            hoverColor: "hover:bg-[#0A66C2] hover:text-white",
-        },
-        {
-            id: "reddit",
-            name: "Reddit",
-            icon: (props: React.SVGProps<SVGSVGElement>) => (
-                <svg {...props} viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.056 1.597.04.21.06.423.06.637 0 2.506-3.497 4.545-7.81 4.545-4.313 0-7.809-2.039-7.809-4.545 0-.218.019-.432.06-.643a1.745 1.745 0 0 1-1.051-1.59c0-.968.786-1.754 1.754-1.754.463 0 .875.18 1.179.475 1.196-.834 2.83-1.388 4.634-1.47l.88-4.132a.25.25 0 0 1 .203-.193l2.8-.588c.08-.014.16-.021.242-.021zM8.38 11.854a1.187 1.187 0 1 0 0 2.374 1.187 1.187 0 0 0 0-2.374zm7.234 0a1.187 1.187 0 1 0 0 2.374 1.187 1.187 0 0 0 0-2.374zM12 15.546c-1.558 0-2.859.54-3.408.88a.227.227 0 0 0-.012.373c.125.101.309.083.421.012.434-.27 1.442-.647 2.999-.647 1.557 0 2.565.377 2.999.647.112.071.296.089.421-.012a.227.227 0 0 0-.012-.373c-.549-.34-1.85-.88-3.408-.88z" />
-                </svg>
-            ),
-            href: `https://www.reddit.com/submit?url=${getShareUrl("Reddit", url)}&title=${encodedTitle}`,
-            hoverColor: "hover:bg-[#FF4500] hover:text-white",
-        },
-        {
-            id: "pinterest",
-            name: "Pinterest",
-            icon: (props: React.SVGProps<SVGSVGElement>) => (
-                <svg {...props} viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.966 1.406-5.966s-.359-.72-.359-1.781c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12.017 24c6.622 0 11.988-5.365 11.988-11.988C24.005 5.367 18.639 0 12.017 0z" />
-                </svg>
-            ),
-            href: `https://pinterest.com/pin/create/button/?url=${getShareUrl("Pinterest", url)}&description=${encodedTitle}`,
-            hoverColor: "hover:bg-[#E60023] hover:text-white",
-        },
-        {
-            id: "threads",
-            name: "Threads",
-            icon: (props: React.SVGProps<SVGSVGElement>) => (
-                <svg {...props} viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm3.5 14h-7c-.828 0-1.5-.672-1.5-1.5V11c0-.828.672-1.5 1.5-1.5h7c.828 0 1.5.672 1.5 1.5v3.5c0 .828-.672 1.5-1.5 1.5zm-7-2.5h7V11h-7v2.5z" />
-                </svg>
-            ),
-            href: `https://www.threads.net/intent/post?text=${encodedTitle}%0A${decodeURIComponent(getShareUrl("Threads", url))}`,
-            hoverColor: "hover:bg-zinc-700 hover:text-white",
-        },
-    ];
-
-    // Filter based on admin preferences
-    const activeShareLinks = shareLinks.filter(link => {
-        if (!platforms) return true; // Default to all if not configured
-        return platforms[link.id] === true;
-    });
+    const hoverColors: Record<string, string> = {
+        whatsapp: "hover:bg-[#25D366] hover:text-white",
+        facebook: "hover:bg-[#1877F2] hover:text-white",
+        twitter: "hover:bg-black hover:text-white",
+        telegram: "hover:bg-[#0088cc] hover:text-white",
+        linkedin: "hover:bg-[#0A66C2] hover:text-white",
+        reddit: "hover:bg-[#FF4500] hover:text-white",
+        pinterest: "hover:bg-[#E60023] hover:text-white",
+        threads: "hover:bg-zinc-700 hover:text-white",
+    };
 
     const copyLink = async () => {
         try {
@@ -166,15 +117,16 @@ export function ShareButtons({
             >
                 Share
             </span>
-            {activeShareLinks.map((link) => {
-                const Icon = link.icon;
+            {shareLinks.map((link) => {
+                const Icon = iconMap[link.id];
+                if (!Icon) return null;
                 return (
                     <a
                         key={link.id}
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`${defaultButton} ${link.hoverColor} ${buttonClassName}`}
+                        className={`${defaultButton} ${hoverColors[link.id]} ${buttonClassName}`}
                         title={`Share on ${link.name}`}
                     >
                         <Icon className="w-3.5 h-3.5" />

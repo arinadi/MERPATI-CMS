@@ -11,6 +11,12 @@ export interface ThemeLayoutProps {
     primaryMenu: MenuItem[];
     footerMenu: MenuItem[];
     cacheId?: string;
+    themeOptions?: Record<string, unknown>;
+}
+
+export interface HomeProps {
+    posts?: PostCardData[];
+    themeOptions?: Record<string, unknown>;
 }
 
 export interface SinglePostProps {
@@ -118,10 +124,12 @@ export interface ThemeExports {
 // and the "cannot create components during render" error.
 
 import * as defaultTheme from "@/themes/default";
+import * as newsTheme from "@/themes/news";
 import { portfolioTheme } from "@/themes/portfolio";
 
 const THEME_MAP: Record<string, ThemeExports> = {
     default: defaultTheme as ThemeExports,
+    news: newsTheme as ThemeExports,
     portfolio: portfolioTheme as ThemeExports,
 };
 

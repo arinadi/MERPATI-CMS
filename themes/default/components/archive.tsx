@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ArchiveProps } from "@/lib/themes";
+import { getPaginationUrl } from "@/lib/utils/navigation";
 import { PostCard } from "./post-card";
 
 export default function Archive({ title, description, posts, pagination }: ArchiveProps) {
@@ -48,7 +49,7 @@ export default function Archive({ title, description, posts, pagination }: Archi
                         <nav className="flex items-center gap-2">
                             {pagination.currentPage > 1 ? (
                                 <Link 
-                                    href={pagination.currentPage - 1 === 1 ? pagination.basePath : `${pagination.basePath}/page/${pagination.currentPage - 1}`} 
+                                    href={getPaginationUrl(pagination.basePath, pagination.currentPage - 1)} 
                                     className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#1E293B] hover:bg-gray-800 border border-white/5 font-bold text-white transition-colors group"
                                 >
                                     <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -67,7 +68,7 @@ export default function Archive({ title, description, posts, pagination }: Archi
                             
                             {pagination.currentPage < pagination.totalPages ? (
                                 <Link 
-                                    href={`${pagination.basePath}/page/${pagination.currentPage + 1}`} 
+                                    href={getPaginationUrl(pagination.basePath, pagination.currentPage + 1)} 
                                     className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#1E293B] hover:bg-gray-800 border border-white/5 font-bold text-white transition-colors group"
                                 >
                                     <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
