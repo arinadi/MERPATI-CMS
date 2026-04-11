@@ -5,8 +5,10 @@ import { activeTheme } from "@/lib/themes";
 import { getCachedOptions } from "@/lib/queries/options";
 import { unstable_cache } from "next/cache";
 import { dbGuard } from "@/lib/db-guard";
+import type { HomeProps } from "@/lib/themes";
 
-const HomeComp = activeTheme.Home || activeTheme.Archive;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const HomeComp = (activeTheme.Home || activeTheme.Archive) as React.ComponentType<HomeProps & Record<string, any>>;
 
 export const revalidate = 3600;
 
@@ -66,17 +68,28 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {
-    const [hydratedPosts, options] = await dbGuard(async () => {
+    const [hydratedPosts, themeOptions] = await dbGuard(async () => {
         const p = await getCachedHomePosts();
-        const o = await getCachedOptions(["site_tagline"]);
-        return [p, o] as const;
+
+        // Collect theme option keys and fetch their values
+        const themeOptionKeys = (activeTheme.options || []).map(opt => opt.id);
+        const themeOpts: Record<string, unknown> = {};
+        if (themeOptionKeys.length > 0) {
+            const fetched = await getCachedOptions(themeOptionKeys);
+            for (const key of themeOptionKeys) {
+                if (fetched[key] !== undefined) {
+                    themeOpts[key] = fetched[key];
+                }
+            }
+        }
+
+        return [p, themeOpts] as const;
     });
 
     return (
         <HomeComp
-            title="Latest Articles"
-            description={options.site_tagline || "Read our latest news and articles."}
             posts={hydratedPosts}
+            themeOptions={themeOptions}
         />
     );
 }

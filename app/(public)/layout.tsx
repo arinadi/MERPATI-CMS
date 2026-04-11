@@ -67,11 +67,16 @@ export default async function PublicLayout({
         if (isInit !== "true") {
             redirect("/setup");
         }
+
+        // Collect theme option keys from active theme
+        const themeOptionKeys = (activeTheme.options || []).map(o => o.id);
+
         const options = await getCachedOptions([
             "site_title",
             "site_tagline",
             "site_logo",
-            "site_contacts"
+            "site_contacts",
+            ...themeOptionKeys
         ]);
 
         const siteTitle = options.site_title || "MERPATI CMS";
@@ -85,11 +90,19 @@ export default async function PublicLayout({
             console.error("Failed to parse site_contacts", e);
         }
 
+        // Build themeOptions object from fetched values
+        const themeOptions: Record<string, unknown> = {};
+        for (const key of themeOptionKeys) {
+            if (options[key] !== undefined) {
+                themeOptions[key] = options[key];
+            }
+        }
+
         const primaryMenu = await getCachedMenuWithItems("primary");
         const footerMenu = await getCachedMenuWithItems("footer");
         const cacheId = await getCacheTimestamp();
 
-        return { siteTitle, siteTagline, siteLogo, contacts, primaryMenu, footerMenu, cacheId };
+        return { siteTitle, siteTagline, siteLogo, contacts, primaryMenu, footerMenu, cacheId, themeOptions };
     });
 
     const jsonLd = {
@@ -114,6 +127,7 @@ export default async function PublicLayout({
             primaryMenu={data.primaryMenu}
             footerMenu={data.footerMenu}
             cacheId={data.cacheId}
+            themeOptions={data.themeOptions}
         >
             <script
                 type="application/ld+json"

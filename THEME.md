@@ -109,7 +109,10 @@ export const options: ThemeOptionField[] = [
 ];
 ```
 
-Supported types: `"text" | "textarea" | "number" | "url" | "select" | "post" | "image"`.
+Supported types: `"text" | "textarea" | "number" | "url" | "select" | "post" | "image" | "color" | "contacts" | "checkbox-group" | "category" | "category-multi"`.
+
+> [!NOTE]
+> For `"checkbox-group"` and `"category-multi"`, the selected values are saved as a JSON-stringified array limit in the database. When retrieving them via `getCachedOptions()`, you must `JSON.parse()` the returned string to get the array of strings/slugs.
 
 Inside your Server Components (e.g., `Home`), fetch these options using `getCachedOptions`:
 

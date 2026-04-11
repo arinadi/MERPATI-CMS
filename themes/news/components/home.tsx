@@ -1,6 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import { PlayCircle } from "lucide-react";
 import { SafeImage } from "@/components/ui/safe-image";
 import { getCachedTaxonomyPosts, getLatestPosts, getCachedPostById } from "@/lib/queries/posts";
 import type { HomeProps, PostCardData } from "@/lib/themes";
@@ -14,7 +13,7 @@ const SectionHeader = ({ title }: { title: string }) => (
   </div>
 );
 
-const CategoryBlock = ({ title, posts, slug }: { title: string, posts: PostCardData[], slug: string }) => {
+const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] }) => {
   if (!posts || posts.length === 0) return null;
   const featured = posts[0];
   const list = posts.slice(1, 4);
@@ -81,40 +80,46 @@ const CategoryBlock = ({ title, posts, slug }: { title: string, posts: PostCardD
 export default async function Home({ themeOptions }: HomeProps) {
   // Fetch Theme Options
   const heroPostId = themeOptions?.theme_news_hero_post as string;
-  const catSlug1 = themeOptions?.theme_news_home_cat_1 as string;
-  const catSlug2 = themeOptions?.theme_news_home_cat_2 as string;
-  const catSlug3 = themeOptions?.theme_news_home_cat_3 as string;
-  const catSlug4 = themeOptions?.theme_news_home_cat_4 as string;
-  const videoCatSlug = themeOptions?.theme_news_home_video_cat as string;
+  const featuredCatSlug = themeOptions?.theme_news_featured_cat as string;
+  const videoCatSlug = themeOptions?.theme_news_video_cat as string;
+
+  // Parse category-multi (JSON array of slugs)
+  let gridCategorySlugs: string[] = [];
+  try {
+    const raw = themeOptions?.theme_news_home_categories;
+    if (typeof raw === "string") {
+      gridCategorySlugs = JSON.parse(raw);
+    } else if (Array.isArray(raw)) {
+      gridCategorySlugs = raw as string[];
+    }
+  } catch {
+    gridCategorySlugs = [];
+  }
 
   // Execute Parallel Queries
   const [
     heroPostData,
     latestPosts,
-    cat1Res,
-    cat2Res,
-    cat3Res,
-    cat4Res,
-    videoCatRes
+    featuredCatRes,
+    videoCatRes,
+    ...gridCatResults
   ] = await Promise.all([
     heroPostId ? getCachedPostById(heroPostId) : null,
-    getLatestPosts(30), // We fetch 30 to serve as a smart default pool
-    catSlug1 ? getCachedTaxonomyPosts(catSlug1, "category", 8, 0) : null,
-    catSlug2 ? getCachedTaxonomyPosts(catSlug2, "category", 4, 0) : null,
-    catSlug3 ? getCachedTaxonomyPosts(catSlug3, "category", 4, 0) : null,
-    catSlug4 ? getCachedTaxonomyPosts(catSlug4, "category", 4, 0) : null,
+    getLatestPosts(30),
+    featuredCatSlug ? getCachedTaxonomyPosts(featuredCatSlug, "category", 8, 0) : null,
     videoCatSlug ? getCachedTaxonomyPosts(videoCatSlug, "category", 4, 0) : null,
+    ...gridCategorySlugs.map(slug => getCachedTaxonomyPosts(slug, "category", 4, 0)),
   ]);
 
   // Smart Defaults
   const heroPost = heroPostData || latestPosts[0];
   const sideLatest = latestPosts.filter(p => p.id !== heroPost?.id).slice(0, 5);
 
-  const finalCat1 = cat1Res || (latestPosts.length > 5 ? { term: { name: "PILIHAN REDAKSI", slug: "pilihan" }, hydratedPosts: latestPosts.slice(5, 13) } : null);
-  const finalCat2 = cat2Res || (latestPosts.length > 13 ? { term: { name: "ARTIKEL 1", slug: "artikel-1" }, hydratedPosts: latestPosts.slice(13, 17) } : null);
-  const finalCat3 = cat3Res || (latestPosts.length > 17 ? { term: { name: "ARTIKEL 2", slug: "artikel-2" }, hydratedPosts: latestPosts.slice(17, 21) } : null);
-  const finalCat4 = cat4Res || (latestPosts.length > 21 ? { term: { name: "ARTIKEL 3", slug: "artikel-3" }, hydratedPosts: latestPosts.slice(21, 25) } : null);
-  const finalVideo = videoCatRes || (latestPosts.length > 25 ? { term: { name: "VIDEO/SOROTAN", slug: "sorotan" }, hydratedPosts: latestPosts.slice(25, 29) } : null);
+  const finalFeatured = featuredCatRes || (latestPosts.length > 5 ? { term: { name: "Sorotan", slug: "sorotan" }, hydratedPosts: latestPosts.slice(5, 13) } : null);
+  const finalVideo = videoCatRes || (latestPosts.length > 13 ? { term: { name: "Video", slug: "video" }, hydratedPosts: latestPosts.slice(13, 17) } : null);
+
+  // Filter valid grid categories
+  const gridCategories = gridCatResults.filter(Boolean) as NonNullable<typeof featuredCatRes>[];
 
   return (
     <>
@@ -185,14 +190,14 @@ export default async function Home({ themeOptions }: HomeProps) {
         </div>
       </section>
 
-      {/* Marquee Section (Category 1) */}
-      {finalCat1 && finalCat1.hydratedPosts.length > 0 && (
+      {/* Marquee Section (Featured Category) */}
+      {finalFeatured && finalFeatured.hydratedPosts.length > 0 && (
         <section className="container mx-auto px-4 mb-12 overflow-hidden">
-          <SectionHeader title={finalCat1.term.name} />
+          <SectionHeader title={finalFeatured.term.name} />
           <div className="relative w-full overflow-hidden">
             <div className="flex gap-6 animate-marquee w-max hover:pause">
               {/* Duplicate array for endless marquee illusion */}
-              {[...finalCat1.hydratedPosts, ...finalCat1.hydratedPosts].map((post, index) => (
+              {[...finalFeatured.hydratedPosts, ...finalFeatured.hydratedPosts].map((post, index) => (
                 <Link href={`/${post.slug}`} key={`${post.id}-${index}`} className="group cursor-pointer flex flex-col w-[300px] md:w-[350px] flex-shrink-0">
                   <div className="relative overflow-hidden rounded-sm aspect-[4/3] mb-4">
                     <SafeImage 
@@ -202,7 +207,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute bottom-3 left-3 px-2 py-1 text-xs font-bold tracking-wider uppercase" style={{ backgroundColor: 'var(--news-accent)', color: 'var(--news-primary)' }}>
-                      {finalCat1.term.name}
+                      {finalFeatured.term.name}
                     </div>
                   </div>
                   <h3 className="font-bold text-lg leading-snug mb-2 group-hover:text-[var(--news-accent)] transition-colors line-clamp-2">
@@ -223,14 +228,16 @@ export default async function Home({ themeOptions }: HomeProps) {
         </section>
       )}
 
-      {/* Grid Categories Section */}
-      <section className="container mx-auto px-4 mb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-12">
-          {finalCat2 && finalCat2.hydratedPosts.length > 0 && <CategoryBlock title={finalCat2.term.name} posts={finalCat2.hydratedPosts} slug={finalCat2.term.name} />}
-          {finalCat3 && finalCat3.hydratedPosts.length > 0 && <CategoryBlock title={finalCat3.term.name} posts={finalCat3.hydratedPosts} slug={finalCat3.term.name} />}
-          {finalCat4 && finalCat4.hydratedPosts.length > 0 && <CategoryBlock title={finalCat4.term.name} posts={finalCat4.hydratedPosts} slug={finalCat4.term.name} />}
-        </div>
-      </section>
+      {/* Grid Categories Section (Dynamic from checkbox selection) */}
+      {gridCategories.length > 0 && (
+        <section className="container mx-auto px-4 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-12">
+            {gridCategories.map((cat) => (
+              <CategoryBlock key={cat.term.slug} title={cat.term.name} posts={cat.hydratedPosts} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Video Category Section */}
       {finalVideo && finalVideo.hydratedPosts.length > 0 && (
@@ -246,11 +253,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                     fill 
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full border-2 border-white flex items-center justify-center bg-black/30 text-white backdrop-blur-sm group-hover:scale-110 transition-transform">
-                      <PlayCircle size={32} className="ml-1" />
-                    </div>
-                  </div>
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors"></div>
                 </div>
                 <h3 className="font-bold text-xl leading-snug mb-2 group-hover:text-[var(--news-accent)] transition-colors">
                   {post.title}

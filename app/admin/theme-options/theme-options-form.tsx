@@ -25,9 +25,10 @@ interface ThemeOptionsFormProps {
     schema: ThemeOptionField[];
     initialValues: Record<string, string>;
     availablePosts: { id: string; title: string }[];
+    availableCategories?: { id: string; name: string; slug: string }[];
 }
 
-export default function ThemeOptionsForm({ schema, initialValues, availablePosts }: ThemeOptionsFormProps) {
+export default function ThemeOptionsForm({ schema, initialValues, availablePosts, availableCategories = [] }: ThemeOptionsFormProps) {
     const [values, setValues] = useState<Record<string, string>>(initialValues);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -79,7 +80,7 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                         <CardContent className="space-y-8 pt-8">
                             <h3 className="text-xl font-bold tracking-tight border-b pb-4 mb-2">{groupName}</h3>
                             {fields.map((field) => {
-                                const value = values[field.id] || "";
+                                const value = values[field.id] || field.defaultValue || "";
 
                                 return (
                                     <div key={field.id} className="space-y-3">
@@ -177,10 +178,10 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                 </div>
                                             )}
 
-                                            {(field.type === "select" || field.type === "post") && (
+                                            {(field.type === "select" || field.type === "post" || field.type === "category") && (
                                                 <Select value={value} onValueChange={(val) => handleChange(field.id, val)}>
                                                     <SelectTrigger className="bg-background/50">
-                                                        <SelectValue placeholder={`Select ${field.type === "post" ? "a post" : "an option"}`} />
+                                                        <SelectValue placeholder={`Select ${field.type === "post" ? "a post" : field.type === "category" ? "a category" : "an option"}`} />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         {field.type === "select" && field.options?.map((opt) => (
@@ -193,8 +194,48 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                                 {post.title}
                                                             </SelectItem>
                                                         ))}
+                                                        {field.type === "category" && availableCategories.map((cat) => (
+                                                            <SelectItem key={cat.slug} value={cat.slug}>
+                                                                {cat.name}
+                                                            </SelectItem>
+                                                        ))}
                                                     </SelectContent>
                                                 </Select>
+                                            )}
+
+                                            {field.type === "category-multi" && (
+                                                <div className="grid gap-3 sm:grid-cols-2">
+                                                    {availableCategories.map((cat) => {
+                                                        let selectedSlugs: string[] = [];
+                                                        try {
+                                                            selectedSlugs = JSON.parse(value || "[]");
+                                                        } catch {
+                                                            selectedSlugs = [];
+                                                        }
+                                                        const isChecked = selectedSlugs.includes(cat.slug);
+
+                                                        return (
+                                                            <div key={cat.slug} className="flex items-center space-x-2 p-3 border rounded-lg bg-background/50 group hover:border-primary/30 transition-colors">
+                                                                <Checkbox
+                                                                    id={`${field.id}-${cat.slug}`}
+                                                                    checked={isChecked}
+                                                                    onCheckedChange={(checked) => {
+                                                                        const newSlugs = checked
+                                                                            ? [...selectedSlugs, cat.slug]
+                                                                            : selectedSlugs.filter(s => s !== cat.slug);
+                                                                        handleChange(field.id, JSON.stringify(newSlugs));
+                                                                    }}
+                                                                />
+                                                                <Label
+                                                                    htmlFor={`${field.id}-${cat.slug}`}
+                                                                    className="text-sm font-medium cursor-pointer select-none"
+                                                                >
+                                                                    {cat.name}
+                                                                </Label>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
                                             )}
 
                                             {field.type === "image" && (

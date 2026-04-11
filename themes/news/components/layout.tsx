@@ -14,6 +14,7 @@ import {
   X
 } from 'lucide-react';
 import type { ThemeLayoutProps } from '@/lib/themes';
+import { getDefault } from '../options';
 
 const SOCIAL_ICONS: Record<string, React.ReactNode> = {
   instagram: <Instagram size={16} />,
@@ -35,6 +36,12 @@ const SOCIAL_COLORS: Record<string, string> = {
   tiktok: "bg-black"
 };
 
+function resolveMenuUrl(item: { url: string | null; slug?: string; type: string }): string {
+  if (item.url) return item.url;
+  if (item.slug) return `/${item.slug}`;
+  return "/";
+}
+
 export default function ThemeLayout({
   children,
   siteTitle,
@@ -49,9 +56,9 @@ export default function ThemeLayout({
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
 
-  const primaryColor = (themeOptions?.theme_news_primary_color as string) || "#001A33";
-  const accentColor = (themeOptions?.theme_news_accent_color as string) || "#B4F81B";
-  const ctaText = (themeOptions?.theme_news_cta_text as string) || "KIRIM ARTIKEL";
+  const primaryColor = (themeOptions?.theme_news_primary_color as string) || getDefault("theme_news_primary_color") as string;
+  const accentColor = (themeOptions?.theme_news_accent_color as string) || getDefault("theme_news_accent_color") as string;
+  const ctaText = (themeOptions?.theme_news_cta_text as string) || getDefault("theme_news_cta_text") as string;
   const ctaUrl = (themeOptions?.theme_news_cta_url as string) || "#";
 
   function handleSearch(e: React.FormEvent) {
@@ -126,7 +133,7 @@ export default function ThemeLayout({
           <div className="container mx-auto px-4 flex justify-between items-center py-3">
             <nav className="flex gap-6 font-bold text-sm">
               {primaryMenu.map((item) => (
-                <Link key={item.id} href={item.url || "#"} className="transition-colors relative group">
+                <Link key={item.id} href={resolveMenuUrl(item)} className="transition-colors relative group">
                   {item.title.toUpperCase()}
                   <span className="absolute -bottom-3 left-0 w-0 h-0.5 transition-all group-hover:w-full" style={{ backgroundColor: accentColor }}></span>
                 </Link>
@@ -164,7 +171,7 @@ export default function ThemeLayout({
             </form>
             <nav className="flex flex-col gap-4 font-bold text-sm mt-2">
               {primaryMenu.map((item) => (
-                <Link key={item.id} href={item.url || "#"} onClick={() => setIsMobileMenuOpen(false)} className="border-b border-gray-800 pb-2 hover:text-[var(--news-accent)]">
+                <Link key={item.id} href={resolveMenuUrl(item)} onClick={() => setIsMobileMenuOpen(false)} className="border-b border-gray-800 pb-2 hover:text-[var(--news-accent)]">
                   {item.title.toUpperCase()}
                 </Link>
               ))}
@@ -216,7 +223,7 @@ export default function ThemeLayout({
             {menuChunks.slice(0,3).map((chunk, index) => (
                <div key={index} className="flex flex-col gap-3 text-sm text-gray-300">
                   {chunk.map(item => (
-                    <Link key={item.id} href={item.url || "#"} className="hover:text-[var(--news-accent)] transition-colors">
+                    <Link key={item.id} href={resolveMenuUrl(item)} className="hover:text-[var(--news-accent)] transition-colors">
                       {item.title}
                     </Link>
                   ))}

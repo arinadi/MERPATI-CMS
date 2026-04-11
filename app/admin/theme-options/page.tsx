@@ -1,8 +1,8 @@
 import { activeTheme, ThemeOptionField } from "@/lib/themes";
 import { getOptions } from "@/lib/actions/options";
 import { db } from "@/db";
-import { posts } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { posts, terms } from "@/db/schema";
+import { eq, desc, and } from "drizzle-orm";
 import ThemeOptionsForm from "./theme-options-form";
 
 export const dynamic = "force-dynamic";
@@ -78,7 +78,6 @@ export default async function ThemeOptionsPage() {
     const themeSchema = activeTheme.options || [];
     
     // Merge global options with theme-specific ones
-    // We filter out global options if the theme already defines them with the same ID
     const themeIds = new Set(themeSchema.map(o => o.id));
     const mergedSchema = [...GLOBAL_OPTIONS.filter(o => !themeIds.has(o.id)), ...themeSchema];
 
@@ -96,6 +95,17 @@ export default async function ThemeOptionsPage() {
             .orderBy(desc(posts.createdAt));
     }
 
+    // Fetch categories if any field is of type "category" or "category-multi"
+    const hasCategoryField = mergedSchema.some(o => o.type === "category" || o.type === "category-multi");
+    let availableCategories: { id: string; name: string; slug: string }[] = [];
+    if (hasCategoryField) {
+        availableCategories = await db
+            .select({ id: terms.id, name: terms.name, slug: terms.slug })
+            .from(terms)
+            .where(and(eq(terms.taxonomy, "category")))
+            .orderBy(terms.name);
+    }
+
     return (
         <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
             <div className="flex items-center justify-between">
@@ -106,6 +116,7 @@ export default async function ThemeOptionsPage() {
                 schema={mergedSchema} 
                 initialValues={currentValues} 
                 availablePosts={availablePosts}
+                availableCategories={availableCategories}
             />
         </div>
     );

@@ -13,7 +13,7 @@ export default async function Archive({ title, description, posts, pagination }:
   let latestPosts: PostCardData[] = [];
   try {
     latestPosts = await getLatestPosts(5);
-  } catch (e) {
+  } catch {
     // silently fail if getLatestPosts is not available or errors out
   }
 
