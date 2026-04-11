@@ -89,7 +89,9 @@ const nextUrl = getPaginationUrl(basePath, currentPage + 1);
 
 Themes can define custom settings (Theme Options) that users can configure in the admin panel. These are useful for hero text, CTA links, or selecting featured posts.
 
-To define Theme Options, export an `options` array from your theme's `index.tsx`:
+To keep your Server Components and Client Components properly separated while reusing theme defaults, extracting theme options to an `options.ts` file is considered a best practice.
+
+1. **Create `options.ts` in your theme folder:**
 
 ```tsx
 import { ThemeOptionField } from "@/lib/themes";
@@ -100,6 +102,7 @@ export const options: ThemeOptionField[] = [
         label: "Jumbo Text",
         type: "text",
         description: "Large text on the homepage.",
+        defaultValue: "Welcome to My Theme"
     },
     {
         id: "theme_mytheme_featured_post",
@@ -107,6 +110,25 @@ export const options: ThemeOptionField[] = [
         type: "post",
     }
 ];
+
+export const getDefault = (id: string) => options.find((o) => o.id === id)?.defaultValue || "";
+```
+
+2. **Register it in `index.tsx`:**
+
+```tsx
+import { options } from "./options";
+export { ThemeLayout, Archive, SinglePost, SinglePage, NotFound, Home, options };
+
+export const myTheme: ThemeExports = {
+    ThemeLayout,
+    Archive,
+    SinglePost,
+    SinglePage,
+    NotFound,
+    Home,
+    options
+};
 ```
 
 Supported types: `"text" | "textarea" | "number" | "url" | "select" | "post" | "image" | "color" | "contacts" | "checkbox-group" | "category" | "category-multi"`.
@@ -118,14 +140,15 @@ Inside your Server Components (e.g., `Home`), fetch these options using `getCach
 
 ```tsx
 import { getCachedOptions } from "@/lib/queries/options";
+import { getDefault } from "../options";
 
 export default async function Home() {
-    const options = await getCachedOptions([
+    const optionsRaw = await getCachedOptions([
         "theme_mytheme_jumbo_text",
         "theme_mytheme_featured_post"
     ]);
 
-    const jumboText = options["theme_mytheme_jumbo_text"] || "Default Text";
+    const jumboText = optionsRaw["theme_mytheme_jumbo_text"] || getDefault("theme_mytheme_jumbo_text");
     // ... render your component
 }
 ```
