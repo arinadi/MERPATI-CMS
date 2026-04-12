@@ -9,8 +9,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { setOptions } from "@/lib/actions/options";
 import { toast } from "sonner";
-import { Loader2, ImageIcon, X } from "lucide-react";
+import { Loader2, ImageIcon, X, Check, ChevronsUpDown, Search } from "lucide-react";
 import type { ThemeOptionField } from "@/lib/themes";
+import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
     Select,
     SelectContent,
@@ -27,6 +29,61 @@ interface ThemeOptionsFormProps {
     availablePosts: { id: string; title: string }[];
     availableCategories?: { id: string; name: string; slug: string }[];
 }
+
+function PostSelector({ value, onChange, posts }: { value: string, onChange: (v: string) => void, posts: {id:string, title:string}[] }) {
+    const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState("");
+    
+    const maxItems = 5;
+    const matching = posts.filter(p => p.title.toLowerCase().includes(search.toLowerCase()));
+    const filtered = matching.slice(0, maxItems);
+    const selectedTitle = posts.find(p => p.id === value)?.title || "Select a post...";
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between bg-background/50 font-normal">
+                    <span className="truncate">{selectedTitle}</span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full min-w-[300px] p-0" align="start">
+                <div className="flex items-center border-b px-3">
+                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                    <input 
+                       className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                       placeholder="Search posts..."
+                       value={search}
+                       onChange={e => setSearch(e.target.value)}
+                    />
+                </div>
+                <div className="max-h-[300px] overflow-y-auto p-1 text-sm">
+                    {filtered.length === 0 ? (
+                        <div className="py-6 text-center text-sm text-muted-foreground">No posts found.</div>
+                    ) : (
+                       filtered.map(post => (
+                           <div 
+                               key={post.id}
+                               className={cn(
+                                   "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap",
+                                   value === post.id ? "bg-accent text-accent-foreground font-medium" : ""
+                               )}
+                               onClick={() => { onChange(post.id); setOpen(false); setSearch(""); }}
+                           >
+                               <Check className={cn("mr-2 h-4 w-4 shrink-0", value === post.id ? "opacity-100" : "opacity-0")} />
+                               <span className="truncate" title={post.title}>{post.title}</span>
+                           </div>
+                       ))
+                    )}
+                    {matching.length > maxItems && (
+                        <div className="py-2 text-center text-xs text-muted-foreground bg-muted/50 rounded mt-1">Showing {maxItems} of {matching.length}. Type to search more.</div>
+                    )}
+                </div>
+            </PopoverContent>
+        </Popover>
+    );
+}
+
 
 export default function ThemeOptionsForm({ schema, initialValues, availablePosts, availableCategories = [] }: ThemeOptionsFormProps) {
     const [values, setValues] = useState<Record<string, string>>(initialValues);
@@ -126,7 +183,7 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                         const isChecked = currentValues[option.value] ?? false;
 
                                                         return (
-                                                            <div key={option.value} className="flex items-center space-x-2 p-3 border rounded-lg bg-background/50 group hover:border-primary/30 transition-colors">
+                                                            <label key={option.value} htmlFor={`${field.id}-${option.value}`} className="flex items-center space-x-2 p-3 border rounded-lg bg-background/50 group hover:border-primary/30 transition-colors cursor-pointer w-full">
                                                                 <Checkbox
                                                                     id={`${field.id}-${option.value}`}
                                                                     checked={isChecked}
@@ -135,13 +192,12 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                                         handleChange(field.id, JSON.stringify(newValues));
                                                                     }}
                                                                 />
-                                                                <Label
-                                                                    htmlFor={`${field.id}-${option.value}`}
-                                                                    className="text-xs font-medium cursor-pointer select-none"
+                                                                <span
+                                                                    className="text-xs font-medium cursor-pointer select-none flex-grow"
                                                                 >
                                                                     {option.label}
-                                                                </Label>
-                                                            </div>
+                                                                </span>
+                                                            </label>
                                                         );
                                                     })}
                                                 </div>
@@ -178,20 +234,15 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                 </div>
                                             )}
 
-                                            {(field.type === "select" || field.type === "post" || field.type === "category") && (
+                                            {(field.type === "select" || field.type === "category") && (
                                                 <Select value={value} onValueChange={(val) => handleChange(field.id, val)}>
                                                     <SelectTrigger className="bg-background/50">
-                                                        <SelectValue placeholder={`Select ${field.type === "post" ? "a post" : field.type === "category" ? "a category" : "an option"}`} />
+                                                        <SelectValue placeholder={`Select ${field.type === "category" ? "a category" : "an option"}`} />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         {field.type === "select" && field.options?.map((opt) => (
                                                             <SelectItem key={opt.value} value={opt.value}>
                                                                 {opt.label}
-                                                            </SelectItem>
-                                                        ))}
-                                                        {field.type === "post" && availablePosts.map((post) => (
-                                                            <SelectItem key={post.id} value={post.id}>
-                                                                {post.title}
                                                             </SelectItem>
                                                         ))}
                                                         {field.type === "category" && availableCategories.map((cat) => (
@@ -201,6 +252,14 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
+                                            )}
+
+                                            {field.type === "post" && (
+                                                <PostSelector 
+                                                    value={value} 
+                                                    onChange={(val) => handleChange(field.id, val)}
+                                                    posts={availablePosts}
+                                                />
                                             )}
 
                                             {field.type === "category-multi" && (
@@ -215,7 +274,7 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                         const isChecked = selectedSlugs.includes(cat.slug);
 
                                                         return (
-                                                            <div key={cat.slug} className="flex items-center space-x-2 p-3 border rounded-lg bg-background/50 group hover:border-primary/30 transition-colors">
+                                                            <label key={cat.slug} htmlFor={`${field.id}-${cat.slug}`} className="flex items-center space-x-2 p-3 border rounded-lg bg-background/50 group hover:border-primary/30 transition-colors cursor-pointer w-full">
                                                                 <Checkbox
                                                                     id={`${field.id}-${cat.slug}`}
                                                                     checked={isChecked}
@@ -226,13 +285,10 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                                         handleChange(field.id, JSON.stringify(newSlugs));
                                                                     }}
                                                                 />
-                                                                <Label
-                                                                    htmlFor={`${field.id}-${cat.slug}`}
-                                                                    className="text-sm font-medium cursor-pointer select-none"
-                                                                >
+                                                                <span className="text-sm font-medium cursor-pointer select-none flex-grow text-foreground">
                                                                     {cat.name}
-                                                                </Label>
-                                                            </div>
+                                                                </span>
+                                                            </label>
                                                         );
                                                     })}
                                                 </div>

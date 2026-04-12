@@ -17,6 +17,14 @@ export const options: ThemeOptionField[] = [
         group: "Identity"
     },
     {
+        id: "theme_news_cta_color",
+        label: "Header CTA Color",
+        type: "color",
+        description: "Background color for the Call to Action button. Default is #3A9D36.",
+        group: "Colors",
+        defaultValue: "#3A9D36"
+    },
+    {
         id: "theme_news_primary_color",
         label: "Primary Color",
         type: "color",
