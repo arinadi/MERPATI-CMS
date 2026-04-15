@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:termux": "next dev --webpack",
+    "dev:proot": "NODE_OPTIONS='--require ./fix-interfaces.js' next dev --webpack --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "eslint && tsc --noEmit"
