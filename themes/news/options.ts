@@ -17,6 +17,14 @@ export const options: ThemeOptionField[] = [
         group: "Identity"
     },
     {
+        id: "theme_news_show_cta",
+        label: "Show Header CTA",
+        type: "checkbox",
+        description: "Toggle to show or hide the Call to Action button in the header.",
+        group: "Identity",
+        defaultValue: true
+    },
+    {
         id: "theme_news_cta_color",
         label: "Header CTA Color",
         type: "color",

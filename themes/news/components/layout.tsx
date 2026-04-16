@@ -61,13 +61,21 @@ export default function ThemeLayout({
 }: ThemeLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentHostname, setCurrentHostname] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCurrentHostname(window.location.hostname);
+    }
+  }, []);
 
   const primaryColor = (themeOptions?.theme_news_primary_color as string) || getDefault("theme_news_primary_color") as string;
   const accentColor = (themeOptions?.theme_news_accent_color as string) || getDefault("theme_news_accent_color") as string;
   const ctaColor = (themeOptions?.theme_news_cta_color as string) || getDefault("theme_news_cta_color") as string || "#3A9D36";
   const ctaText = (themeOptions?.theme_news_cta_text as string) || getDefault("theme_news_cta_text") as string;
   const ctaUrl = (themeOptions?.theme_news_cta_url as string) || "#";
+  const showCta = themeOptions?.theme_news_show_cta !== false;
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -118,10 +126,14 @@ export default function ThemeLayout({
 
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-6">
-            <Link href={ctaUrl} className="transition-colors text-white px-4 py-2 rounded font-bold flex items-center gap-2 text-sm hover:opacity-90" style={{ backgroundColor: ctaColor }}>
-              <Edit size={16} /> {ctaText}
-            </Link>
-            <div className="w-px h-6 bg-gray-600"></div>
+            {showCta && (
+              <>
+                <Link href={ctaUrl} className="transition-colors text-white px-4 py-2 rounded font-bold flex items-center gap-2 text-sm hover:opacity-90" style={{ backgroundColor: ctaColor }}>
+                  <Edit size={16} /> {ctaText}
+                </Link>
+                <div className="w-px h-6 bg-gray-600"></div>
+              </>
+            )}
             <div className="flex items-center gap-3">
               {contacts.map((contact) => {
                 const iconName = contact.iconId.toLowerCase();
@@ -192,9 +204,11 @@ export default function ThemeLayout({
                 </Link>
               ))}
             </nav>
-            <Link href={ctaUrl} className="text-white px-4 py-3 rounded font-bold flex justify-center items-center gap-2 text-sm mt-4 hover:opacity-90" style={{ backgroundColor: ctaColor }}>
-              <Edit size={16} /> {ctaText}
-            </Link>
+            {showCta && (
+              <Link href={ctaUrl} className="text-white px-4 py-3 rounded font-bold flex justify-center items-center gap-2 text-sm mt-4 hover:opacity-90" style={{ backgroundColor: ctaColor }}>
+                <Edit size={16} /> {ctaText}
+              </Link>
+            )}
           </div>
         )}
       </header>
@@ -281,14 +295,35 @@ export default function ThemeLayout({
 
           {/* Copyright & Cache ID */}
           <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 gap-4">
-            <div>
-              &copy; {new Date().getFullYear()} {siteTitle}. All Rights Reserved.
+            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-center md:text-left">
+              <span>&copy; {new Date().getFullYear()} {siteTitle}. All Rights Reserved.</span>
+              <div className="hidden md:block w-px h-3 bg-gray-700"></div>
+              <nav className="flex items-center gap-3">
+                <Link href="/sitemap.xml" className="hover:text-[var(--news-accent)] transition-colors">SITEMAP</Link>
+                <span className="opacity-30">•</span>
+                <Link href="/robots.txt" className="hover:text-[var(--news-accent)] transition-colors">ROBOTS</Link>
+                <span className="opacity-30">•</span>
+                <Link href="/rss.xml" className="hover:text-[var(--news-accent)] transition-colors">RSS FEED</Link>
+              </nav>
             </div>
-            {cacheId && (
-              <div className="opacity-50">
-                CACHE ID: {cacheId}
-              </div>
-            )}
+            <div className="flex items-center gap-3 opacity-50">
+              <a 
+                href={`https://arinano.work?utm_source=${currentHostname || 'merpati-cms'}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-[var(--news-accent)] transition-colors uppercase tracking-tighter font-medium"
+              >
+                a atomic work of arinano.work
+              </a>
+              {cacheId && (
+                <>
+                  <span className="opacity-30">|</span>
+                  <div>
+                    CACHE ID: {cacheId}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </footer>
