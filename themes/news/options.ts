@@ -19,10 +19,14 @@ export const options: ThemeOptionField[] = [
     {
         id: "theme_news_show_cta",
         label: "Show Header CTA",
-        type: "checkbox",
+        type: "select",
         description: "Toggle to show or hide the Call to Action button in the header.",
+        options: [
+            { label: "Yes", value: "yes" },
+            { label: "No", value: "no" }
+        ],
         group: "Identity",
-        defaultValue: true
+        defaultValue: "yes"
     },
     {
         id: "theme_news_cta_color",

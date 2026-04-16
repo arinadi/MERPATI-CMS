@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SafeImage } from '@/components/ui/safe-image';
 import { useRouter } from 'next/navigation';
@@ -66,6 +66,7 @@ export default function ThemeLayout({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentHostname(window.location.hostname);
     }
   }, []);
@@ -75,7 +76,7 @@ export default function ThemeLayout({
   const ctaColor = (themeOptions?.theme_news_cta_color as string) || getDefault("theme_news_cta_color") as string || "#3A9D36";
   const ctaText = (themeOptions?.theme_news_cta_text as string) || getDefault("theme_news_cta_text") as string;
   const ctaUrl = (themeOptions?.theme_news_cta_url as string) || "#";
-  const showCta = themeOptions?.theme_news_show_cta !== false;
+  const showCta = themeOptions?.theme_news_show_cta !== "no";
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
