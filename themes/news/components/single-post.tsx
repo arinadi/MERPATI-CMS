@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { SafeImage } from "@/components/ui/safe-image";
+import { FeaturedMedia } from "./featured-media";
 import { ShareButtons } from "./share-buttons";
 import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
 import type { SinglePostProps, PostCardData } from "@/lib/themes";
@@ -53,7 +54,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
           {post.featuredImage && (
             <div className="mb-6 md:mb-8">
               <div className="relative aspect-[4/3]">
-                <SafeImage 
+                <FeaturedMedia 
                   src={post.featuredImage} 
                   alt="Featured" 
                   fill
@@ -120,7 +121,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
                   return (
                     <Link href={`/${related.slug}`} key={related.id} className="group cursor-pointer flex flex-col">
                       <div className="relative overflow-hidden rounded-sm aspect-[4/3] mb-4">
-                        <SafeImage 
+                        <FeaturedMedia 
                           src={related.featuredImage || ""} 
                           alt={related.title} 
                           fill
@@ -157,7 +158,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
               return (
                 <Link href={`/${sidebarPost.slug}`} key={sidebarPost.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">
-                    <SafeImage 
+                    <FeaturedMedia 
                       src={sidebarPost.featuredImage || ""} 
                       alt={sidebarPost.title} 
                       fill

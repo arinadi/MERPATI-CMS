@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { getPaginationUrl } from "@/lib/utils/navigation";
-import { SafeImage } from "@/components/ui/safe-image";
+import { FeaturedMedia } from "./featured-media";
 import type { ArchiveProps, PostCardData } from "@/lib/themes";
 // Import getLatestPosts if possible, but actually we should just rely on props or a server action
 import { getLatestPosts, getCachedTaxonomyPosts } from "@/lib/queries/posts";
@@ -60,7 +60,7 @@ export default async function Archive({ title, description, posts, pagination }:
               return (
                 <div key={post.id} className="flex flex-col md:flex-row gap-6 group">
                   <Link href={`/${post.slug}`} className="w-full md:w-64 h-48 flex-shrink-0 overflow-hidden rounded-sm relative block">
-                    <SafeImage 
+                    <FeaturedMedia 
                       src={primaryImage} 
                       alt={post.title} 
                       fill
@@ -135,7 +135,7 @@ export default async function Archive({ title, description, posts, pagination }:
               return (
                 <Link href={`/${post.slug}`} key={post.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">
-                    <SafeImage 
+                    <FeaturedMedia 
                       src={post.featuredImage || ""} 
                       alt={post.title} 
                       fill
