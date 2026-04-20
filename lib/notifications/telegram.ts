@@ -20,11 +20,6 @@ export async function sendTelegramAlert(message: string): Promise<void> {
             return;
         }
 
-        // We don't await the fetch if we want it to be truly non-blocking in a long-running process,
-        // but in Next.js Server Actions, it's safer to use waitUntil (if on Vercel) or just await it 
-        // if we want to ensure it's sent. The prompt suggests wrapping in waitUntil for Edge.
-        // For now, we'll perform the fetch and log errors.
-
         const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
         // fire and forget (mostly)
@@ -44,5 +39,49 @@ export async function sendTelegramAlert(message: string): Promise<void> {
 
     } catch (error) {
         console.error("Error in sendTelegramAlert:", error);
+    }
+}
+
+/**
+ * Send a document (file) to a Telegram chat via Bot API.
+ */
+export async function sendTelegramDocument(file: Buffer | Uint8Array, filename: string, caption?: string): Promise<void> {
+    try {
+        const settings = await getOptions([
+            "telegram_bot_token",
+            "telegram_chat_id"
+        ]);
+
+        const token = settings.telegram_bot_token;
+        const chatId = settings.telegram_chat_id;
+
+        if (!token || !chatId) {
+            console.error("Telegram token or chat ID not set for backup");
+            return;
+        }
+
+        const url = `https://api.telegram.org/bot${token}/sendDocument`;
+
+        const formData = new FormData();
+        formData.append("chat_id", chatId);
+        formData.append("caption", caption || "");
+        
+        // Convert Buffer to Uint8Array for better compatibility with Blob in some environments
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const blob = new Blob([file as any], { type: "application/octet-stream" });
+        formData.append("document", blob, filename);
+
+        const response = await fetch(url, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Failed to send Telegram document:", errorData);
+        }
+
+    } catch (error) {
+        console.error("Error in sendTelegramDocument:", error);
     }
 }

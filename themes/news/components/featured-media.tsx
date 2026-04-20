@@ -9,12 +9,13 @@ export function FeaturedMedia({
     alt,
     className,
     priority = false,
+    fill = false,
 }: {
     src: string;
     alt: string;
     className?: string;
     priority?: boolean;
-    showCaption?: boolean;
+    fill?: boolean;
 }) {
     // Parse JSON featured image format (backward-compatible with plain URLs)
     const imageUrl = getFeaturedImageUrl(src) || src;
@@ -24,8 +25,8 @@ export function FeaturedMedia({
 
     if (!imageUrl) {
         return (
-            <div className={`flex items-center justify-center bg-[#0F172A] text-white/10 ${className}`}>
-                <ImageIcon className="w-12 h-12" />
+            <div className={`flex items-center justify-center bg-slate-900/50 text-white/5 border border-white/5 ${className}`}>
+                <ImageIcon className="w-1/3 h-1/3 max-w-[4rem] max-h-[4rem] opacity-20" />
             </div>
         );
     }
@@ -50,17 +51,15 @@ export function FeaturedMedia({
         }
     }
 
-    // Gunakan <img> biasa jika domain tidak terdaftar di next.config.ts
     return (
         <SafeImage
             src={imageUrl}
             alt={imageAlt || "Image"}
             className={className}
-            width={1200}
-            height={800}
+            width={fill ? undefined : 1200}
+            height={fill ? undefined : 800}
+            fill={fill}
             priority={priority}
         />
     );
 }
-
-
