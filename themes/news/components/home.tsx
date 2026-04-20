@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { SafeImage } from "@/components/ui/safe-image";
+import { FeaturedMedia } from "./featured-media";
 import { getCachedTaxonomyPosts, getLatestPosts, getCachedPostById } from "@/lib/queries/posts";
 import type { HomeProps, PostCardData } from "@/lib/themes";
 
@@ -25,7 +25,7 @@ const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] 
         {/* Featured */}
         <Link href={`/${featured.slug}`} className="xl:w-1/2 group cursor-pointer block">
           <div className="overflow-hidden rounded-sm mb-3 aspect-[4/3] relative">
-            <SafeImage 
+            <FeaturedMedia 
               src={featured.featuredImage || ""} 
               alt={featured.title} 
               fill
@@ -53,7 +53,7 @@ const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] 
           {list.map((post) => (
             <Link href={`/${post.slug}`} key={post.id} className="flex gap-3 group cursor-pointer">
               <div className="w-28 aspect-[4/3] flex-shrink-0 overflow-hidden rounded-sm relative">
-                <SafeImage 
+                <FeaturedMedia 
                   src={post.featuredImage || ""} 
                   alt={post.title} 
                   fill
@@ -129,7 +129,7 @@ export default async function Home({ themeOptions }: HomeProps) {
           {heroPost && (
             <Link href={`/${heroPost.slug}`} className="lg:w-2/3 group cursor-pointer block">
               <div className="relative overflow-hidden rounded-sm aspect-[4/3] w-full">
-                <SafeImage 
+                <FeaturedMedia 
                   src={heroPost.featuredImage || ""} 
                   alt={heroPost.title} 
                   fill
@@ -175,7 +175,7 @@ export default async function Home({ themeOptions }: HomeProps) {
               {sideLatest.map((post) => (
                 <Link href={`/${post.slug}`} key={post.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-28 aspect-[4/3] flex-shrink-0 overflow-hidden rounded-sm relative">
-                    <SafeImage 
+                    <FeaturedMedia 
                       src={post.featuredImage || ""} 
                       alt={post.title} 
                       fill
@@ -208,7 +208,7 @@ export default async function Home({ themeOptions }: HomeProps) {
               {[...finalFeatured.hydratedPosts, ...finalFeatured.hydratedPosts].map((post, index) => (
                 <Link href={`/${post.slug}`} key={`${post.id}-${index}`} className="group cursor-pointer flex flex-col w-[300px] md:w-[350px] flex-shrink-0">
                   <div className="relative overflow-hidden rounded-sm aspect-[4/3] mb-4">
-                    <SafeImage 
+                    <FeaturedMedia 
                       src={post.featuredImage || ""} 
                       alt={post.title} 
                       fill
@@ -255,7 +255,7 @@ export default async function Home({ themeOptions }: HomeProps) {
             {finalVideo.hydratedPosts.map((post) => (
               <Link href={`/${post.slug}`} key={post.id} className="group cursor-pointer block">
                 <div className="relative overflow-hidden rounded-sm aspect-video mb-4">
-                  <SafeImage 
+                  <FeaturedMedia 
                     src={post.featuredImage || ""} 
                     alt={post.title}
                     fill 

@@ -32,24 +32,23 @@ export function FeaturedMedia({
     }
 
     if (isYoutube) {
-        let videoId = "";
-        if (imageUrl.includes("youtu.be/")) {
-            videoId = imageUrl.split("youtu.be/")[1]?.split("?")[0] || "";
-        } else if (imageUrl.includes("v=")) {
-            videoId = imageUrl.split("v=")[1]?.split("&")[0] || "";
-        }
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+        const match = imageUrl.match(regExp);
+        const videoId = (match && match[2].length === 11) ? match[2] : "";
         
-        return (
-            <div className={`relative ${className} bg-black`}>
-                <iframe
-                    src={`https://www.youtube.com/embed/${videoId}?rel=0`}
-                    title={imageAlt}
-                    className="absolute top-0 left-0 w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                />
-            </div>
-        );
+        if (videoId) {
+            return (
+                <div className={`relative ${className} bg-black`}>
+                    <iframe
+                        src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+                        title={imageAlt}
+                        className="absolute top-0 left-0 w-full h-full border-0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                    />
+                </div>
+            );
+        }
     }
 
     return (
