@@ -9,12 +9,10 @@ import { getFeaturedImageUrl } from "@/lib/utils/featured-image";
 export function PostCard({ post }: { post: PostCardData }) {
     const publishDate = post.createdAt ? new Date(post.createdAt) : new Date();
     const imgUrl = getFeaturedImageUrl(post.featuredImage);
-    const isVideo = imgUrl && (
-        imgUrl.includes("youtube.com") || 
-        imgUrl.includes("youtu.be") ||
-        imgUrl.includes("tiktok.com") ||
-        imgUrl.includes("instagram.com")
-    );
+    const isTiktok = imgUrl?.includes("tiktok.com");
+    const isInstagram = imgUrl?.includes("instagram.com");
+    const isYoutube = imgUrl && (imgUrl.includes("youtube.com") || imgUrl.includes("youtu.be"));
+    const isVideo = isYoutube || isTiktok || isInstagram;
 
     return (
         <div className="group flex flex-col bg-[#1E293B] rounded-2xl border border-white/5 shadow-sm hover:shadow-xl hover:shadow-blue-900/10 transition-all transform hover:-translate-y-1 overflow-hidden h-full">
@@ -24,6 +22,7 @@ export function PostCard({ post }: { post: PostCardData }) {
                         src={post.featuredImage!}
                         alt={post.title}
                         className="w-full h-full object-cover transition-transform duration-300"
+                        aspectRatio={(isTiktok || isInstagram) ? "aspect-[9/16]" : "aspect-[16/10]"}
                     />
                 ) : (
                     <Link href={`/${post.slug}`} className="block w-full h-full">

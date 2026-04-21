@@ -83,7 +83,7 @@ export function FeaturedMedia({
                         src={`https://www.instagram.com/p/${postId}/embed`}
                         title={imageAlt}
                         className="absolute top-0 left-0 w-full h-full border-0"
-                        allowTransparency
+                        {...{ allowtransparency: "true" }}
                         allowFullScreen
                     />
                 </div>

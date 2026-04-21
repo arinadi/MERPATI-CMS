@@ -9,12 +9,13 @@ export function FeaturedMedia({
     alt,
     className,
     priority = false,
+    aspectRatio = "aspect-[16/10]",
 }: {
     src: string;
     alt: string;
     className?: string;
     priority?: boolean;
-    showCaption?: boolean;
+    aspectRatio?: string;
 }) {
     // Parse JSON featured image format (backward-compatible with plain URLs)
     const imageUrl = getFeaturedImageUrl(src) || src;
@@ -39,7 +40,7 @@ export function FeaturedMedia({
         
         if (videoId) {
             return (
-                <div className={`relative ${className} bg-black`}>
+                <div className={`relative ${aspectRatio} ${className} bg-black overflow-hidden`}>
                     <iframe
                         src={`https://www.youtube.com/embed/${videoId}?rel=0`}
                         title={imageAlt}
@@ -58,7 +59,7 @@ export function FeaturedMedia({
         const videoId = match ? match[1] : "";
         if (videoId) {
             return (
-                <div className={`relative ${className} bg-black`}>
+                <div className={`relative ${aspectRatio} ${className} bg-black overflow-hidden`}>
                     <iframe
                         src={`https://www.tiktok.com/embed/v2/${videoId}`}
                         title={imageAlt}
@@ -77,12 +78,12 @@ export function FeaturedMedia({
         const postId = match ? match[1] : "";
         if (postId) {
             return (
-                <div className={`relative ${className} bg-black`}>
+                <div className={`relative ${aspectRatio} ${className} bg-black overflow-hidden`}>
                     <iframe
                         src={`https://www.instagram.com/p/${postId}/embed`}
                         title={imageAlt}
                         className="absolute top-0 left-0 w-full h-full border-0"
-                        allowTransparency
+                        {...{ allowtransparency: "true" }}
                         allowFullScreen
                     />
                 </div>
