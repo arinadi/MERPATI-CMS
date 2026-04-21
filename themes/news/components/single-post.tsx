@@ -53,13 +53,18 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
           {/* Featured Image */}
           {post.featuredImage && (
             <div className="mb-6 md:mb-8">
-              <div className="relative aspect-[4/3]">
+              <div className={`relative mx-auto ${
+                (post.featuredImage.includes("tiktok.com") || post.featuredImage.includes("instagram.com"))
+                ? "aspect-[9/16] max-w-[400px]"
+                : "aspect-[4/3]"
+              }`}>
                 <FeaturedMedia 
                   src={post.featuredImage} 
                   alt="Featured" 
                   fill
                   className="w-full h-full rounded-sm object-cover"
                   priority
+                  aspectRatio={(post.featuredImage.includes("tiktok.com") || post.featuredImage.includes("instagram.com")) ? "aspect-[9/16]" : "aspect-[4/3]"}
                 />
               </div>
               {getFeaturedImageAlt(post.featuredImage) && (

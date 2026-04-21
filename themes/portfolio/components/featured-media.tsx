@@ -9,6 +9,7 @@ interface FeaturedMediaProps {
     alt: string;
     className?: string;
     priority?: boolean;
+    aspectRatio?: string;
 }
 
 export function FeaturedMedia({
@@ -16,6 +17,7 @@ export function FeaturedMedia({
     alt,
     className,
     priority = false,
+    aspectRatio = "aspect-video",
 }: FeaturedMediaProps) {
     // Parse JSON featured image format (backward-compatible with plain URLs)
     const imageUrl = getFeaturedImageUrl(src) || src;
@@ -40,7 +42,7 @@ export function FeaturedMedia({
         
         if (videoId) {
             return (
-                <div className={`relative ${className} bg-black`}>
+                <div className={`relative ${aspectRatio} ${className} bg-black overflow-hidden`}>
                     <iframe
                         src={`https://www.youtube.com/embed/${videoId}?rel=0`}
                         title={imageAlt}
@@ -59,7 +61,7 @@ export function FeaturedMedia({
         const videoId = match ? match[1] : "";
         if (videoId) {
             return (
-                <div className={`relative ${className} bg-black`}>
+                <div className={`relative ${aspectRatio} ${className} bg-black overflow-hidden`}>
                     <iframe
                         src={`https://www.tiktok.com/embed/v2/${videoId}`}
                         title={imageAlt}
@@ -78,7 +80,7 @@ export function FeaturedMedia({
         const postId = match ? match[1] : "";
         if (postId) {
             return (
-                <div className={`relative ${className} bg-black`}>
+                <div className={`relative ${aspectRatio} ${className} bg-black overflow-hidden`}>
                     <iframe
                         src={`https://www.instagram.com/p/${postId}/embed`}
                         title={imageAlt}
