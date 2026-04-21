@@ -122,6 +122,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
                     <Link href={`/${related.slug}`} key={related.id} className="group cursor-pointer flex flex-col">
                       <div className="relative overflow-hidden rounded-sm aspect-[4/3] mb-4">
                         <FeaturedMedia 
+                          interactive={false}
                           src={related.featuredImage || ""} 
                           alt={related.title} 
                           fill
@@ -159,6 +160,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
                 <Link href={`/${sidebarPost.slug}`} key={sidebarPost.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">
                     <FeaturedMedia 
+                      interactive={false}
                       src={sidebarPost.featuredImage || ""} 
                       alt={sidebarPost.title} 
                       fill

@@ -29,6 +29,9 @@ import {
     Search,
     X,
     ImagePlus,
+    VideoIcon,
+    Instagram,
+    Music2,
     Settings,
     ChevronLeft,
     Youtube,
@@ -438,8 +441,8 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
     const [isFeaturedImageModalOpen, setIsFeaturedImageModalOpen] = useState(false);
     const [isMetadataSheetOpen, setIsMetadataSheetOpen] = useState(false);
-    const [isYoutubeModalOpen, setIsYoutubeModalOpen] = useState(false);
-    const [youtubeInputUrl, setYoutubeInputUrl] = useState("");
+    const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+    const [videoInputUrl, setVideoInputUrl] = useState("");
 
     // HTML mode
     const [isHtmlMode, setIsHtmlMode] = useState(false);
@@ -460,15 +463,20 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
         text: string;
     } | null>(null);
 
-    const handleSaveYoutube = () => {
-        if (!youtubeInputUrl) return;
-        if (youtubeInputUrl.includes("youtube.com") || youtubeInputUrl.includes("youtu.be")) {
-            setFeaturedImage(youtubeInputUrl);
+    const handleSaveVideo = () => {
+        if (!videoInputUrl) return;
+        
+        const isYoutube = videoInputUrl.includes("youtube.com") || videoInputUrl.includes("youtu.be");
+        const isTiktok = videoInputUrl.includes("tiktok.com");
+        const isInstagram = videoInputUrl.includes("instagram.com");
+
+        if (isYoutube || isTiktok || isInstagram) {
+            setFeaturedImage(videoInputUrl);
             setHasUnsavedChanges(true);
-            setIsYoutubeModalOpen(false);
-            setYoutubeInputUrl("");
+            setIsVideoModalOpen(false);
+            setVideoInputUrl("");
         } else {
-            alert("Please enter a valid YouTube URL.");
+            alert("Please enter a valid YouTube, TikTok, or Instagram URL.");
         }
     };
 
@@ -588,9 +596,15 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                 {featuredImage ? (
                     <>
                     <div className="relative group rounded-lg overflow-hidden border">
-                        {featuredImage.includes("youtube.com") || featuredImage.includes("youtu.be") ? (
+                        {featuredImage.includes("youtube.com") || featuredImage.includes("youtu.be") || featuredImage.includes("tiktok.com") || featuredImage.includes("instagram.com") ? (
                             <div className="w-full h-40 bg-zinc-900 flex flex-col items-center justify-center text-white">
-                                <Youtube className="h-8 w-8 text-red-500 mb-2" />
+                                {featuredImage.includes("tiktok.com") ? (
+                                    <Music2 className="h-8 w-8 text-pink-500 mb-2" />
+                                ) : featuredImage.includes("instagram.com") ? (
+                                    <Instagram className="h-8 w-8 text-purple-500 mb-2" />
+                                ) : (
+                                    <Youtube className="h-8 w-8 text-red-500 mb-2" />
+                                )}
                                 <span className="text-xs text-zinc-400 truncate px-4 max-w-full">
                                     {featuredImage}
                                 </span>
@@ -653,11 +667,11 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                         </button>
                         <button
                             type="button"
-                            onClick={() => setIsYoutubeModalOpen(true)}
+                            onClick={() => setIsVideoModalOpen(true)}
                             className="w-full h-32 rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 bg-card"
                         >
-                            <Youtube className="h-6 w-6 text-muted-foreground/50" />
-                            <span className="text-xs font-medium">Add YouTube</span>
+                            <VideoIcon className="h-6 w-6 text-muted-foreground/50" />
+                            <span className="text-xs font-medium">Add Video</span>
                         </button>
                     </div>
                 )}
@@ -1161,31 +1175,31 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                 }
             />
 
-            <Dialog open={isYoutubeModalOpen} onOpenChange={setIsYoutubeModalOpen}>
+            <Dialog open={isVideoModalOpen} onOpenChange={setIsVideoModalOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Add YouTube Video</DialogTitle>
+                        <DialogTitle>Add Featured Video</DialogTitle>
                         <DialogDescription>
-                            Enter the full YouTube URL to use a video as the featured image.
+                            Enter a YouTube, TikTok, or Instagram URL to use as the featured media.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
-                        <Label htmlFor="ytUrl" className="sr-only">URL</Label>
+                        <Label htmlFor="videoUrl" className="sr-only">URL</Label>
                         <Input
-                            id="ytUrl"
-                            placeholder="https://www.youtube.com/watch?v=..."
-                            value={youtubeInputUrl}
-                            onChange={(e) => setYoutubeInputUrl(e.target.value)}
+                            id="videoUrl"
+                            placeholder="https://www.youtube.com/watch?v=... or TikTok/Instagram link"
+                            value={videoInputUrl}
+                            onChange={(e) => setVideoInputUrl(e.target.value)}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter") handleSaveYoutube();
+                                if (e.key === "Enter") handleSaveVideo();
                             }}
                         />
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsYoutubeModalOpen(false)}>
+                        <Button variant="outline" onClick={() => setIsVideoModalOpen(false)}>
                             Cancel
                         </Button>
-                        <Button onClick={handleSaveYoutube}>Add Video</Button>
+                        <Button onClick={handleSaveVideo}>Add Video</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
