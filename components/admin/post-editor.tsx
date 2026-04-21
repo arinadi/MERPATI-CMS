@@ -471,6 +471,9 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
         const isInstagram = videoInputUrl.includes("instagram.com");
 
         if (isYoutube || isTiktok || isInstagram) {
+            if (isTiktok && (videoInputUrl.includes("vt.tiktok.com") || videoInputUrl.includes("vm.tiktok.com"))) {
+                alert("Note: TikTok short links (vt/vm) might not display in preview. Please use the full video URL from your browser for better compatibility.");
+            }
             setFeaturedImage(videoInputUrl);
             setHasUnsavedChanges(true);
             setIsVideoModalOpen(false);
