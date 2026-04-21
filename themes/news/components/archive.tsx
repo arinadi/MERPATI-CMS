@@ -61,6 +61,7 @@ export default async function Archive({ title, description, posts, pagination }:
                 <div key={post.id} className="flex flex-col md:flex-row gap-6 group">
                   <Link href={`/${post.slug}`} className="w-full md:w-64 h-48 flex-shrink-0 overflow-hidden rounded-sm relative block">
                     <FeaturedMedia 
+                      interactive={false}
                       src={primaryImage} 
                       alt={post.title} 
                       fill
@@ -136,6 +137,7 @@ export default async function Archive({ title, description, posts, pagination }:
                 <Link href={`/${post.slug}`} key={post.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">
                     <FeaturedMedia 
+                      interactive={false}
                       src={post.featuredImage || ""} 
                       alt={post.title} 
                       fill

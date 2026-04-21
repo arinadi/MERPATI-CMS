@@ -69,7 +69,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.vercel-storage.com; style-src 'self' 'unsafe-inline'; img-src * blob: data:; font-src 'self'; connect-src *; media-src *; object-src 'none'; frame-src 'self' https://www.youtube.com https://youtube.com;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.vercel-storage.com; style-src 'self' 'unsafe-inline'; img-src * blob: data:; font-src 'self'; connect-src *; media-src *; object-src 'none'; frame-src 'self' https://www.youtube.com https://youtube.com https://www.tiktok.com https://www.instagram.com;",
           },
         ],
       },
