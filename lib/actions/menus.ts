@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { menus, menuItems } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { checkRole } from "@/lib/rbac";
 
 // ─── Menu Actions ───────────────────────────────────────────────────────────
 
@@ -13,6 +14,7 @@ export async function getMenus() {
 
 export async function createMenu(name: string, slug: string, location?: string | null) {
     try {
+        await checkRole(["super_user"]);
         const [newMenu] = await db
             .insert(menus)
             .values({ name, slug, location })
@@ -26,6 +28,7 @@ export async function createMenu(name: string, slug: string, location?: string |
 
 export async function updateMenu(id: string, name: string, slug: string, location?: string | null) {
     try {
+        await checkRole(["super_user"]);
         const [updatedMenu] = await db
             .update(menus)
             .set({ name, slug, location })
@@ -40,6 +43,7 @@ export async function updateMenu(id: string, name: string, slug: string, locatio
 
 export async function deleteMenu(id: string) {
     try {
+        await checkRole(["super_user"]);
         await db.delete(menus).where(eq(menus.id, id));
         revalidatePath("/admin/menus");
         return { success: true as const };
@@ -68,6 +72,7 @@ export interface SaveMenuItemInput {
 
 export async function saveMenuItems(menuId: string, items: SaveMenuItemInput[]) {
     try {
+        await checkRole(["super_user"]);
         // Delete all current items and re-insert (no transactions in neon-http)
         await db.delete(menuItems).where(eq(menuItems.menuId, menuId));
 
