@@ -9,12 +9,17 @@ import { getFeaturedImageUrl } from "@/lib/utils/featured-image";
 export function PostCard({ post }: { post: PostCardData }) {
     const publishDate = post.createdAt ? new Date(post.createdAt) : new Date();
     const imgUrl = getFeaturedImageUrl(post.featuredImage);
-    const isYoutube = imgUrl && (imgUrl.includes("youtube.com") || imgUrl.includes("youtu.be"));
+    const isVideo = imgUrl && (
+        imgUrl.includes("youtube.com") || 
+        imgUrl.includes("youtu.be") ||
+        imgUrl.includes("tiktok.com") ||
+        imgUrl.includes("instagram.com")
+    );
 
     return (
         <div className="group flex flex-col bg-[#1E293B] rounded-2xl border border-white/5 shadow-sm hover:shadow-xl hover:shadow-blue-900/10 transition-all transform hover:-translate-y-1 overflow-hidden h-full">
             <div className="aspect-[16/10] relative overflow-hidden shrink-0">
-                {isYoutube ? (
+                {isVideo ? (
                     <FeaturedMedia
                         src={post.featuredImage!}
                         alt={post.title}

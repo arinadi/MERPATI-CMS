@@ -26,27 +26,32 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
 
             {/* Featured Image */}
             <div className="container mx-auto px-4 max-w-6xl mb-8 md:mb-16">
-                <div className="aspect-video relative rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl bg-[#0F172A] border border-white/5">
-                    {post.featuredImage && (
+                {post.featuredImage && (
+                    <div className={`relative overflow-hidden shadow-2xl bg-[#0F172A] border border-white/5 mx-auto ${
+                        (post.featuredImage.includes("tiktok.com") || post.featuredImage.includes("instagram.com")) 
+                        ? "aspect-[9/16] max-w-[400px] rounded-3xl" 
+                        : "aspect-video rounded-2xl md:rounded-[2rem]"
+                    }`}>
                         <FeaturedMedia
                             src={post.featuredImage}
                             alt={post.title}
                             className="w-full h-full object-cover"
                             priority
+                            aspectRatio={(post.featuredImage.includes("tiktok.com") || post.featuredImage.includes("instagram.com")) ? "aspect-[9/16]" : "aspect-video"}
                         />
-                    )}
-                    {/* Category Badge Overlay */}
-                    {post.categories && post.categories.length > 0 && (
-                        <div className="absolute top-4 left-4 md:top-6 md:left-6">
-                            <Link 
-                                href={`/category/${post.categories[0].slug}`} 
-                                className="px-3 py-1.5 bg-black/50 backdrop-blur-md text-white font-bold uppercase tracking-widest text-[10px] rounded-full border border-white/20 hover:bg-blue-600 hover:border-blue-500 transition-colors"
-                            >
-                                {post.categories[0].name}
-                            </Link>
-                        </div>
-                    )}
-                </div>
+                        {/* Category Badge Overlay */}
+                        {post.categories && post.categories.length > 0 && (
+                            <div className="absolute top-4 left-4 md:top-6 md:left-6">
+                                <Link 
+                                    href={`/category/${post.categories[0].slug}`} 
+                                    className="px-3 py-1.5 bg-black/50 backdrop-blur-md text-white font-bold uppercase tracking-widest text-[10px] rounded-full border border-white/20 hover:bg-blue-600 hover:border-blue-500 transition-colors"
+                                >
+                                    {post.categories[0].name}
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                )}
                 {post.featuredImage && getFeaturedImageAlt(post.featuredImage) && getFeaturedImageAlt(post.featuredImage) !== post.title && (
                     <p className="text-xs text-center text-gray-500 mt-3 italic">{getFeaturedImageAlt(post.featuredImage)}</p>
                 )}

@@ -26,6 +26,7 @@ const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] 
         <Link href={`/${featured.slug}`} className="xl:w-1/2 group cursor-pointer block">
           <div className="overflow-hidden rounded-sm mb-3 aspect-[4/3] relative">
             <FeaturedMedia 
+                  interactive={false}
               src={featured.featuredImage || ""} 
               alt={featured.title} 
               fill
@@ -54,6 +55,7 @@ const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] 
             <Link href={`/${post.slug}`} key={post.id} className="flex gap-3 group cursor-pointer">
               <div className="w-28 aspect-[4/3] flex-shrink-0 overflow-hidden rounded-sm relative">
                 <FeaturedMedia 
+                  interactive={false}
                   src={post.featuredImage || ""} 
                   alt={post.title} 
                   fill
@@ -130,6 +132,7 @@ export default async function Home({ themeOptions }: HomeProps) {
             <Link href={`/${heroPost.slug}`} className="lg:w-2/3 group cursor-pointer block">
               <div className="relative overflow-hidden rounded-sm aspect-[4/3] w-full">
                 <FeaturedMedia 
+                  interactive={false}
                   src={heroPost.featuredImage || ""} 
                   alt={heroPost.title} 
                   fill
@@ -176,6 +179,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                 <Link href={`/${post.slug}`} key={post.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-28 aspect-[4/3] flex-shrink-0 overflow-hidden rounded-sm relative">
                     <FeaturedMedia 
+                  interactive={false}
                       src={post.featuredImage || ""} 
                       alt={post.title} 
                       fill
@@ -209,6 +213,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                 <Link href={`/${post.slug}`} key={`${post.id}-${index}`} className="group cursor-pointer flex flex-col w-[300px] md:w-[350px] flex-shrink-0">
                   <div className="relative overflow-hidden rounded-sm aspect-[4/3] mb-4">
                     <FeaturedMedia 
+                  interactive={false}
                       src={post.featuredImage || ""} 
                       alt={post.title} 
                       fill
@@ -256,6 +261,7 @@ export default async function Home({ themeOptions }: HomeProps) {
               <Link href={`/${post.slug}`} key={post.id} className="group cursor-pointer block">
                 <div className="relative overflow-hidden rounded-sm aspect-video mb-4">
                   <FeaturedMedia 
+                  interactive={false}
                     src={post.featuredImage || ""} 
                     alt={post.title}
                     fill 

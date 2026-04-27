@@ -43,6 +43,39 @@ const nextConfig: NextConfig = {
     ];
   },
   async headers() {
+    const cspDirectives = {
+      "default-src": ["'self'"],
+      "script-src": [
+        "'self'",
+        "'unsafe-eval'",
+        "'unsafe-inline'",
+        "*.vercel-storage.com",
+        "*.googletagmanager.com",
+        "*.google-analytics.com",
+        "static.cloudflareinsights.com",
+      ],
+      "style-src": ["'self'", "'unsafe-inline'"],
+      "img-src": ["*", "blob:", "data:"],
+      "font-src": ["'self'", "data:", "fonts.gstatic.com"],
+      "connect-src": ["*"],
+      "media-src": ["*"],
+      "object-src": ["'none'"],
+      "frame-src": [
+        "'self'",
+        "*.youtube.com",
+        "youtube.com",
+        "*.tiktok.com",
+        "*.instagram.com",
+        "*.googletagmanager.com",
+      ],
+      "worker-src": ["'self'", "blob:"],
+      "upgrade-insecure-requests": [],
+    };
+
+    const cspHeader = Object.entries(cspDirectives)
+      .map(([key, values]) => `${key} ${values.join(" ")}`.trim())
+      .join("; ");
+
     return [
       {
         source: "/(.*)",
@@ -69,7 +102,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.vercel-storage.com; style-src 'self' 'unsafe-inline'; img-src * blob: data:; font-src 'self'; connect-src *; media-src *; object-src 'none'; frame-src 'self' https://www.youtube.com https://youtube.com;",
+            value: cspHeader,
           },
         ],
       },

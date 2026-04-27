@@ -53,13 +53,18 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
           {/* Featured Image */}
           {post.featuredImage && (
             <div className="mb-6 md:mb-8">
-              <div className="relative aspect-[4/3]">
+              <div className={`relative mx-auto ${
+                (post.featuredImage.includes("tiktok.com") || post.featuredImage.includes("instagram.com"))
+                ? "aspect-[9/16] max-w-[400px]"
+                : "aspect-[4/3]"
+              }`}>
                 <FeaturedMedia 
                   src={post.featuredImage} 
                   alt="Featured" 
                   fill
                   className="w-full h-full rounded-sm object-cover"
                   priority
+                  aspectRatio={(post.featuredImage.includes("tiktok.com") || post.featuredImage.includes("instagram.com")) ? "aspect-[9/16]" : "aspect-[4/3]"}
                 />
               </div>
               {getFeaturedImageAlt(post.featuredImage) && (
@@ -122,6 +127,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
                     <Link href={`/${related.slug}`} key={related.id} className="group cursor-pointer flex flex-col">
                       <div className="relative overflow-hidden rounded-sm aspect-[4/3] mb-4">
                         <FeaturedMedia 
+                          interactive={false}
                           src={related.featuredImage || ""} 
                           alt={related.title} 
                           fill
@@ -159,6 +165,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
                 <Link href={`/${sidebarPost.slug}`} key={sidebarPost.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">
                     <FeaturedMedia 
+                      interactive={false}
                       src={sidebarPost.featuredImage || ""} 
                       alt={sidebarPost.title} 
                       fill
