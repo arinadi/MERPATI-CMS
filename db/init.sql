@@ -84,6 +84,20 @@ CREATE TABLE IF NOT EXISTS options (
     autoload BOOLEAN NOT NULL DEFAULT TRUE
 );
 
+-- Personal Access Tokens
+CREATE TABLE IF NOT EXISTS personal_access_tokens (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    last_used_at TIMESTAMP,
+    expires_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pat_token ON personal_access_tokens (token);
+CREATE INDEX IF NOT EXISTS idx_pat_user_id ON personal_access_tokens (user_id);
+
 -- Posts
 CREATE TABLE IF NOT EXISTS posts (
     id TEXT PRIMARY KEY,
