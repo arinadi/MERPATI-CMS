@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { checkInitialized } from "@/lib/actions/setup";
 import { cookies } from "next/headers";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 /**
  * Route Handler that checks if DB is initialized.
- * If yes, sets the merpati_initialized cookie and redirects to /login.
- * If no, redirects to /setup.
- * Route Handlers CAN modify cookies (unlike Server Components).
  */
 export async function GET(request: Request) {
     const initialized = await checkInitialized();

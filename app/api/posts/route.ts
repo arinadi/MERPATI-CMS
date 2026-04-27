@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { posts, postRelationships } from "@/db/schema";
+import { posts, postRelationships, users } from "@/db/schema";
 import { getAuthorizedUser } from "@/lib/api-auth";
 import { syncPostTerms } from "@/lib/actions/terms";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, and, desc, count, ilike } from "drizzle-orm";
 import sanitize from "sanitize-html";
+
+// Optimize runtime for cold starts (Node.js is default, using basic imports)
+export const dynamic = "force-dynamic";
 
 function generateSlug(title: string): string {
     return title
@@ -16,52 +19,76 @@ function generateSlug(title: string): string {
         .slice(0, 200);
 }
 
-function extractExcerpt(html: string, maxLength = 200): string {
-    const text = html.replace(/<[^>]*>/g, "").trim();
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength).replace(/\s+\S*$/, "") + "…";
+/**
+ * GET /api/posts - List posts
+ */
+export async function GET(req: Request) {
+    try {
+        const user = await getAuthorizedUser();
+        if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+        const { searchParams } = new URL(req.url);
+        const page = parseInt(searchParams.get("page") || "1");
+        const limit = parseInt(searchParams.get("limit") || "20");
+        const search = searchParams.get("search") || "";
+        const type = (searchParams.get("type") as "post" | "page") || "post";
+        
+        const offset = (page - 1) * limit;
+        const conditions = [eq(posts.type, type)];
+        
+        if (search.trim()) {
+            conditions.push(ilike(posts.title, `%${search.trim()}%`));
+        }
+
+        const [items, total] = await Promise.all([
+            db
+                .select({
+                    id: posts.id,
+                    title: posts.title,
+                    slug: posts.slug,
+                    status: posts.status,
+                    createdAt: posts.createdAt,
+                    author: { name: users.name }
+                })
+                .from(posts)
+                .leftJoin(users, eq(posts.authorId, users.id))
+                .where(and(...conditions))
+                .orderBy(desc(posts.createdAt))
+                .limit(limit)
+                .offset(offset),
+            db.select({ count: count() }).from(posts).where(and(...conditions))
+        ]);
+
+        return NextResponse.json({
+            items,
+            total: total[0]?.count ?? 0,
+            page,
+            totalPages: Math.ceil((total[0]?.count ?? 0) / limit)
+        });
+    } catch (error) {
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
 }
 
+/**
+ * POST /api/posts - Create post
+ */
 export async function POST(req: Request) {
     try {
         const user = await getAuthorizedUser();
-        if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const data = await req.json();
-
-        if (!data.title) {
-            return NextResponse.json({ error: "Title is required" }, { status: 400 });
-        }
+        if (!data.title) return NextResponse.json({ error: "Title is required" }, { status: 400 });
 
         const slug = data.slug?.trim() || generateSlug(data.title);
-        const sanitizedContent = data.content ? sanitize(data.content, {
-            allowedTags: sanitize.defaults.allowedTags.concat(['img', 'h1', 'h2', 'video', 'iframe']),
-            allowedAttributes: {
-                ...sanitize.defaults.allowedAttributes,
-                '*': ['class', 'id', 'style'],
-                'iframe': ['src', 'width', 'height', 'frameborder', 'allowfullscreen'],
-                'video': ['src', 'controls', 'width', 'height', 'poster'],
-            }
-        }) : "";
-
-        // Check slug uniqueness
-        const existingSlug = await db
-            .select({ id: posts.id })
-            .from(posts)
-            .where(eq(posts.slug, slug))
-            .limit(1);
-
-        const finalSlug = existingSlug.length > 0 ? `${slug}-${Date.now()}` : slug;
-
         const [newPost] = await db
             .insert(posts)
             .values({
                 title: data.title,
-                slug: finalSlug,
-                content: sanitizedContent,
-                excerpt: data.excerpt || extractExcerpt(sanitizedContent) || null,
+                slug: slug,
+                content: data.content ? sanitize(data.content) : "",
+                excerpt: data.excerpt || null,
                 status: data.status || "draft",
                 type: data.type || "post",
                 authorId: user.id,
@@ -69,35 +96,11 @@ export async function POST(req: Request) {
             })
             .returning();
 
-        // Sync related posts
-        if (data.relatedPostIds && Array.isArray(data.relatedPostIds)) {
-            await db.insert(postRelationships).values(
-                data.relatedPostIds.map((relatedId: string) => ({
-                    postId: newPost.id,
-                    relatedPostId: relatedId,
-                }))
-            );
-        }
-
-        // Sync terms (Categories/Tags)
-        if (data.termIds && Array.isArray(data.termIds)) {
-            await syncPostTerms(newPost.id, data.termIds);
-        }
+        if (data.termIds) await syncPostTerms(newPost.id, data.termIds);
 
         revalidatePath("/");
-        revalidatePath("/admin/posts");
-
-        return NextResponse.json({ 
-            success: true, 
-            post: {
-                id: newPost.id,
-                slug: newPost.slug,
-                url: `/${newPost.slug}`
-            } 
-        });
-
+        return NextResponse.json({ success: true, post: newPost });
     } catch (error) {
-        console.error("API Create Post error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
