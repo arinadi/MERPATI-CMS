@@ -60,7 +60,7 @@ export default function TokenManager({ initialTokens }: { initialTokens: Token[]
             await revokeToken(id);
             setTokens(tokens.filter(t => t.id !== id));
             toast.success("Token revoked");
-        } catch (err) {
+        } catch {
             toast.error("Failed to revoke token");
         }
     }
