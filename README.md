@@ -49,17 +49,20 @@ We have a **Love-Hate relationship with WordPress**. We love the power and the f
 | **Media Library** | One-click image uploads or video integration (YouTube, TikTok, Instagram). |
 | **Social Growth** | Built-in smart sharing controls with UTM tracking for every platform. |
 | **Theme Freedom** | Swap designs instantly with our modular `/themes` structure. |
+| **Theme Options** | Built-in theme customizer for logos, colors, layout, and advertisement spaces. |
 | **Team Control** | Secure Google login. Invite authors and manage roles with zero friction. |
 | **Direct Alerts** | Get notified on Telegram the moment your team publishes a story. |
+| **Headless Ready** | Universal Serverless API endpoints for Posts and Media, secured by Personal Access Tokens (PAT). |
 
 ---
 
 ### 🛠️ The Technical Side (The 10%)
 
 MERPATI is a zero-legacy, high-performance publishing engine built on:
-- **Next.js 15 (RSC)** for near-zero client-side JavaScript.
+- **Next.js 15 (RSC)** for near-zero client-side JavaScript and aggressive caching.
 - **Tailwind CSS v4** for cutting-edge design flexibility.
 - **Drizzle ORM & Neon** for serverless, edge-ready data management.
+- **Serverless API Architecture** optimized for cold starts, Mobile apps, and LLM integrations.
 
 
 
