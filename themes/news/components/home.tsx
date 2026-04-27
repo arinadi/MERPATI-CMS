@@ -117,6 +117,9 @@ export default async function Home({ themeOptions }: HomeProps) {
   const heroPost = heroPostData || latestPosts[0];
   const sideLatest = latestPosts.filter(p => p.id !== heroPost?.id).slice(0, 5);
 
+  const adImage = themeOptions?.theme_news_ad_image as string;
+  const adUrl = themeOptions?.theme_news_ad_url as string;
+
   const finalFeatured = featuredCatRes || (latestPosts.length > 5 ? { term: { name: "Sorotan", slug: "sorotan" }, hydratedPosts: latestPosts.slice(5, 13) } : null);
   const finalVideo = videoCatRes || (latestPosts.length > 13 ? { term: { name: "Video", slug: "video" }, hydratedPosts: latestPosts.slice(13, 17) } : null);
 
@@ -159,13 +162,29 @@ export default async function Home({ themeOptions }: HomeProps) {
 
           {/* Latest Posts Sidebar */}
           <div className="lg:w-1/3 flex flex-col">
-            {/* Ad/Banner Space Placeholder */}
-            <div className="w-full bg-slate-50 border border-slate-200 rounded-sm mb-6 flex flex-col items-center justify-center min-h-[120px] relative overflow-hidden group">
-              <span className="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-semibold mb-2">Advertisement</span>
-              <p className="text-xs text-slate-400 text-center px-4">Ruang Iklan / Banner</p>
-              {/* Subtle design element */}
-              <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-slate-200/50 to-transparent rounded-bl-full"></div>
-            </div>
+            {/* Ad/Banner Space */}
+            {adImage ? (
+              <div className="w-full mb-6">
+                <Link href={adUrl || "#"} target="_blank" rel="noopener noreferrer">
+                   <div className="relative aspect-[4/3] w-full overflow-hidden rounded-sm group">
+                      <FeaturedMedia 
+                        interactive={false}
+                        src={adImage} 
+                        alt="Advertisement" 
+                        fill
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                   </div>
+                </Link>
+              </div>
+            ) : (
+              <div className="w-full bg-slate-50 border border-slate-200 rounded-sm mb-6 flex flex-col items-center justify-center min-h-[120px] relative overflow-hidden group">
+                <span className="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-semibold mb-2">Advertisement</span>
+                <p className="text-xs text-slate-400 text-center px-4">Ruang Iklan / Banner</p>
+                {/* Subtle design element */}
+                <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-slate-200/50 to-transparent rounded-bl-full"></div>
+              </div>
+            )}
 
             <div className="flex items-center mb-4">
               <div className="text-white px-4 py-1.5 font-bold text-sm tracking-wider uppercase" style={{ backgroundColor: 'var(--news-accent)', color: 'var(--news-primary)' }}>

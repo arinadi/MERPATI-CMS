@@ -76,6 +76,20 @@ export const options: ThemeOptionField[] = [
         group: "Homepage"
     },
     {
+        id: "theme_news_ad_image",
+        label: "Advertisement Image",
+        type: "image",
+        description: "Banner image for the advertisement space in the sidebar.",
+        group: "Homepage"
+    },
+    {
+        id: "theme_news_ad_url",
+        label: "Advertisement URL",
+        type: "url",
+        description: "Link for the advertisement banner.",
+        group: "Homepage"
+    },
+    {
         id: "theme_news_featured_cat",
         label: "Featured Category (Auto-Scroll)",
         type: "category",
