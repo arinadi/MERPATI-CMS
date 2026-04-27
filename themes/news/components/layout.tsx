@@ -149,9 +149,19 @@ export default function ThemeLayout({
               {contacts.map((contact) => {
                 const iconName = contact.iconId.toLowerCase();
                 const bgColorClass = SOCIAL_COLORS[iconName] || "bg-gray-600";
+                const href = iconName === "mail" && !contact.url.startsWith("mailto:") 
+                  ? `mailto:${contact.url}` 
+                  : contact.url;
                 return (
-                  <a key={contact.id} href={contact.url} target="_blank" rel="noopener noreferrer" className={`${bgColorClass} p-1.5 rounded-full hover:opacity-80 transition-opacity`} aria-label={contact.title}>
-                    {SOCIAL_ICONS[iconName] || <Link className="w-4 h-4" href={contact.url} />}
+                  <a 
+                    key={contact.id} 
+                    href={href} 
+                    target={iconName === "mail" ? undefined : "_blank"} 
+                    rel="noopener noreferrer" 
+                    className={`${bgColorClass} p-1.5 rounded-full hover:opacity-80 transition-opacity`} 
+                    aria-label={contact.title}
+                  >
+                    {SOCIAL_ICONS[iconName] || <Link className="w-4 h-4" href={href} />}
                   </a>
                 );
               })}
@@ -294,14 +304,26 @@ export default function ThemeLayout({
 
           {/* Social Links Row */}
           <div className="flex flex-wrap justify-center gap-8 mb-10 pb-10 border-b border-t border-gray-700 py-8">
-            {contacts.map(contact => (
-               <a key={contact.id} href={contact.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-[var(--news-accent)] transition-colors font-bold">
-                 <span className="w-5 h-5 flex items-center justify-center">
-                   {SOCIAL_ICONS[contact.iconId.toLowerCase()] || <Link className="w-5 h-5" href={contact.url} />}
-                 </span>
-                 {contact.title}
-               </a>
-            ))}
+            {contacts.map(contact => {
+               const iconName = contact.iconId.toLowerCase();
+               const href = iconName === "mail" && !contact.url.startsWith("mailto:") 
+                 ? `mailto:${contact.url}` 
+                 : contact.url;
+               return (
+                  <a 
+                    key={contact.id} 
+                    href={href} 
+                    target={iconName === "mail" ? undefined : "_blank"} 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-2 hover:text-[var(--news-accent)] transition-colors font-bold"
+                  >
+                    <span className="w-5 h-5 flex items-center justify-center">
+                      {SOCIAL_ICONS[iconName] || <Link className="w-5 h-5" href={href} />}
+                    </span>
+                    {contact.title}
+                  </a>
+               );
+            })}
           </div>
 
           {/* Copyright & Cache ID */}
