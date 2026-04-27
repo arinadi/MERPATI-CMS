@@ -25,43 +25,52 @@ export async function validateToken(): Promise<ApiUser | null> {
     const token = authHeader.substring(7); // Remove "Bearer "
 
     // Find the token in the database
-    const results = await db
-        .select({
-            user: {
-                id: users.id,
-                role: users.role,
-                name: users.name,
-                email: users.email,
-            },
-            tokenId: personalAccessTokens.id,
-            expiresAt: personalAccessTokens.expiresAt,
-        })
-        .from(personalAccessTokens)
-        .innerJoin(users, eq(personalAccessTokens.userId, users.id))
-        .where(
-            and(
-                eq(personalAccessTokens.token, token),
-                or(
-                    isNull(personalAccessTokens.expiresAt),
-                    gt(personalAccessTokens.expiresAt, new Date())
+    try {
+        const results = await db
+            .select({
+                user: {
+                    id: users.id,
+                    role: users.role,
+                    name: users.name,
+                    email: users.email,
+                },
+                tokenId: personalAccessTokens.id,
+                expiresAt: personalAccessTokens.expiresAt,
+            })
+            .from(personalAccessTokens)
+            .innerJoin(users, eq(personalAccessTokens.userId, users.id))
+            .where(
+                and(
+                    eq(personalAccessTokens.token, token),
+                    or(
+                        isNull(personalAccessTokens.expiresAt),
+                        gt(personalAccessTokens.expiresAt, new Date())
+                    )
                 )
             )
-        )
-        .limit(1);
+            .limit(1);
 
-    if (results.length === 0) {
-        return null;
+        if (results.length === 0) {
+            return null;
+        }
+
+        const result = results[0];
+
+        // Update last used timestamp (background)
+        db.update(personalAccessTokens)
+            .set({ lastUsedAt: new Date() })
+            .where(eq(personalAccessTokens.id, result.tokenId))
+            .catch(() => {}); // Silent fail for background update
+
+        return result.user as ApiUser;
+    } catch (error: unknown) {
+        // If table doesn't exist (42P01), just return null (token not found)
+        const err = error as { code?: string; message?: string };
+        if (err?.code === '42P01' || err?.message?.includes('relation "personal_access_tokens" does not exist')) {
+            return null;
+        }
+        throw error;
     }
-
-    const result = results[0];
-
-    // Update last used timestamp (background)
-    db.update(personalAccessTokens)
-        .set({ lastUsedAt: new Date() })
-        .where(eq(personalAccessTokens.id, result.tokenId))
-        .catch(err => console.error("Failed to update token lastUsedAt:", err));
-
-    return result.user as ApiUser;
 }
 
 /**

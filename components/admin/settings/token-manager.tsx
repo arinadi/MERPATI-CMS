@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createToken, revokeToken } from "@/lib/actions/tokens";
-import { Key, Trash2, Copy, Check, Eye, EyeOff } from "lucide-react";
+import { Key, Trash2, Copy, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
 interface Token {
@@ -41,8 +41,13 @@ export default function TokenManager({ initialTokens }: { initialTokens: Token[]
             }, ...tokens]);
             setName("");
             toast.success("Token created successfully");
-        } catch (error) {
-            toast.error("Failed to create token");
+        } catch (error: unknown) {
+            const err = error as { message?: string };
+            if (err?.message?.includes("SQL patch")) {
+                toast.error(err.message);
+            } else {
+                toast.error("Failed to create token");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -55,7 +60,7 @@ export default function TokenManager({ initialTokens }: { initialTokens: Token[]
             await revokeToken(id);
             setTokens(tokens.filter(t => t.id !== id));
             toast.success("Token revoked");
-        } catch (error) {
+        } catch (err) {
             toast.error("Failed to revoke token");
         }
     }
