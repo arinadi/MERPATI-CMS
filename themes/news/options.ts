@@ -17,6 +17,22 @@ export const options: ThemeOptionField[] = [
         group: "Identity"
     },
     {
+        id: "theme_news_header_height",
+        label: "Header Height (Desktop)",
+        type: "number",
+        description: "Vertical padding for the header in pixels. Default is 16.",
+        group: "Identity",
+        defaultValue: "16"
+    },
+    {
+        id: "theme_news_logo_height",
+        label: "Logo Height",
+        type: "number",
+        description: "Height of the logo in pixels. Default is 40.",
+        group: "Identity",
+        defaultValue: "40"
+    },
+    {
         id: "theme_news_show_cta",
         label: "Show Header CTA",
         type: "select",

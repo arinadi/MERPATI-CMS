@@ -77,6 +77,8 @@ export default function ThemeLayout({
   const ctaText = (themeOptions?.theme_news_cta_text as string) || getDefault("theme_news_cta_text") as string;
   const ctaUrl = (themeOptions?.theme_news_cta_url as string) || "#";
   const showCta = themeOptions?.theme_news_show_cta !== "no";
+  const headerPadding = (themeOptions?.theme_news_header_height as string) || "16";
+  const logoHeight = (themeOptions?.theme_news_logo_height as string) || "40";
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -100,20 +102,25 @@ export default function ThemeLayout({
       style={{
         '--news-primary': primaryColor,
         '--news-accent': accentColor,
+        '--header-padding': `${headerPadding}px`,
       } as React.CSSProperties}
     >
       <header className="text-white sticky top-0 z-50 transition-colors" style={{ backgroundColor: primaryColor }}>
         {/* Top Bar */}
-        <div className="container mx-auto px-4 py-2.5 md:py-4 flex justify-between items-center">
+        <div 
+          className="container mx-auto px-4 flex justify-between items-center transition-all"
+          style={{ paddingTop: 'var(--header-padding)', paddingBottom: 'var(--header-padding)' }}
+        >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             {siteLogo ? (
               <SafeImage
                 src={siteLogo}
                 alt={siteTitle}
-                width={200}
-                height={50}
-                className="h-8 md:h-10 w-auto object-contain"
+                width={400}
+                height={100}
+                className="w-auto object-contain transition-all"
+                style={{ height: `${logoHeight}px` }}
                 priority
               />
             ) : (
