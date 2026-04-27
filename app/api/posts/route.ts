@@ -65,7 +65,7 @@ export async function GET(req: Request) {
             page,
             totalPages: Math.ceil((total[0]?.count ?? 0) / limit)
         });
-    } catch (_error) {
+    } catch {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
 
         revalidatePath("/");
         return NextResponse.json({ success: true, post: newPost });
-    } catch (_error) {
+    } catch {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

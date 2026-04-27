@@ -24,7 +24,7 @@ export async function GET(
         if (!post) return NextResponse.json({ error: "Not Found" }, { status: 404 });
 
         return NextResponse.json({ post });
-    } catch (_error) {
+    } catch {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -54,7 +54,7 @@ export async function PATCH(
 
         revalidatePath("/");
         return NextResponse.json({ success: true, post: updated });
-    } catch (_error) {
+    } catch {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -75,7 +75,7 @@ export async function DELETE(
 
         revalidatePath("/");
         return NextResponse.json({ success: true });
-    } catch (_error) {
+    } catch {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

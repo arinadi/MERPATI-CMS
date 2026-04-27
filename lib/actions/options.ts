@@ -72,7 +72,7 @@ export async function setOption(key: string, value: string, autoload = true): Pr
         revalidatePath("/", "layout");
         revalidateTag("site-options", "default");
         return { success: true };
-    } catch (error) {
+    } catch (error: unknown) {
         console.error(`Error setting option ${key}:`, error);
         return { success: false, error: (error as Error).message || "Failed to update setting." };
     }
@@ -105,7 +105,7 @@ export async function setOptions(settings: Record<string, string>): Promise<{ su
         revalidatePath("/", "layout");
         revalidateTag("site-options", "default");
         return { success: true };
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error setting multiple options:", error);
         return { success: false, error: (error as Error).message || "Failed to update settings." };
     }
