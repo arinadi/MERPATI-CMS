@@ -195,12 +195,15 @@ export default function ThemeLayout({
                                 <div className="flex flex-wrap gap-3">
                                     {contacts.map((contact: ContactItem) => {
                                         const IconComp = ICON_MAP[contact.iconId] || Globe;
+                                        const href = contact.iconId === "mail" && !contact.url.startsWith("mailto:") 
+                                            ? `mailto:${contact.url}` 
+                                            : contact.url;
                                         return (
                                             <a
                                                 key={contact.id}
-                                                href={contact.url}
+                                                href={href}
                                                 title={contact.title}
-                                                target="_blank"
+                                                target={contact.iconId === "mail" ? undefined : "_blank"}
                                                 rel="noopener noreferrer"
                                                 className="p-2.5 rounded-full bg-zinc-900 text-gray-400 hover:bg-[#00e5b7] hover:text-black transition-all shadow-sm"
                                             >
@@ -233,12 +236,15 @@ export default function ThemeLayout({
                         <div className="flex flex-wrap gap-3">
                             {contacts && contacts.map((contact: ContactItem) => {
                                 const IconComp = ICON_MAP[contact.iconId] || Globe;
+                                const href = contact.iconId === "mail" && !contact.url.startsWith("mailto:") 
+                                    ? `mailto:${contact.url}` 
+                                    : contact.url;
                                 return (
                                     <a
                                         key={contact.id}
-                                        href={contact.url}
+                                        href={href}
                                         title={contact.title}
-                                        target="_blank"
+                                        target={contact.iconId === "mail" ? undefined : "_blank"}
                                         rel="noopener noreferrer"
                                         className="p-2.5 rounded-full bg-[#1E293B] text-gray-400 hover:bg-blue-500 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm"
                                     >

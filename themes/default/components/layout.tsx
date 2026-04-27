@@ -201,19 +201,22 @@ export default function ThemeLayout({
                             <div className="p-5 border-t border-white/10">
                                 <div className="flex flex-wrap gap-3">
                                     {contacts.map((contact: ContactItem) => {
-                                        const IconComp = ICON_MAP[contact.iconId] || Globe;
-                                        return (
-                                            <a
-                                                key={contact.id}
-                                                href={contact.url}
-                                                title={contact.title}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="p-2.5 rounded-full bg-[#1E293B] text-gray-400 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
-                                            >
-                                                <IconComp className="w-4 h-4" />
-                                            </a>
-                                        );
+                                            const IconComp = ICON_MAP[contact.iconId] || Globe;
+                                            const href = contact.iconId === "mail" && !contact.url.startsWith("mailto:") 
+                                                ? `mailto:${contact.url}` 
+                                                : contact.url;
+                                            return (
+                                                <a
+                                                    key={contact.id}
+                                                    href={href}
+                                                    title={contact.title}
+                                                    target={contact.iconId === "mail" ? undefined : "_blank"}
+                                                    rel="noopener noreferrer"
+                                                    className="p-2.5 rounded-full bg-[#1E293B] text-gray-400 hover:bg-blue-500 hover:text-white transition-all shadow-sm"
+                                                >
+                                                    <IconComp className="w-4 h-4" />
+                                                </a>
+                                            );
                                     })}
                                 </div>
                             </div>
@@ -240,12 +243,15 @@ export default function ThemeLayout({
                         <div className="flex flex-wrap gap-3">
                             {contacts && contacts.map((contact: ContactItem) => {
                                 const IconComp = ICON_MAP[contact.iconId] || Globe;
+                                const href = contact.iconId === "mail" && !contact.url.startsWith("mailto:") 
+                                    ? `mailto:${contact.url}` 
+                                    : contact.url;
                                 return (
                                     <a
                                         key={contact.id}
-                                        href={contact.url}
+                                        href={href}
                                         title={contact.title}
-                                        target="_blank"
+                                        target={contact.iconId === "mail" ? undefined : "_blank"}
                                         rel="noopener noreferrer"
                                         className="p-2.5 rounded-full bg-[#1E293B] text-gray-400 hover:bg-blue-500 hover:text-white transition-all transform hover:-translate-y-1 shadow-sm"
                                     >
