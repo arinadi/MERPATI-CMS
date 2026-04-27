@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { posts, postRelationships, users } from "@/db/schema";
+import { posts, users } from "@/db/schema";
 import { getAuthorizedUser } from "@/lib/api-auth";
 import { syncPostTerms } from "@/lib/actions/terms";
 import { revalidatePath } from "next/cache";
@@ -65,7 +65,7 @@ export async function GET(req: Request) {
             page,
             totalPages: Math.ceil((total[0]?.count ?? 0) / limit)
         });
-    } catch (error) {
+    } catch (_error) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -100,7 +100,7 @@ export async function POST(req: Request) {
 
         revalidatePath("/");
         return NextResponse.json({ success: true, post: newPost });
-    } catch (error) {
+    } catch (_error) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

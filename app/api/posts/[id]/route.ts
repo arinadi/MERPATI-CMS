@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { posts, termRelationships, terms } from "@/db/schema";
+import { posts } from "@/db/schema";
 import { getAuthorizedUser } from "@/lib/api-auth";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -24,7 +24,7 @@ export async function GET(
         if (!post) return NextResponse.json({ error: "Not Found" }, { status: 404 });
 
         return NextResponse.json({ post });
-    } catch (error) {
+    } catch (_error) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -54,7 +54,7 @@ export async function PATCH(
 
         revalidatePath("/");
         return NextResponse.json({ success: true, post: updated });
-    } catch (error) {
+    } catch (_error) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -75,7 +75,7 @@ export async function DELETE(
 
         revalidatePath("/");
         return NextResponse.json({ success: true });
-    } catch (error) {
+    } catch (_error) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
