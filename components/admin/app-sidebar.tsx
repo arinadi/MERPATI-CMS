@@ -18,6 +18,7 @@ import {
     BarChart,
     ChevronRight,
     Database,
+    Key,
 } from "lucide-react";
 
 import {
@@ -50,6 +51,7 @@ interface NavItem {
 const settingsSubItems = [
     { title: "Tracking", href: "/admin/settings/tracking", icon: BarChart },
     { title: "Notifications", href: "/admin/settings/notifications", icon: Bell },
+    { title: "API Tokens", href: "/admin/settings/tokens", icon: Key },
     { title: "Backup", href: "/admin/settings/backup", icon: Database },
     { title: "Users", href: "/admin/users", icon: Users },
 ];
