@@ -70,6 +70,18 @@ export const options = pgTable('options', {
     autoload: boolean('autoload').default(true).notNull(),
 });
 
+// ─── Personal Access Tokens ──────────────────────────────────────────────────
+
+export const personalAccessTokens = pgTable('personal_access_tokens', {
+    id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(), // e.g. "Mobile App", "LLM Integration"
+    token: text('token').notNull().unique(), // Prefixed mc_...
+    lastUsedAt: timestamp('last_used_at', { mode: 'date' }),
+    expiresAt: timestamp('expires_at', { mode: 'date' }),
+    createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
+});
+
 // ─── Posts ───────────────────────────────────────────────────────────────────
 
 export const posts = pgTable('posts', {
