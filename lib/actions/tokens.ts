@@ -20,23 +20,31 @@ export async function createToken(name: string, expiresDays?: number) {
     
     const expiresAt = expiresDays ? new Date(Date.now() + expiresDays * 24 * 60 * 60 * 1000) : null;
 
-    const [newToken] = await db
-        .insert(personalAccessTokens)
-        .values({
-            userId: session.user.id,
-            name,
-            token: rawToken, // In a real production app, you might want to store a hash and show the raw token only once
-            expiresAt,
-        })
-        .returning();
+    try {
+        const [newToken] = await db
+            .insert(personalAccessTokens)
+            .values({
+                userId: session.user.id,
+                name,
+                token: rawToken, // In a real production app, you might want to store a hash and show the raw token only once
+                expiresAt,
+            })
+            .returning();
 
-    // Return the raw token ONLY this once
-    return { 
-        id: newToken.id, 
-        name: newToken.name, 
-        token: rawToken, 
-        expiresAt: newToken.expiresAt 
-    };
+        // Return the raw token ONLY this once
+        return { 
+            id: newToken.id, 
+            name: newToken.name, 
+            token: rawToken, 
+            expiresAt: newToken.expiresAt 
+        };
+    } catch (error: unknown) {
+        const err = error as { code?: string; message?: string };
+        if (err?.code === '42P01' || err?.message?.includes('relation "personal_access_tokens" does not exist')) {
+            throw new Error("Database not updated: Please run the SQL patch first.");
+        }
+        throw error;
+    }
 }
 
 /**
@@ -48,17 +56,25 @@ export async function getTokens() {
         throw new Error("Unauthorized");
     }
 
-    return db
-        .select({
-            id: personalAccessTokens.id,
-            name: personalAccessTokens.name,
-            lastUsedAt: personalAccessTokens.lastUsedAt,
-            expiresAt: personalAccessTokens.expiresAt,
-            createdAt: personalAccessTokens.createdAt,
-        })
-        .from(personalAccessTokens)
-        .where(eq(personalAccessTokens.userId, session.user.id))
-        .orderBy(desc(personalAccessTokens.createdAt));
+    try {
+        return await db
+            .select({
+                id: personalAccessTokens.id,
+                name: personalAccessTokens.name,
+                lastUsedAt: personalAccessTokens.lastUsedAt,
+                expiresAt: personalAccessTokens.expiresAt,
+                createdAt: personalAccessTokens.createdAt,
+            })
+            .from(personalAccessTokens)
+            .where(eq(personalAccessTokens.userId, session.user.id))
+            .orderBy(desc(personalAccessTokens.createdAt));
+    } catch (error: unknown) {
+        const err = error as { code?: string; message?: string };
+        if (err?.code === '42P01' || err?.message?.includes('relation "personal_access_tokens" does not exist')) {
+            return [];
+        }
+        throw error;
+    }
 }
 
 /**
