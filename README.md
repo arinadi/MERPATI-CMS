@@ -46,7 +46,7 @@ We have a **Love-Hate relationship with WordPress**. We love the power and the f
 | Feature | For Your Newsroom |
 |---|---|
 | **Editorial Suite** | Familiar editor with robust autosave and HTML control. |
-| **Media Library** | One-click image uploads or YouTube video integration. |
+| **Media Library** | One-click image uploads or video integration (YouTube, TikTok, Instagram). |
 | **Social Growth** | Built-in smart sharing controls with UTM tracking for every platform. |
 | **Theme Freedom** | Swap designs instantly with our modular `/themes` structure. |
 | **Team Control** | Secure Google login. Invite authors and manage roles with zero friction. |

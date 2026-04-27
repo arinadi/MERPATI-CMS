@@ -9,18 +9,21 @@ export function FeaturedMedia({
     alt,
     className,
     priority = false,
+    aspectRatio = "aspect-[16/10]",
 }: {
     src: string;
     alt: string;
     className?: string;
     priority?: boolean;
-    showCaption?: boolean;
+    aspectRatio?: string;
 }) {
     // Parse JSON featured image format (backward-compatible with plain URLs)
     const imageUrl = getFeaturedImageUrl(src) || src;
     const imageAlt = getFeaturedImageAlt(src) || alt;
 
     const isYoutube = imageUrl?.includes("youtube.com") || imageUrl?.includes("youtu.be");
+    const isTiktok = imageUrl?.includes("tiktok.com");
+    const isInstagram = imageUrl?.includes("instagram.com");
 
     if (!imageUrl) {
         return (
@@ -37,12 +40,50 @@ export function FeaturedMedia({
         
         if (videoId) {
             return (
-                <div className={`relative ${className} bg-black`}>
+                <div className={`relative ${aspectRatio} ${className} bg-black overflow-hidden`}>
                     <iframe
                         src={`https://www.youtube.com/embed/${videoId}?rel=0`}
                         title={imageAlt}
                         className="absolute top-0 left-0 w-full h-full border-0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                    />
+                </div>
+            );
+        }
+    }
+
+    if (isTiktok) {
+        const regExp = /\/video\/(\d+)/;
+        const match = imageUrl.match(regExp);
+        const videoId = match ? match[1] : "";
+        if (videoId) {
+            return (
+                <div className={`relative ${aspectRatio} ${className} bg-black overflow-hidden`}>
+                    <iframe
+                        src={`https://www.tiktok.com/embed/v2/${videoId}`}
+                        title={imageAlt}
+                        className="absolute top-0 left-0 w-full h-full border-0"
+                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                    />
+                </div>
+            );
+        }
+    }
+
+    if (isInstagram) {
+        const regExp = /(?:p|reels|reel|tv)\/([A-Za-z0-9_-]+)/;
+        const match = imageUrl.match(regExp);
+        const postId = match ? match[1] : "";
+        if (postId) {
+            return (
+                <div className={`relative ${aspectRatio} ${className} bg-black overflow-hidden`}>
+                    <iframe
+                        src={`https://www.instagram.com/p/${postId}/embed`}
+                        title={imageAlt}
+                        className="absolute top-0 left-0 w-full h-full border-0"
+                        {...{ allowtransparency: "true" }}
                         allowFullScreen
                     />
                 </div>

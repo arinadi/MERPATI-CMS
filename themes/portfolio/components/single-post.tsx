@@ -51,11 +51,16 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                 {/* Featured Image */}
                 {post.featuredImage && (
                     <div className="mb-16">
-                        <div className="w-full aspect-[21/9] rounded-2xl overflow-hidden border border-zinc-800/50 bg-zinc-900">
+                        <div className={`relative rounded-2xl overflow-hidden border border-zinc-800/50 bg-zinc-900 mx-auto ${
+                            (post.featuredImage.includes("tiktok.com") || post.featuredImage.includes("instagram.com"))
+                            ? "aspect-[9/16] max-w-[400px]"
+                            : "w-full aspect-[21/9]"
+                        }`}>
                             <FeaturedMedia
                                 src={post.featuredImage}
                                 alt={post.title}
                                 className="w-full h-full object-cover"
+                                aspectRatio={(post.featuredImage.includes("tiktok.com") || post.featuredImage.includes("instagram.com")) ? "aspect-[9/16]" : "aspect-[21/9]"}
                             />
                         </div>
                         {getFeaturedImageAlt(post.featuredImage) && getFeaturedImageAlt(post.featuredImage) !== post.title && (
