@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
 import Script from "next/script";
 import { getCachedOptions, getCachedOption } from "@/lib/queries/options";
-import { CookieConsent } from "@/components/cookie-consent";
 import "./globals.css";
 
 const inter = Inter({
@@ -45,30 +44,10 @@ export default async function RootLayout({
   const cfToken = tracking.cf_analytics_token;
   return (
     <html lang="id" className="dark" style={{ colorScheme: "dark" }}>
-      <head>
-        <Script
-          id="google-consent-mode"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('consent', 'default', {
-                'ad_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'analytics_storage': 'denied',
-                'wait_for_update': 500
-              });
-            `,
-          }}
-        />
-      </head>
       <body
         className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <CookieConsent />
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
         {gaId && <GoogleAnalytics gaId={gaId} />}
         {cfToken && (
