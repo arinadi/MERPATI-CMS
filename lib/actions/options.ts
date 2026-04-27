@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { options } from "@/db/schema";
 import { eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { checkRole } from "@/lib/rbac";
 
 /**
  * Get a single option value by key.
@@ -55,9 +56,11 @@ export async function getOptions(keys: string[]): Promise<Record<string, string>
 
 /**
  * Set an option value. Creates the option if it doesn't exist.
+ * Restricted to super_user.
  */
 export async function setOption(key: string, value: string, autoload = true): Promise<{ success: boolean; error?: string }> {
     try {
+        await checkRole(["super_user"]);
         await db
             .insert(options)
             .values({ key, value, autoload })
@@ -71,15 +74,17 @@ export async function setOption(key: string, value: string, autoload = true): Pr
         return { success: true };
     } catch (error) {
         console.error(`Error setting option ${key}:`, error);
-        return { success: false, error: "Failed to update setting." };
+        return { success: false, error: (error as Error).message || "Failed to update setting." };
     }
 }
 
 /**
  * Set multiple options at once.
+ * Restricted to super_user.
  */
 export async function setOptions(settings: Record<string, string>): Promise<{ success: boolean; error?: string }> {
     try {
+        await checkRole(["super_user"]);
         const values = Object.entries(settings).map(([key, value]) => ({
             key,
             value,
@@ -102,6 +107,6 @@ export async function setOptions(settings: Record<string, string>): Promise<{ su
         return { success: true };
     } catch (error) {
         console.error("Error setting multiple options:", error);
-        return { success: false, error: "Failed to update settings." };
+        return { success: false, error: (error as Error).message || "Failed to update settings." };
     }
 }

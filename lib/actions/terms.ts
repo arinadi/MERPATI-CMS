@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { terms, termRelationships } from "@/db/schema";
 import { eq, and, asc } from "drizzle-orm";
 import { z } from "zod";
+import { checkRole } from "@/lib/rbac";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,7 @@ export async function getTerms(taxonomy: "category" | "tag") {
 
 export async function createTerm(data: z.infer<typeof termSchema>) {
     try {
+        await checkRole(["super_user", "user"]);
         const parsed = termSchema.safeParse(data);
         if (!parsed.success) {
             return { error: "Invalid data provided." };
@@ -78,12 +80,13 @@ export async function createTerm(data: z.infer<typeof termSchema>) {
         return { term: newTerm };
     } catch (error) {
         console.error("Failed to create term:", error);
-        return { error: "Failed to create term." };
+        return { error: (error as Error).message || "Failed to create term." };
     }
 }
 
 export async function updateTerm(id: string, data: Partial<z.infer<typeof termSchema>>) {
     try {
+        await checkRole(["super_user", "user"]);
         const updateValues: Partial<typeof terms.$inferInsert> = {};
 
         if (data.name !== undefined) updateValues.name = data.name;
@@ -112,17 +115,18 @@ export async function updateTerm(id: string, data: Partial<z.infer<typeof termSc
         return { term: updatedTerm };
     } catch (error) {
         console.error("Failed to update term:", error);
-        return { error: "Failed to update term." };
+        return { error: (error as Error).message || "Failed to update term." };
     }
 }
 
 export async function deleteTerm(id: string) {
     try {
+        await checkRole(["super_user", "user"]);
         await db.delete(terms).where(eq(terms.id, id));
         return { success: true };
     } catch (error) {
         console.error("Failed to delete term:", error);
-        return { error: "Failed to delete term." };
+        return { error: (error as Error).message || "Failed to delete term." };
     }
 }
 
@@ -130,6 +134,7 @@ export async function deleteTerm(id: string) {
 
 export async function syncPostTerms(postId: string, termIds: string[]) {
     try {
+        await checkRole(["super_user", "user"]);
         // Delete all existing relationships for this post
         await db.delete(termRelationships).where(eq(termRelationships.objectId, postId));
 
@@ -144,6 +149,6 @@ export async function syncPostTerms(postId: string, termIds: string[]) {
         return { success: true };
     } catch (error) {
         console.error("Failed to sync post terms:", error);
-        return { error: "Failed to map terms to post." };
+        return { error: (error as Error).message || "Failed to map terms to post." };
     }
 }
