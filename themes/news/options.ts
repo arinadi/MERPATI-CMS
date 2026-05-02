@@ -109,6 +109,14 @@ export const options: ThemeOptionField[] = [
         type: "category",
         description: "Category displayed in the video section at the bottom.",
         group: "Homepage"
+    },
+    {
+        id: "theme_news_footer_note",
+        label: "Footer Note",
+        type: "richtext",
+        description: "Rich text displayed in the third column of the footer.",
+        group: "Footer",
+        defaultValue: "<p><b>Merpati CMS</b> adalah platform pengelolaan konten yang cepat, ringan, dan mudah digunakan untuk portal berita masa kini.</p>"
     }
 ];
 

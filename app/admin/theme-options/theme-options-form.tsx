@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { setOptions } from "@/lib/actions/options";
 import { toast } from "sonner";
-import { Loader2, ImageIcon, X, Check, ChevronsUpDown, Search } from "lucide-react";
+import { Loader2, ImageIcon, X, Check, ChevronsUpDown, Search, Bold, Italic, List, ListOrdered } from "lucide-react";
 import type { ThemeOptionField } from "@/lib/themes";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -22,12 +22,78 @@ import {
 } from "@/components/ui/select";
 import EditorMediaModal from "@/components/admin/editor-media-modal";
 import { ContactLinksManager } from "@/components/admin/theme-options/contact-links-manager";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 interface ThemeOptionsFormProps {
     schema: ThemeOptionField[];
     initialValues: Record<string, string>;
     availablePosts: { id: string; title: string }[];
     availableCategories?: { id: string; name: string; slug: string }[];
+}
+
+function RichTextEditor({ value, onChange }: { value: string, onChange: (v: string) => void }) {
+    const editor = useEditor({
+        extensions: [StarterKit],
+        content: value,
+        onUpdate: ({ editor }) => {
+            onChange(editor.getHTML());
+        },
+    });
+
+    // Update editor content when external value changes (e.g. on load)
+    useEffect(() => {
+        if (editor && value !== editor.getHTML()) {
+            editor.commands.setContent(value);
+        }
+    }, [value, editor]);
+
+    if (!editor) return null;
+
+    return (
+        <div className="rounded-md border bg-background overflow-hidden">
+            <div className="flex flex-wrap items-center gap-1 border-b bg-muted/50 p-1">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn("h-8 w-8 p-0", editor.isActive("bold") ? "bg-accent" : "")}
+                    onClick={() => editor.chain().focus().toggleBold().run()}
+                    type="button"
+                >
+                    <Bold className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn("h-8 w-8 p-0", editor.isActive("italic") ? "bg-accent" : "")}
+                    onClick={() => editor.chain().focus().toggleItalic().run()}
+                    type="button"
+                >
+                    <Italic className="h-4 w-4" />
+                </Button>
+                <div className="w-px h-4 bg-border mx-1" />
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn("h-8 w-8 p-0", editor.isActive("bulletList") ? "bg-accent" : "")}
+                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    type="button"
+                >
+                    <List className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn("h-8 w-8 p-0", editor.isActive("orderedList") ? "bg-accent" : "")}
+                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    type="button"
+                >
+                    <ListOrdered className="h-4 w-4" />
+                </Button>
+            </div>
+            <EditorContent editor={editor} className="p-3 min-h-[100px] prose prose-sm max-w-none focus:outline-none" />
+        </div>
+    );
 }
 
 function PostSelector({ value, onChange, posts }: { value: string, onChange: (v: string) => void, posts: {id:string, title:string}[] }) {
@@ -168,6 +234,13 @@ export default function ThemeOptionsForm({ schema, initialValues, availablePosts
                                                     onChange={(e) => handleChange(field.id, e.target.value)}
                                                     rows={4}
                                                     className="bg-background/50 focus-visible:ring-primary/50"
+                                                />
+                                            )}
+
+                                            {field.type === "richtext" && (
+                                                <RichTextEditor
+                                                    value={value}
+                                                    onChange={(val) => handleChange(field.id, val)}
                                                 />
                                             )}
 

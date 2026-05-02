@@ -82,6 +82,7 @@ export default function ThemeLayout({
   const showCta = themeOptions?.theme_news_show_cta !== "no";
   const headerPadding = (themeOptions?.theme_news_header_height as string) || "16";
   const logoHeight = (themeOptions?.theme_news_logo_height as string) || "40";
+  const footerNote = (themeOptions?.theme_news_footer_note as string) || (getDefault("theme_news_footer_note") as string);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -93,11 +94,14 @@ export default function ThemeLayout({
     }
   }
 
-  // Helper to chunk footer menu items if needed (mockup had 3 columns, we'll divide footerMenu)
+  // Helper to chunk footer menu items into exactly 3 columns
   const menuChunks = [];
-  for (let i = 0; i < footerMenu.length; i += 4) {
-      menuChunks.push(footerMenu.slice(i, i + 4));
+  const itemsPerChunk = Math.ceil(footerMenu.length / 3);
+  for (let i = 0; i < footerMenu.length; i += itemsPerChunk) {
+      menuChunks.push(footerMenu.slice(i, i + itemsPerChunk));
   }
+  // Ensure we have 3 chunks even if menu is short
+  while (menuChunks.length < 3) menuChunks.push([]);
 
   return (
     <div 
@@ -261,10 +265,10 @@ export default function ThemeLayout({
           </div>
 
           {/* Main Footer Content */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
-            <div className="lg:col-span-1">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-10">
+            <div className="flex flex-col gap-4">
               {siteLogo ? (
-                <div className="mb-4">
+                <div className="mb-2">
                   <SafeImage
                     src={siteLogo}
                     alt={siteTitle}
@@ -274,32 +278,33 @@ export default function ThemeLayout({
                   />
                 </div>
               ) : (
-                <div className="font-black text-3xl italic tracking-tighter flex items-center mb-4 transition-colors" style={{ color: accentColor }}>
+                <div className="font-black text-3xl italic tracking-tighter flex items-center mb-2 transition-colors" style={{ color: accentColor }}>
                   <span className="text-white mr-1">⚡</span>
                   {siteTitle.toUpperCase()}
                   <span className="text-white ml-1">⚡</span>
                 </div>
               )}
-              <p className="text-sm text-gray-400 mb-6">{siteTagline}</p>
+              <p className="text-sm text-gray-400 leading-relaxed">{siteTagline}</p>
             </div>
             
-            {menuChunks.slice(0,3).map((chunk, index) => (
-               <div key={index} className="flex flex-col gap-3 text-sm text-gray-300">
-                  {chunk.map(item => (
-                    <Link key={item.id} href={resolveMenuUrl(item)} className="hover:text-[var(--news-accent)] transition-colors">
-                      {item.title}
-                    </Link>
-                  ))}
-               </div>
-            ))}
-            
-            {/* Fallback column if menus don't fill it */}
-            {menuChunks.length < 3 && (
-              <div className="flex flex-col gap-3 text-sm text-gray-300 hidden lg:flex"></div>
-            )}
-            {menuChunks.length < 2 && (
-              <div className="flex flex-col gap-3 text-sm text-gray-300 hidden lg:flex"></div>
-            )}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                {menuChunks.slice(0, 3).map((chunk, index) => (
+                   <div key={index} className="flex flex-col gap-3 text-sm text-gray-300">
+                      {chunk.map(item => (
+                        <Link key={item.id} href={resolveMenuUrl(item)} className="hover:text-[var(--news-accent)] transition-colors">
+                          {item.title}
+                        </Link>
+                      ))}
+                   </div>
+                ))}
+            </div>
+
+            <div className="flex flex-col gap-4">
+               <div 
+                  className="text-sm text-gray-400 prose prose-invert prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: footerNote }}
+               />
+            </div>
           </div>
 
           {/* Social Links Row */}
