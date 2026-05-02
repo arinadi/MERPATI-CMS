@@ -97,7 +97,7 @@ export interface PostCardData {
 
 // ─── Theme Exports Interface ───────────────────────────────────────────────
 
-export type ThemeOptionType = "text" | "textarea" | "number" | "url" | "select" | "post" | "image" | "color" | "contacts" | "checkbox-group" | "category" | "category-multi";
+export type ThemeOptionType = "text" | "textarea" | "richtext" | "number" | "url" | "select" | "post" | "image" | "color" | "contacts" | "checkbox-group" | "category" | "category-multi";
 
 export interface ThemeOptionField {
     id: string; // The key in the database options table
