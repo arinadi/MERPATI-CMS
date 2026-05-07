@@ -27,7 +27,8 @@ export async function bootstrapDatabase(formData: FormData) {
         if (existing.length > 0 && existing[0].value === "true") {
             redirect("/login");
         }
-    } catch {
+    } catch (error) {
+        if ((error as Error).message === "NEXT_REDIRECT") throw error;
         // Table doesn't exist yet, proceed with initialization
     }
 
