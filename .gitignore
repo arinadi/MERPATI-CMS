@@ -7,6 +7,8 @@
 
 # testing
 /coverage
+playwright-report/
+test-results/
 
 # next.js
 /.next/
@@ -37,6 +39,29 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# AI / local agent config
+.agent/
+.agents/
+.gemini/
+.codex/
+.claude/
+.cursor/
+.windsurf/
+.continue/
+.aider*
+.roo/
+.kilocode/
+CLAUDE.md
+GEMINI.md
+.cursorrules
+.roomodes
+
+# local IDE files
+*.geany
+
+# pnpm is the package manager for this project
+package-lock.json
 
 # typescript
 *.tsbuildinfo
