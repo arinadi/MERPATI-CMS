@@ -24,12 +24,12 @@ describe('RBAC Utilities', () => {
 
   describe('checkRole', () => {
     it('should throw error if not authenticated', async () => {
-      vi.mocked(auth).mockResolvedValueOnce(null);
+      vi.mocked(auth as any).mockResolvedValueOnce(null);
       await expect(checkRole(['super_user'])).rejects.toThrow('Unauthorized: Not authenticated.');
     });
 
     it('should throw error if user has insufficient permissions', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({
+      vi.mocked(auth as any).mockResolvedValueOnce({
         user: { role: 'user', email: 'test@example.com' },
         expires: '',
       });
@@ -41,7 +41,7 @@ describe('RBAC Utilities', () => {
         user: { role: 'super_user', email: 'test@example.com' },
         expires: '',
       };
-      vi.mocked(auth).mockResolvedValueOnce(mockSession);
+      vi.mocked(auth as any).mockResolvedValueOnce(mockSession);
       const result = await checkRole(['super_user']);
       expect(result).toEqual(mockSession);
     });
@@ -51,7 +51,7 @@ describe('RBAC Utilities', () => {
         user: { role: 'user', email: 'test@example.com' },
         expires: '',
       };
-      vi.mocked(auth).mockResolvedValueOnce(mockSession);
+      vi.mocked(auth as any).mockResolvedValueOnce(mockSession);
       const result = await checkRole(['super_user', 'user']);
       expect(result).toEqual(mockSession);
     });

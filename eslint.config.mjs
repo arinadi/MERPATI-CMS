@@ -11,8 +11,19 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "coverage/**",
+    "playwright-report/**",
+    "test-results/**",
     "next-env.d.ts",
   ]),
+  {
+    files: ["tests/**/*.{ts,tsx}"],
+    rules: {
+      "@next/next/no-html-link-for-pages": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

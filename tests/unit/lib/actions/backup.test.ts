@@ -49,7 +49,7 @@ describe('Backup Actions', () => {
 
   describe('generateDatabaseBackup', () => {
     it('should return SQL content for super_user with multiple types', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
       
       // Mock db.select().from() for 11 tables
       dbMock._setResolvedValue([
@@ -73,12 +73,12 @@ describe('Backup Actions', () => {
     });
 
     it('should throw if not super_user', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { role: 'user' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { role: 'user' }, expires: '' });
       await expect(generateDatabaseBackup()).rejects.toThrow('Unauthorized');
     });
 
     it('should return error if db throws', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
       dbMock._setRejectedValue(new Error('DB Error'));
       const result = await generateDatabaseBackup();
       expect(result.success).toBe(false);
@@ -107,7 +107,7 @@ describe('Backup Actions', () => {
       vi.mocked(getCachedOptions).mockResolvedValueOnce({});
       const result = await runCronBackup();
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Cron skipped');
+      if (!result.success) expect(result.error).toContain('Cron skipped');
     });
 
     it('should return error if it fails', async () => {
@@ -124,7 +124,7 @@ describe('Backup Actions', () => {
 
   describe('runBackupAndNotify', () => {
     it('should send sql backup if super_user and telegram configured', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
       vi.mocked(getCachedOptions).mockResolvedValue({
         telegram_bot_token: 'token',
         telegram_chat_id: 'chat',
@@ -140,12 +140,12 @@ describe('Backup Actions', () => {
     });
 
     it('should return error if not super_user', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { role: 'user' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValue({ user: { role: 'user' }, expires: '' });
       await expect(runBackupAndNotify()).rejects.toThrow('Unauthorized');
     });
 
     it('should return error if telegram missing', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
       vi.mocked(getCachedOptions).mockResolvedValue({});
       const result = await runBackupAndNotify();
       expect(result.success).toBe(false);
@@ -155,7 +155,7 @@ describe('Backup Actions', () => {
 
   describe('runMediaBackupAndNotify', () => {
     it('should send media zip if super_user and telegram configured', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
       vi.mocked(getCachedOptions).mockResolvedValue({
         telegram_bot_token: 'token',
         telegram_chat_id: 'chat',
@@ -179,7 +179,7 @@ describe('Backup Actions', () => {
     });
 
     it('should return error if no media found', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
       vi.mocked(getCachedOptions).mockResolvedValue({
         telegram_bot_token: 'token',
         telegram_chat_id: 'chat',
@@ -191,7 +191,7 @@ describe('Backup Actions', () => {
     });
 
     it('should return error if file too large', async () => {
-      vi.mocked(auth).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValue({ user: { role: 'super_user' }, expires: '' });
       vi.mocked(getCachedOptions).mockResolvedValue({
         telegram_bot_token: 'token',
         telegram_chat_id: 'chat',

@@ -2,6 +2,8 @@ import { checkInitialized } from "@/lib/actions/setup";
 import { redirect } from "next/navigation";
 import { SetupForm } from "./setup-form";
 
+export const runtime = "nodejs";
+
 export default async function SetupPage() {
     const initialized = await checkInitialized();
     if (initialized) {

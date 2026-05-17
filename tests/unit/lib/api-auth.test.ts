@@ -71,7 +71,7 @@ describe('API Auth Helpers', () => {
       // No token
       vi.mocked(headers).mockResolvedValueOnce(new Map() as any);
       // Valid session
-      vi.mocked(auth).mockResolvedValueOnce({
+      vi.mocked(auth as any).mockResolvedValueOnce({
         user: { id: 'session-id', role: 'user', name: 'Session', email: 'session@example.com' },
         expires: ''
       });
@@ -82,7 +82,7 @@ describe('API Auth Helpers', () => {
 
     it('should return null if both fail', async () => {
       vi.mocked(headers).mockResolvedValueOnce(new Map() as any);
-      vi.mocked(auth).mockResolvedValueOnce(null);
+      vi.mocked(auth as any).mockResolvedValueOnce(null);
 
       const result = await getAuthorizedUser();
       expect(result).toBeNull();

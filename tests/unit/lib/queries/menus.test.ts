@@ -31,10 +31,11 @@ describe('Menu Queries', () => {
     dbMock._setResolvedValue([{ slug: 'news' }]);
 
     const result = await getCachedMenuWithItems('primary');
+    const hydratedItems = result as Array<{ type: string; slug?: string }>;
 
     expect(result).toHaveLength(3);
-    expect(result[0].type).toBe('custom');
-    expect(result[1].slug).toBe('hello-world');
-    expect(result[2].slug).toBe('category/news');
+    expect(hydratedItems[0].type).toBe('custom');
+    expect(hydratedItems[1].slug).toBe('hello-world');
+    expect(hydratedItems[2].slug).toBe('category/news');
   });
 });

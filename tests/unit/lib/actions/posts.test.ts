@@ -90,13 +90,13 @@ describe('Post Actions', () => {
 
   describe('getPostBySlug', () => {
     it('should return error if not authorized', async () => {
-      vi.mocked(auth).mockResolvedValueOnce(null);
+      vi.mocked(auth as any).mockResolvedValueOnce(null);
       const result = await getPostBySlug('p1');
       expect(result.error).toBe('Unauthorized');
     });
 
     it('should return post with relations if found', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
       dbMock._setResolvedValue([{ id: 'p1', title: 'P1' }]); // post
       dbMock._setResolvedValue([{ id: 'r1', title: 'R1' }]); // related
       dbMock._setResolvedValue([{ id: 't1', taxonomy: 'category' }]); // terms
@@ -106,14 +106,14 @@ describe('Post Actions', () => {
     });
 
     it('should return error if not found', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
       dbMock._setResolvedValue([]); // post
       const result = await getPostBySlug('p1');
       expect(result.error).toBe('Post not found.');
     });
 
     it('should return error if db throws', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
       dbMock._setRejectedValue(new Error('DB Error'));
       const result = await getPostBySlug('p1');
       expect(result.error).toBe('Failed to fetch post.');
@@ -130,19 +130,19 @@ describe('Post Actions', () => {
 
   describe('createPost', () => {
     it('should return unauthorized if no session', async () => {
-      vi.mocked(auth).mockResolvedValueOnce(null);
+      vi.mocked(auth as any).mockResolvedValueOnce(null);
       const result = await createPost({ title: 'New Post' });
       expect(result).toEqual({ error: 'Unauthorized' });
     });
 
     it('should validate required fields', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       const result = await createPost({ title: '' }); // Empty title fails zod validation
       expect(result.error).toBeDefined();
     });
 
     it('should create a page, sync related, and return success', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       
       // Mock slug uniqueness check (not found)
       dbMock._setResolvedValue([]); 
@@ -169,7 +169,7 @@ describe('Post Actions', () => {
     });
 
     it('should append timestamp to slug if conflict exists', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       
       // Mock slug conflict
       dbMock._setResolvedValue([{ id: 'existing-id' }]); 
@@ -186,20 +186,20 @@ describe('Post Actions', () => {
 
   describe('updatePost', () => {
     it('should return unauthorized if no session', async () => {
-      vi.mocked(auth).mockResolvedValueOnce(null);
+      vi.mocked(auth as any).mockResolvedValueOnce(null);
       const result = await updatePost('1', { title: 'Updated' });
       expect(result).toEqual({ error: 'Unauthorized' });
     });
 
     it('should return error if post not found', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       dbMock._setResolvedValue([]); // Post not found
       const result = await updatePost('1', { title: 'Updated' });
       expect(result).toEqual({ error: 'Post not found' });
     });
 
     it('should update post, sync related, and notify if status changes to published', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       dbMock._setResolvedValue([{ id: '1', type: 'post', status: 'draft', slug: 'old', title: 'Old' }]); // Found
       dbMock._setResolvedValue([]); // No slug conflict
       dbMock._setResolvedValue({ success: true }); // Update success
@@ -223,7 +223,7 @@ describe('Post Actions', () => {
     });
 
     it('should return error if slug conflict exists', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       dbMock.then.mockRestore(); // Clear queue
       dbMock.then.mockImplementation((onfulfilled: any) => Promise.resolve([]).then(onfulfilled));
       dbMock._setResolvedValue([{ id: '1', type: 'post' }]); // Found
@@ -236,7 +236,7 @@ describe('Post Actions', () => {
 
   describe('deletePost', () => {
     it('should delete post if authorized', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       dbMock._setResolvedValue([{ id: '1', type: 'post' }]); // Found
       dbMock._setResolvedValue({ success: true }); // Delete success
 
@@ -246,13 +246,13 @@ describe('Post Actions', () => {
     });
 
     it('should return error if not authorized', async () => {
-      vi.mocked(auth).mockResolvedValueOnce(null);
+      vi.mocked(auth as any).mockResolvedValueOnce(null);
       const result = await deletePost('1');
       expect(result.error).toBe('Unauthorized');
     });
 
     it('should return error if post not found', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       dbMock.then.mockRestore(); // Clear queue
       dbMock.then.mockImplementation((onfulfilled: any) => Promise.resolve([]).then(onfulfilled));
       dbMock._setResolvedValue([]); // Not found
@@ -263,7 +263,7 @@ describe('Post Actions', () => {
 
   describe('bulkActionPosts', () => {
     it('should perform bulk delete', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       dbMock.then.mockRestore(); // Clear queue
       dbMock.then.mockImplementation((onfulfilled: any) => Promise.resolve([]).then(onfulfilled));
       dbMock._setResolvedValue({ success: true });
@@ -275,7 +275,7 @@ describe('Post Actions', () => {
     });
 
     it('should perform bulk publish', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       dbMock._setResolvedValue({ success: true });
 
       const result = await bulkActionPosts(['1', '2'], 'publish');
@@ -284,25 +284,25 @@ describe('Post Actions', () => {
     });
 
     it('should return error if unauthorized', async () => {
-      vi.mocked(auth).mockResolvedValueOnce(null);
+      vi.mocked(auth as any).mockResolvedValueOnce(null);
       const result = await bulkActionPosts(['1'], 'delete');
       expect(result.error).toBe('Unauthorized');
     });
 
     it('should return error if no IDs provided', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       const result = await bulkActionPosts([], 'delete');
       expect(result).toEqual({ error: 'No items selected' });
     });
 
     it('should return error if invalid action', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       const result = await bulkActionPosts(['1'], 'invalid' as any);
       expect(result.error).toBe('Invalid action');
     });
 
     it('should return error if db throws', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       dbMock.then.mockRestore(); // Clear queue
       dbMock.then.mockImplementation((onfulfilled: any) => Promise.resolve([]).then(onfulfilled));
       dbMock._setRejectedValue(new Error('DB Error'));

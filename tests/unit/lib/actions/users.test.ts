@@ -46,7 +46,7 @@ describe('User Actions', () => {
 
   describe('updateProfile', () => {
     it('should update name for current user', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
       dbMock._setResolvedValue({ success: true });
       
       const result = await updateProfile({ name: 'New Name' });
@@ -55,13 +55,13 @@ describe('User Actions', () => {
     });
 
     it('should return error if name is empty', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
       const result = await updateProfile({ name: '   ' });
       expect(result.error).toBe('Name cannot be empty');
     });
 
     it('should return error if db throws', async () => {
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
       dbMock._setRejectedValue(new Error('DB Error'));
       const result = await updateProfile({ name: 'Valid Name' });
       expect(result.error).toBe('Failed to update profile');
@@ -129,7 +129,7 @@ describe('User Actions', () => {
   describe('deleteUser', () => {
     it('should prevent self-deletion', async () => {
       vi.mocked(checkRole).mockResolvedValueOnce({} as any);
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
 
       const result = await deleteUser('u1');
       expect(result.error).toBe('You cannot delete your own account.');
@@ -137,7 +137,7 @@ describe('User Actions', () => {
 
     it('should delete other user', async () => {
       vi.mocked(checkRole).mockResolvedValueOnce({} as any);
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
       dbMock._setResolvedValue({ success: true });
 
       const result = await deleteUser('u2');
@@ -147,7 +147,7 @@ describe('User Actions', () => {
 
     it('should return error if db throws', async () => {
       vi.mocked(checkRole).mockResolvedValueOnce({} as any);
-      vi.mocked(auth).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
+      vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'u1' }, expires: '' });
       dbMock._setRejectedValue(new Error('DB Error'));
 
       const result = await deleteUser('u2');
