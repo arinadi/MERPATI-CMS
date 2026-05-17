@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { checkInitialized } from "@/lib/actions/setup";
 import { cookies } from "next/headers";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
