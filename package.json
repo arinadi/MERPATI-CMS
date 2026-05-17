@@ -2,6 +2,7 @@
   "name": "merpati-cms",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "next dev",
     "dev:proot": "NODE_OPTIONS='--require ./fix-interfaces.js' next dev --webpack --hostname 127.0.0.1",
@@ -10,7 +11,9 @@
     "lint": "eslint && tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -42,6 +45,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
