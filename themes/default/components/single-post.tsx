@@ -79,7 +79,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                                 <div className="flex flex-col">
                                     <span className="font-bold text-white text-sm">{post.author?.name || "Anonymous"}</span>
                                     <span className="text-xs text-gray-500 font-medium">
-                                        {format(publishDate, "EEEE, dd MMMM yyyy", { locale: id })}
+                                        {format(publishDate, "EEEE, dd MMMM yyyy HH:mm", { locale: id })}
                                     </span>
                                 </div>
                             </div>
@@ -135,7 +135,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                                                     {rp.title}
                                                 </h4>
                                                 <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 mt-auto">
-                                                    {format(new Date(rp.createdAt || new Date()), "dd MMM yyyy", { locale: id })}
+                                                    {format(new Date(rp.createdAt || new Date()), "dd MMM yyyy HH:mm", { locale: id })}
                                                 </span>
                                             </div>
                                         </Link>

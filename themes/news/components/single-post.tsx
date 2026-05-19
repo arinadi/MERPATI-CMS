@@ -4,6 +4,7 @@ import { SafeImage } from "@/components/ui/safe-image";
 import { FeaturedMedia } from "./featured-media";
 import { ShareButtons } from "./share-buttons";
 import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
+import { getReadingTime } from "@/lib/utils/reading-time";
 import type { SinglePostProps, PostCardData } from "@/lib/themes";
 import { getCachedTaxonomyPosts, getLatestPosts } from "@/lib/queries/posts";
 import { getCachedOptions } from "@/lib/queries/options";
@@ -30,7 +31,8 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
   const authorName = post.author?.name || "REDAKSI";
   const authorImage = post.author?.image || "https://ui-avatars.com/api/?name=" + encodeURIComponent(authorName) + "&background=random";
   const primaryCat = post.categories?.[0] || { name: "UMUM", slug: "umum" };
-  const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const readingTime = getReadingTime(post.content || "");
   
 
   return (
@@ -87,7 +89,11 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
               />
               <div className="text-sm text-gray-500 flex flex-col justify-center">
                 <div className="font-bold uppercase tracking-wider text-xs" style={{ color: 'var(--news-accent)' }}>{authorName}</div>
-                <div className="text-[10px] uppercase font-bold text-gray-400 mt-0.5">{formattedDate}</div>
+                <div className="text-[10px] uppercase font-bold text-gray-400 mt-0.5 flex items-center gap-1.5">
+                  <span>{formattedDate}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{readingTime} menit baca</span>
+                </div>
               </div>
             </div>
             <div className="flex items-center md:hidden">
@@ -122,7 +128,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
               <h3 className="text-2xl font-bold mb-6 italic tracking-tighter">ARTIKEL TERKAIT</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {relatedPosts.slice(0, 3).map((related) => {
-                  const relDate = new Date(related.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                  const relDate = new Date(related.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                   return (
                     <Link href={`/${related.slug}`} key={related.id} className="group cursor-pointer flex flex-col">
                       <div className="relative overflow-hidden rounded-sm aspect-[4/3] mb-4">
@@ -160,7 +166,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
           
           <div className="flex flex-col gap-6 mb-8 md:mb-12">
             {popularPosts.length > 0 ? popularPosts.slice(0, 5).map((sidebarPost) => {
-              const relDate = new Date(sidebarPost.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+              const relDate = new Date(sidebarPost.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
               return (
                 <Link href={`/${sidebarPost.slug}`} key={sidebarPost.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">
