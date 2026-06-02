@@ -1,0 +1,429 @@
+# MERPATI CMS — Theme Development Guide
+
+This guide explains the MERPATI CMS theme architecture and the rules that **MUST** be followed for the theme to work correctly, including the caching system.
+
+---
+
+## Theme Architecture
+
+```
+themes/
+└── your-theme/
+    ├── index.tsx          ← Entry point: export all components
+    └── components/
+        ├── layout.tsx     ← ThemeLayout (shell: header, nav, footer)
+        ├── home.tsx       ← Homepage (optional, falls back to Archive)
+        ├── archive.tsx    ← Article list + pagination
+        ├── single-post.tsx← Single article page
+        ├── single-page.tsx← Single static page
+        ├── not-found.tsx  ← 404 page
+        └── ...            ← Supporting components (post-card, etc.)
+```
+
+## Required Exported Components
+
+The `themes/your-theme/index.tsx` file MUST export the following components:
+
+```tsx
+import ThemeLayout from "./components/layout";
+import Archive from "./components/archive";
+import Home from "./components/home";          // Optional
+import SinglePost from "./components/single-post";
+import SinglePage from "./components/single-page";
+import NotFound from "./components/not-found";
+
+export { ThemeLayout, Home, Archive, SinglePost, SinglePage, NotFound };
+```
+
+After creating the theme, register it in `lib/themes.ts`:
+
+```tsx
+import * as yourTheme from "@/themes/your-theme";
+
+const THEME_MAP: Record<string, ThemeExports> = {
+    default: defaultTheme as ThemeExports,
+    "your-theme": yourTheme as ThemeExports,
+};
+```
+
+Activate it via `.env.local`:
+```
+ACTIVE_THEME=your-theme
+```
+
+---
+
+## Core Libraries & Helpers
+
+To keep themes "DRY" (Don't Repeat Yourself), always use the following shared libraries for non-design logic.
+
+### 1. Data Queries (`@/lib/queries`)
+Centralized database calls with `unstable_cache` for maximum performance. Core logic is moved here from the main catch-all route.
+
+- `getCachedTaxonomyPosts(slug, taxonomy, limit, offset)`: Fetches posts for a specific category or tag. Returns `{ posts, total, term, hydratedPosts }`.
+- `getLatestPosts(limit)`: Fetches most recent posts globally.
+- `getCachedOptions(keys)`: Fetches key-value pairs from the `site_options` table.
+
+### 2. Social Sharing (`@/lib/utils/social`)
+Handles social media URL generation with UTM tracking and platform-specific quirks (e.g. standardizing WhatsApp and Telegram text formats).
+
+```tsx
+import { getSocialShareLinks } from "@/lib/utils/social";
+
+const shareLinks = getSocialShareLinks(title, url, excerpt, platforms);
+// returns array of standardized sharing objects
+```
+
+### 3. Navigation & Pagination (`@/lib/utils/navigation`)
+Ensures URL consistency across all themes and handles edge cases like `/page/1` redirection.
+
+```tsx
+import { getPaginationUrl } from "@/lib/utils/navigation";
+
+const nextUrl = getPaginationUrl(basePath, currentPage + 1);
+```
+
+---
+
+## Theme Options
+
+Themes can define custom settings (Theme Options) that users can configure in the admin panel. These are useful for hero text, CTA links, or selecting featured posts.
+
+To keep your Server Components and Client Components properly separated while reusing theme defaults, extracting theme options to an `options.ts` file is considered a best practice.
+
+1. **Create `options.ts` in your theme folder:**
+
+```tsx
+import { ThemeOptionField } from "@/lib/themes";
+
+export const options: ThemeOptionField[] = [
+    {
+        id: "theme_mytheme_jumbo_text",
+        label: "Jumbo Text",
+        type: "text",
+        description: "Large text on the homepage.",
+        defaultValue: "Welcome to My Theme"
+    },
+    {
+        id: "theme_mytheme_featured_post",
+        label: "Featured Post",
+        type: "post",
+    }
+];
+
+export const getDefault = (id: string) => options.find((o) => o.id === id)?.defaultValue || "";
+```
+
+2. **Register it in `index.tsx`:**
+
+```tsx
+import { options } from "./options";
+export { ThemeLayout, Archive, SinglePost, SinglePage, NotFound, Home, options };
+
+export const myTheme: ThemeExports = {
+    ThemeLayout,
+    Archive,
+    SinglePost,
+    SinglePage,
+    NotFound,
+    Home,
+    options
+};
+```
+
+Supported types: `"text" | "textarea" | "number" | "url" | "select" | "post" | "image" | "color" | "contacts" | "checkbox-group" | "category" | "category-multi"`.
+
+> [!NOTE]
+> For `"checkbox-group"` and `"category-multi"`, the selected values are saved as a JSON-stringified array limit in the database. When retrieving them via `getCachedOptions()`, you must `JSON.parse()` the returned string to get the array of strings/slugs.
+
+Inside your Server Components (e.g., `Home`), fetch these options using `getCachedOptions`:
+
+```tsx
+import { getCachedOptions } from "@/lib/queries/options";
+import { getDefault } from "../options";
+
+export default async function Home() {
+    const optionsRaw = await getCachedOptions([
+        "theme_mytheme_jumbo_text",
+        "theme_mytheme_featured_post"
+    ]);
+
+    const jumboText = optionsRaw["theme_mytheme_jumbo_text"] || getDefault("theme_mytheme_jumbo_text");
+    // ... render your component
+}
+```
+
+---
+
+## Props Interfaces (from `lib/themes.ts`)
+
+Each component receives props that MUST conform to the following interfaces:
+
+### `ThemeLayout`
+```tsx
+interface ThemeLayoutProps {
+    children: ReactNode;
+    siteTitle: string;
+    siteTagline: string;
+    contacts: ContactItem[];
+    primaryMenu: MenuItem[];
+    footerMenu: MenuItem[];
+    cacheId?: string;       // Frozen timestamp from cached data
+}
+```
+
+### `SinglePost`
+```tsx
+interface SinglePostProps {
+    post: PostData;
+    relatedPosts?: PostCardData[];
+}
+```
+
+### `SinglePage`
+```tsx
+interface SinglePageProps {
+    page: PageData;
+}
+```
+
+### `Archive` & `Home`
+```tsx
+interface ArchiveProps {
+    title: string;
+    description?: string;
+    posts: PostCardData[];
+    pagination?: {
+        currentPage: number;
+        totalPages: number;
+        basePath: string;
+    };
+}
+```
+
+### `NotFound`
+No props (empty).
+
+---
+
+## Caching Rules — VERY IMPORTANT
+
+MERPATI CMS uses `unstable_cache` from Next.js to cache all database queries. Themes MUST support this system.
+
+### 1. The `cacheId` Prop
+
+The `cacheId` prop on `ThemeLayout` is a timestamp that **freezes when the cache is active**. Use it as a visual indicator in the footer:
+
+```tsx
+// In ThemeLayout footer:
+{cacheId && (
+    <span className="text-xs opacity-50">
+        CACHE ID: {cacheId}
+    </span>
+)}
+```
+
+> [!CAUTION]
+> **DO NOT** generate your own timestamp inside theme components using `new Date().toISOString()`.
+> This will cause a **hydration mismatch** between server and client,
+> because the server and browser times will differ.
+
+### 2. Use `SafeImage` for All Images
+
+Do **NOT** use plain `next/image` or plain `<img>` tags directly. Instead, use the `@/components/ui/safe-image` component.
+
+Reasons:
+- `next/image` crashes the server (SSR) if a hostname is not configured in `next.config.ts`.
+- `SafeImage` automatically detects foreign domains and falls back to a standard `<img>` tag to prevent fatal errors.
+- It provides a built-in fallback icon if an image fails to load (404).
+- It remains compatible with `unstable_cache` and ISR caching systems.
+
+```tsx
+// ❌ DON'T
+import Image from "next/image";
+<Image src={post.featuredImage} ... />
+
+// ❌ DON'T (No optimization, no automatic fallback icon)
+<img src={post.featuredImage} alt={post.title} className="..." />
+
+// ✅ CORRECT
+import { SafeImage } from "@/components/ui/safe-image";
+<SafeImage src={post.featuredImage} alt={post.title} className="..." />
+```
+
+### 3. Typography & Content Styling (TipTap)
+
+The MERPATI CMS classic WYSIWYG editor (TipTap) generates raw HTML elements (`<p>`, `<h1>`, `<ul>`, etc.). Theme developers MUST rely on Tailwind's Typography plugin (`@tailwindcss/typography`) to automatically format this injected content.
+
+In your `single-post.tsx` and `single-page.tsx`:
+```tsx
+<div 
+    className="prose max-w-none prose-invert lg:prose-xl"
+    dangerouslySetInnerHTML={{ __html: post.content }} 
+/>
+```
+
+> [!NOTE]
+> The `@tailwindcss/typography` plugin has been integrated into `app/globals.css` via `@plugin`. Theme developers can simply use `.prose` and customize its specific modifiers (e.g. `prose-headings:text-white`).
+
+### 4. Responsive Embedded Media (YouTube)
+
+The classic editor allows authors to embed YouTube videos natively. These are rendered as `<iframe>` tags within the `post.content`.
+Theme developers MUST ensure that post content containers apply responsive styles to iframes (e.g., using Tailwind's `prose-iframe:aspect-video prose-iframe:w-full`).
+
+```tsx
+<div 
+    className="prose max-w-none prose-iframe:aspect-video prose-iframe:w-full prose-iframe:rounded-lg" 
+    dangerouslySetInnerHTML={{ __html: post.content }} 
+/>
+```
+
+### 4. Pagination Must Be Path-Based
+
+Pagination **MUST** use the URL format `/page/X`, NOT query params `?page=X`:
+
+```tsx
+// ❌ DON'T — query params disable Next.js cache
+<Link href={`${basePath}?page=${page + 1}`}>
+
+// ✅ CORRECT — path-based stays compatible with ISR cache
+<Link href={`${basePath}/page/${page + 1}`}>
+```
+
+For the first page, link directly to `basePath` without `/page/1`:
+```tsx
+href={page - 1 === 1 ? basePath : `${basePath}/page/${page - 1}`}
+```
+
+### 5. ThemeLayout Must Be `"use client"`
+
+Since layouts typically contain state (mobile menu toggle, scroll effects, etc.), mark it with `"use client"`:
+
+```tsx
+"use client";
+// ...layout component
+```
+
+### 6. Other Components = Server Components
+
+Unless there is a specific reason (interactivity), leave other components as Server Components (without `"use client"`).
+
+### 7. Search Must Navigate to `/search/{query}`
+
+The search input in the layout MUST be wrapped in a `<form>` with an `onSubmit` handler that uses `useRouter` to navigate:
+
+```tsx
+const [searchQuery, setSearchQuery] = useState("");
+const router = useRouter();
+
+function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (q) {
+        router.push(`/search/${encodeURIComponent(q)}`);
+        setSearchQuery("");
+    }
+}
+```
+
+The `[...slug]` catch-all route handles `/search/{query}` and renders results via the `Archive` component. Search uses `ilike` for full-text matching on title, excerpt, and content.
+
+> [!NOTE]
+> Search results are also cached via `unstable_cache` with tag `posts`.
+> Clearing cache will refresh search results too.
+
+---
+
+## Data Architecture & Cache Flow
+
+```
+User Request
+    ↓
+middleware.ts (skip auth for public routes)
+    ↓
+app/(public)/layout.tsx
+    ├── getCachedOption()        ← unstable_cache, tag: site-options
+    ├── getCachedOptions()       ← unstable_cache, tag: site-options
+    ├── getCachedMenuWithItems() ← unstable_cache, tag: site-menus
+    ├── getCacheTimestamp()      ← unstable_cache, tag: all
+    └── render ThemeLayout
+         ↓
+app/(public)/[...slug]/page.tsx
+    ├── Resolve route type (Post, Page, Category, Tag, Search)
+    ├── Call centralized @/lib/queries (getCachedPost, getCachedTaxonomyPosts, etc.)
+    └── render SinglePost / SinglePage / Archive / NotFound
+```
+
+### Cache Invalidation
+
+When an admin clicks **"Clear All Cache"** at `/admin/cache`:
+```
+revalidateTag("site-options")  → Options & timestamp are refreshed
+revalidateTag("site-menus")    → Menus are refreshed
+revalidateTag("posts")         → All posts/pages/archives are refreshed
+revalidatePath("/", "layout")  → Full Route Cache is invalidated
+```
+
+---
+
+## Middleware — Do Not Touch Public Routes
+
+`middleware.ts` is configured so that it **does NOT** call `auth()` for public pages. This is crucial because `auth()` reads cookies, which disables the Full Route Cache.
+
+```typescript
+// Public routes: pass through directly without auth
+if (!pathname.startsWith("/admin") && pathname !== "/login" && pathname !== "/setup") {
+    return NextResponse.next();
+}
+```
+
+> [!WARNING]
+> If you modify the middleware, NEVER call `auth()`, `cookies()`,
+> or `headers()` for public paths. This will disable all caching.
+
+---
+
+## How to Verify Caching
+
+### Benchmark Script
+```bash
+bash /tmp/cache_benchmark.sh
+```
+
+### Manual Check
+1. `npm run build && npm start`
+2. Open a page and check the CACHE ID in the footer
+3. Refresh multiple times — the CACHE ID must stay the same
+4. Go to `/admin/cache` → **Clear All Cache**
+5. Refresh the page — the CACHE ID must change to a new time, then freeze again
+
+---
+
+## URL Routes Handled by `[...slug]`
+
+| URL Pattern | Handler | Component |
+|---|---|---|
+| `/{post-slug}` | `getCachedPost()` | `SinglePost` |
+| `/{page-slug}` | `getCachedPage()` | `SinglePage` |
+| `/archive` | `getCachedArchivePosts()` | `Archive` |
+| `/archive/page/2` | `getCachedArchivePosts()` | `Archive` (page 2) |
+| `/category/{slug}` | `getCachedTaxonomyPosts()` | `Archive` |
+| `/tag/{slug}` | `getCachedTaxonomyPosts()` | `Archive` |
+| `/search/{query}` | `getCachedSearchResults()` | `Archive` |
+
+---
+
+## New Theme Checklist
+
+- [ ] All 6 components exported from `index.tsx`
+- [ ] Props conform to the interfaces in `lib/themes.ts`
+- [ ] Theme Options defined under an `options` array if applicable
+- [ ] `cacheId` is displayed in the footer layout
+- [ ] `SafeImage` is used for all images (don't use `next/image` or plain `img`)
+- [ ] `new Date()` is not used in any component
+- [ ] Pagination is path-based (`/page/X`), not query params
+- [ ] Search form navigates to `/search/{query}` on Enter
+- [ ] Layout is marked `"use client"`
+- [ ] No hydration mismatches (test on a production build)
+- [ ] Build runs without errors (`npm run build`)
+- [ ] Lint is clean (`npm run lint`)

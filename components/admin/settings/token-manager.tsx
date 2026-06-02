@@ -154,7 +154,7 @@ export default function TokenManager({ initialTokens }: { initialTokens: Token[]
                                             {token.lastUsedAt ? new Date(token.lastUsedAt).toLocaleString() : "Never"}
                                         </TableCell>
                                         <TableCell className="text-sm text-muted-foreground">
-                                            {new Date(token.createdAt).toLocaleDateString()}
+                                            {new Date(token.createdAt).toLocaleString()}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Button 
