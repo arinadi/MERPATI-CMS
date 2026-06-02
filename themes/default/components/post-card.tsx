@@ -60,7 +60,7 @@ export function PostCard({ post }: { post: PostCardData }) {
                 </p>
 
                 <div className="flex items-center gap-3 text-xs font-bold text-gray-500 uppercase tracking-widest border-t border-white/10 pt-5 mt-auto">
-                    {format(publishDate, "dd MMM yyyy HH:mm", { locale: id })}
+                    {format(publishDate, "dd MMM yyyy", { locale: id })}
                 </div>
             </div>
         </div>

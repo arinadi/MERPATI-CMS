@@ -42,7 +42,7 @@ const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] 
           <div className="text-[10px] text-gray-500 mb-2 flex items-center gap-2">
             <span>OLEH <span className="font-bold" style={{ color: 'var(--news-accent)' }}>{featured.author?.name?.toUpperCase() || "REDAKSI"}</span></span>
             <span className="w-2 h-2 inline-block rounded-full border border-gray-400 flex items-center justify-center text-[6px]">L</span>
-            <span>{new Date(featured.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+            <span>{new Date(featured.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
           </div>
           <p className="text-gray-600 text-xs line-clamp-2">
             {featured.excerpt}
@@ -68,7 +68,7 @@ const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] 
                 </h3>
                 <div className="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
                   <span className="w-2 h-2 inline-block rounded-full border border-gray-400 flex items-center justify-center text-[6px]">L</span>
-                  {new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  {new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </div>
               </div>
             </Link>
@@ -153,7 +153,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                   <div className="flex items-center text-sm text-gray-300 gap-2">
                     <span>oleh <span className="font-bold uppercase" style={{ color: 'var(--news-accent)' }}>{heroPost.author?.name || "REDAKSI"}</span></span>
                     <span>&mdash;</span>
-                    <span>{new Date(heroPost.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    <span>{new Date(heroPost.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                   </div>
                 </div>
               </div>
@@ -211,7 +211,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                     </h3>
                     <div className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                       <span className="w-3 h-3 inline-block rounded-full border border-gray-400 flex items-center justify-center text-[8px]">L</span>
-                      {new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      {new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                   </div>
                 </Link>
@@ -251,7 +251,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                   <div className="text-xs text-gray-500 flex items-center gap-2 mt-auto">
                     <span>OLEH <span className="font-bold uppercase" style={{ color: 'var(--news-accent)' }}>{post.author?.name || "REDAKSI"}</span></span>
                     <span className="w-3 h-3 inline-block rounded-full border border-gray-400 flex items-center justify-center text-[8px]">L</span>
-                    <span>{new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                    <span>{new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                   </div>
                 </Link>
               ))}
@@ -294,7 +294,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                 <div className="text-xs text-gray-500 flex items-center gap-2">
                   <span>OLEH <span className="font-bold uppercase" style={{ color: 'var(--news-accent)' }}>{post.author?.name || "REDAKSI"}</span></span>
                   <span className="w-3 h-3 inline-block rounded-full border border-gray-400 flex items-center justify-center text-[8px]">L</span>
-                  <span>{new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>{new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                 </div>
               </Link>
             ))}

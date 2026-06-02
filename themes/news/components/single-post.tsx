@@ -31,7 +31,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
   const authorName = post.author?.name || "REDAKSI";
   const authorImage = post.author?.image || "https://ui-avatars.com/api/?name=" + encodeURIComponent(authorName) + "&background=random";
   const primaryCat = post.categories?.[0] || { name: "UMUM", slug: "umum" };
-  const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   const readingTime = getReadingTime(post.content || "");
   
 
@@ -128,7 +128,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
               <h3 className="text-2xl font-bold mb-6 italic tracking-tighter">ARTIKEL TERKAIT</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {relatedPosts.slice(0, 3).map((related) => {
-                  const relDate = new Date(related.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+                  const relDate = new Date(related.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
                   return (
                     <Link href={`/${related.slug}`} key={related.id} className="group cursor-pointer flex flex-col">
                       <div className="relative overflow-hidden rounded-sm aspect-[4/3] mb-4">
@@ -166,7 +166,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
           
           <div className="flex flex-col gap-6 mb-8 md:mb-12">
             {popularPosts.length > 0 ? popularPosts.slice(0, 5).map((sidebarPost) => {
-              const relDate = new Date(sidebarPost.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+              const relDate = new Date(sidebarPost.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
               return (
                 <Link href={`/${sidebarPost.slug}`} key={sidebarPost.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">

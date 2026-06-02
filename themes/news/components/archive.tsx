@@ -55,7 +55,7 @@ export default async function Archive({ title, description, posts, pagination }:
               const primaryCat = post.categories?.[0]?.name || title;
               const authorName = post.author?.name || "REDAKSI";
               // Format date: dd MMM yyyy or just use raw if standard
-              const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+              const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
               return (
                 <div key={post.id} className="flex flex-col md:flex-row gap-6 group">
@@ -132,7 +132,7 @@ export default async function Archive({ title, description, posts, pagination }:
           
           <div className="flex flex-col gap-6 sticky top-24">
             {popularPosts.length > 0 ? popularPosts.map((post: PostCardData) => {
-              const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+              const formattedDate = new Date(post.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
               return (
                 <Link href={`/${post.slug}`} key={post.id} className="flex gap-4 group cursor-pointer">
                   <div className="w-24 h-20 flex-shrink-0 overflow-hidden rounded-sm relative">

@@ -81,7 +81,7 @@ export default function Archive({ title, posts, pagination }: ArchiveProps) {
                                 </div>
                                 <div className="flex items-center gap-8 md:gap-16 text-sm font-mono text-zinc-500">
                                     <span className="hidden md:block w-32 truncate">{post.categories?.[0]?.name || "Uncategorized"}</span>
-                                    <span className="w-24 text-right">{format(new Date(post.createdAt || new Date()), "yyyy-MM-dd HH:mm")}</span>
+                                    <span className="w-24 text-right">{format(new Date(post.createdAt || new Date()), "yyyy-MM-dd")}</span>
                                     <span className="w-16 text-right hidden sm:block">5 min</span>
                                 </div>
                             </Link>
