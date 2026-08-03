@@ -9,6 +9,7 @@ import { Table } from "drizzle-orm";
 import archiver from "archiver";
 import { PassThrough } from "stream";
 import { getCachedOptions } from "@/lib/queries/options";
+import { formatDateTime } from "@/lib/utils/date";
 
 export type BackupResult = 
     | { success: true; filename: string; content: string }
@@ -50,7 +51,7 @@ function escapeSqlValue(value: unknown): string {
  */
 async function getRawBackupDataSql(prefix = "backup") {
     let sqlContent = `-- MERPATI CMS DATABASE BACKUP\n`;
-    sqlContent += `-- Generated at: ${new Date().toLocaleString()}\n`;
+    sqlContent += `-- Generated at: ${formatDateTime(new Date(), "en")}\n`;
     sqlContent += `SET standard_conforming_strings = on;\n\n`;
     
     const tables = [
@@ -150,7 +151,7 @@ export async function runBackupAndNotify(): Promise<NotifyResult> {
 
     try {
         const { buffer, filename } = await getRawBackupDataSql();
-        await sendTelegramDocument(buffer, filename, `📦 <b>Database Backup (SQL)</b>\n📅 Date: ${new Date().toLocaleString()}\n✨ Merpati CMS`);
+        await sendTelegramDocument(buffer, filename, `📦 <b>Database Backup (SQL)</b>\n📅 Date: ${formatDateTime(new Date(), "en")}\n✨ Merpati CMS`);
         return { success: true, message: "Backup SQL sent to Telegram" };
     } catch (error) {
         return { success: false, error: (error as Error).message };
@@ -165,7 +166,7 @@ export async function runCronBackup(): Promise<NotifyResult> {
 
     try {
         const { buffer, filename } = await getRawBackupDataSql("auto-backup");
-        await sendTelegramDocument(buffer, filename, `🤖 <b>Automatic Database Backup (SQL)</b>\n📅 Date: ${new Date().toLocaleString()}\n✨ Merpati CMS`);
+        await sendTelegramDocument(buffer, filename, `🤖 <b>Automatic Database Backup (SQL)</b>\n📅 Date: ${formatDateTime(new Date(), "en")}\n✨ Merpati CMS`);
         return { success: true, message: "Automatic backup sent to Telegram" };
     } catch (error) {
         return { success: false, error: (error as Error).message };
@@ -186,7 +187,7 @@ export async function runMediaBackupAndNotify(): Promise<NotifyResult> {
         if (buffer.length > 45 * 1024 * 1024) {
             return { success: false, error: "Media backup too large for Telegram (>45MB)" };
         }
-        await sendTelegramDocument(buffer, filename, `🖼️ <b>Media Backup (ZIP)</b>\n📅 Date: ${new Date().toLocaleString()}\n✨ Merpati CMS`);
+        await sendTelegramDocument(buffer, filename, `🖼️ <b>Media Backup (ZIP)</b>\n📅 Date: ${formatDateTime(new Date(), "en")}\n✨ Merpati CMS`);
         return { success: true, message: "Media backup sent to Telegram" };
     } catch (error) {
         return { success: false, error: (error as Error).message };
@@ -204,7 +205,7 @@ export async function runWeeklyMediaBackup(): Promise<NotifyResult> {
         if (buffer.length > 45 * 1024 * 1024) {
             return { success: false, error: "Media backup too large" };
         }
-        await sendTelegramDocument(buffer, filename, `🤖 <b>Weekly Media Backup (ZIP)</b>\n📅 Date: ${new Date().toLocaleString()}\n✨ Merpati CMS`);
+        await sendTelegramDocument(buffer, filename, `🤖 <b>Weekly Media Backup (ZIP)</b>\n📅 Date: ${formatDateTime(new Date(), "en")}\n✨ Merpati CMS`);
         return { success: true, message: "Weekly media backup sent to Telegram" };
     } catch (error) {
         return { success: false, error: (error as Error).message };

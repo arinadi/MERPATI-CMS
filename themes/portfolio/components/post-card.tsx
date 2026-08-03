@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import { formatDate } from "@/lib/utils/date";
 import { Image as ImageIcon } from "lucide-react";
 import type { PostCardData } from "@/lib/themes";
 import { FeaturedMedia } from "./featured-media";
@@ -61,7 +60,7 @@ export function PostCard({ post }: { post: PostCardData }) {
                 </p>
 
                 <div className="flex items-center gap-3 text-xs font-bold text-gray-500 uppercase tracking-widest border-t border-white/10 pt-5 mt-auto">
-                    {format(publishDate, "dd MMM yyyy", { locale: id })}
+                    {formatDate(publishDate)}
                 </div>
             </div>
         </div>

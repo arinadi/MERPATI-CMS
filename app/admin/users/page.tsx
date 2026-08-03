@@ -13,14 +13,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { UserActionsMenu } from "@/components/admin/user-actions-menu";
-
-function formatDate(date: Date) {
-    return new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    }).format(date);
-}
+import { formatDate } from "@/lib/utils/date";
 
 function getInitials(name?: string | null): string {
     if (!name) return "U";
@@ -104,7 +97,7 @@ export default async function UsersPage() {
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="text-muted-foreground text-sm">
-                                        {formatDate(user.createdAt)}
+                                        {formatDate(user.createdAt, "en")}
                                     </TableCell>
                                     <TableCell>
                                         <UserActionsMenu user={user as {
@@ -165,7 +158,7 @@ export default async function UsersPage() {
                                     {user.email}
                                 </p>
                                 <p className="text-[11px] text-muted-foreground">
-                                    Joined {formatDate(user.createdAt)}
+                                    Joined {formatDate(user.createdAt, "en")}
                                 </p>
                             </div>
                             <UserActionsMenu user={user as {

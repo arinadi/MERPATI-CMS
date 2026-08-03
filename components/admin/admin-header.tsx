@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { formatDateFull } from "@/lib/utils/date";
 
 interface AdminHeaderProps {
     userName?: string | null;
@@ -59,13 +60,7 @@ export function AdminHeader({ userName, userEmail, userImage }: AdminHeaderProps
     const pathname = usePathname();
     const breadcrumbs = generateBreadcrumbs(pathname);
 
-    const now = new Date();
-    const formattedDate = now.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    });
+    const formattedDate = formatDateFull(new Date(), "en");
 
     return (
         <header className="flex h-14 items-center gap-3 border-b bg-background px-4">

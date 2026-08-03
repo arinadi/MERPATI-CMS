@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import { formatDateLong, formatDateNumeric } from "@/lib/utils/date";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { SinglePostProps } from "@/lib/themes";
 import { FeaturedMedia } from "./featured-media";
@@ -41,7 +40,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
 
                 {/* Meta */}
                 <div className="flex items-center gap-6 font-mono text-sm text-zinc-500 border-b border-zinc-800 pb-10 mb-10">
-                    <span>{format(new Date(post.createdAt || new Date()), "dd MMMM yyyy", { locale: id })}</span>
+                    <span>{formatDateLong(post.createdAt || new Date())}</span>
                     <span>{"//"}</span>
                     <span>By {post.author?.name || "SystemAdmin"}</span>
                     <span>{"//"}</span>
@@ -108,7 +107,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                                     <h3 className="text-lg md:text-xl font-semibold text-zinc-200 group-hover:text-white transition-colors">{related.title}</h3>
                                 </div>
                                 <div className="flex items-center gap-8 text-sm font-mono text-zinc-500">
-                                    <span className="w-24 text-right hidden sm:block">{format(new Date(related.createdAt || new Date()), "yyyy-MM-dd")}</span>
+                                    <span className="w-24 text-right hidden sm:block">{formatDateNumeric(related.createdAt || new Date())}</span>
                                     <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-[#00e5b7] transition-colors" />
                                 </div>
                             </Link>
