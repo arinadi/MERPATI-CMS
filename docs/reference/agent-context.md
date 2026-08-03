@@ -8,11 +8,11 @@ skills: clean-code, brainstorming, plan-writing, architecture, nodejs-best-pract
 
 ## 0. AI Development Framework (Antigravity Kit)
 This repository is optimized for AI-driven development using the **Antigravity Kit**.
-- **System Map**: See [.agent/ARCHITECTURE.md](file:///d:/MERPATI-CMS-1/.agent/ARCHITECTURE.md) for a full overview of available specialists.
+- **System Map**: See `.agent/ARCHITECTURE.md` for a full overview of available specialists (local-only, not tracked in git).
 - **Specialist Agents**: Located in `.agent/agents/`. Invoke them for domain-specific tasks (e.g., `@backend-specialist` for API work).
 - **Core Skills**: Defined in `.agent/skills/`. Use them to load deep domain knowledge.
 - **Scripts**: Master validation scripts reside in `.agent/scripts/`. Use `python .agent/scripts/checklist.py .` for priority checks.
-- **Theme Guide**: Detailed technical rules for theme development are in [THEME.md](file:///d:/MERPATI-CMS-1/THEME.md).
+- **Theme Guide**: Detailed technical rules for theme development are in [theme-development.md](./theme-development.md).
 
 ## 1. Project Identity & Philosophy
 **MERPATI** (Media Editorial Ringkas, Praktis, Aman, Tetap Independen) is a modern, serverless publishing platform designed as a zero-cost WordPress alternative for journalists.
@@ -154,7 +154,7 @@ Visiting `/admin/settings` redirects automatically to `/admin/settings/general`.
 ## 6. Theme & Child Theme System
 
 ### Architecture
-Detailed theme development guidelines, caching rules, and component requirements are documented in [THEME.md](file:///d:/MERPATI-CMS-1/THEME.md).
+Detailed theme development guidelines, caching rules, and component requirements are documented in [theme-development.md](./theme-development.md).
 
 Themes are located in `/themes`. The active theme is resolved at build time via the `ACTIVE_THEME` environment variable.
 
