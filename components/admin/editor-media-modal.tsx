@@ -61,13 +61,13 @@ export default function EditorMediaModal({ open, onOpenChange, onInsert, insertL
                     </div>
 
                     <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-                        <TabsContent value="library" className="flex-1 overflow-hidden p-6 mt-0 flex flex-col h-full">
+                        <TabsContent value="library" className="flex-1 min-h-0 overflow-hidden p-6 mt-0 flex flex-col h-full">
                             {description && (
                                 <div className="text-xs text-muted-foreground mb-4 shrink-0">
                                     {description}
                                 </div>
                             )}
-                            <div className="flex-1 border rounded-xl bg-card overflow-hidden">
+                            <div className="flex-1 min-h-0 border rounded-xl bg-card overflow-hidden">
                                 <MediaLibrary 
                                     selectable 
                                     onSelect={handleSelectMedia} 
@@ -77,13 +77,13 @@ export default function EditorMediaModal({ open, onOpenChange, onInsert, insertL
                             </div>
                         </TabsContent>
 
-                        <TabsContent value="upload" className="flex-1 overflow-hidden p-6 mt-0 flex flex-col h-full">
+                        <TabsContent value="upload" className="flex-1 min-h-0 overflow-hidden p-6 mt-0 flex flex-col h-full">
                             {description && (
                                 <div className="text-xs text-muted-foreground mb-4 shrink-0">
                                     {description}
                                 </div>
                             )}
-                            <div className="flex-1 border rounded-xl bg-card overflow-hidden">
+                            <div className="flex-1 min-h-0 border rounded-xl bg-card overflow-hidden">
                                 <MediaLibrary 
                                     selectable 
                                     onSelect={handleSelectMedia} 

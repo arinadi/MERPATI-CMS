@@ -14,7 +14,7 @@ export default function MediaPage() {
                 </p>
             </div>
 
-            <div className="flex-1 bg-card rounded-xl border shadow-sm p-6 overflow-hidden">
+            <div className="flex-1 min-h-0 bg-card rounded-xl border shadow-sm p-6 overflow-hidden">
                 <MediaLibrary />
             </div>
         </div>

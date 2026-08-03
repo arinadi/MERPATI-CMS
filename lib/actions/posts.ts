@@ -291,6 +291,8 @@ export async function createPost(data: {
     slug?: string;
     content?: string;
     excerpt?: string;
+    /** When true the excerpt is user-authored and must not be derived from the body */
+    manualExcerpt?: boolean;
     status?: "draft" | "published";
     type?: "post" | "page";
     featuredImage?: string | null;
@@ -330,7 +332,10 @@ export async function createPost(data: {
             title: parsed.data.title,
             slug: finalSlug,
             content: parsed.data.content,
-            excerpt: parsed.data.excerpt || extractExcerpt(sanitizedContent) || null,
+            excerpt:
+                parsed.data.excerpt?.trim() ||
+                (data.manualExcerpt ? null : extractExcerpt(sanitizedContent)) ||
+                null,
             status: parsed.data.status,
             type: parsed.data.type,
             authorId: session.user.id,
@@ -379,6 +384,8 @@ export async function updatePost(
         slug?: string;
         content?: string;
         excerpt?: string;
+        /** When true the excerpt is user-authored and must not be derived from the body */
+        manualExcerpt?: boolean;
         status?: "draft" | "published";
         featuredImage?: string | null;
         relatedPostIds?: string[];
@@ -412,7 +419,7 @@ export async function updatePost(
     };
 
     if (data.title !== undefined) updateValues.title = data.title;
-    if (data.excerpt !== undefined) updateValues.excerpt = data.excerpt;
+    if (data.excerpt !== undefined) updateValues.excerpt = data.excerpt.trim() || null;
     if (data.status !== undefined) updateValues.status = data.status;
     if (data.featuredImage !== undefined)
         updateValues.featuredImage = data.featuredImage;
@@ -420,8 +427,8 @@ export async function updatePost(
     if (data.content !== undefined) {
         const sanitized = sanitizeHtml(data.content);
         updateValues.content = sanitized;
-        // Auto-fill excerpt if empty
-        if (!data.excerpt?.trim()) {
+        // Auto-fill excerpt if empty, unless the user authored it manually
+        if (!data.manualExcerpt && !data.excerpt?.trim()) {
             updateValues.excerpt = extractExcerpt(sanitized) || null;
         }
     }
