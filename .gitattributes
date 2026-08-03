@@ -1,0 +1,34 @@
+# Normalize line endings so a Windows checkout never shows whole files as
+# modified. Text is stored LF in the repository; git converts on checkout
+# according to the platform and core.autocrlf.
+* text=auto
+
+# Explicit for the file types this project actually contains, so that the
+# heuristic in `text=auto` is never consulted for them.
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.js    text eol=lf
+*.mjs   text eol=lf
+*.json  text eol=lf
+*.css   text eol=lf
+*.md    text eol=lf
+*.sql   text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.html  text eol=lf
+*.svg   text eol=lf
+
+# Lockfile: LF and no diff noise in reviews.
+pnpm-lock.yaml text eol=lf -diff
+
+# Binary assets — never touch these.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.pdf   binary
