@@ -42,6 +42,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     createPost,
     updatePost,
@@ -420,6 +421,10 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
     const [title, setTitle] = useState(post?.title ?? "");
     const [slug, setSlug] = useState(post?.slug ?? "");
     const [excerpt, setExcerpt] = useState(post?.excerpt ?? "");
+    // When on, the excerpt is never regenerated from the body
+    const [manualExcerpt, setManualExcerpt] = useState(
+        Boolean(post?.excerpt?.trim())
+    );
     const [status, setStatus] = useState<"draft" | "published">(
         post?.status ?? "draft"
     );
@@ -456,6 +461,9 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const autosaveTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
     const contentRef = useRef(post?.content ?? "");
+    // Always points at the latest performSave so the autosave timer never
+    // fires with a stale closure over the form state
+    const performSaveRef = useRef<(isAutosave?: boolean) => void>(null);
 
     // Error / success state
     const [message, setMessage] = useState<{
@@ -818,9 +826,9 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
             clearTimeout(autosaveTimerRef.current);
         }
         autosaveTimerRef.current = setTimeout(() => {
-            performSave(true);
+            performSaveRef.current?.(true);
         }, 3000);
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
     // Save function
     const performSave = useCallback(
@@ -832,9 +840,9 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
             try {
                 const content = contentRef.current;
 
-                // Auto-fill excerpt if empty
+                // Derive the excerpt from the body unless the user took it over
                 let currentExcerpt = excerpt;
-                if (!currentExcerpt.trim() && content) {
+                if (!manualExcerpt && content) {
                     const match = content.match(/<p[^>]*>([\s\S]*?)<\/p>/i);
                     if (match) {
                         const text = match[1].replace(/<[^>]*>/g, "").trim();
@@ -850,7 +858,8 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                         title,
                         slug,
                         content,
-                        excerpt: currentExcerpt || undefined,
+                        excerpt: currentExcerpt,
+                        manualExcerpt,
                         status,
                         featuredImage: featuredImage ? serializeFeaturedImage(featuredImage, featuredImageAlt) : undefined,
                         relatedPostIds: relatedPosts.map((p) => p.id),
@@ -886,7 +895,8 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                         title,
                         slug,
                         content,
-                        excerpt: currentExcerpt || undefined,
+                        excerpt: currentExcerpt,
+                        manualExcerpt,
                         status,
                         type,
                         featuredImage: featuredImage ? serializeFeaturedImage(featuredImage, featuredImageAlt) : undefined,
@@ -934,6 +944,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
             title,
             slug,
             excerpt,
+            manualExcerpt,
             status,
             featuredImage,
             featuredImageAlt,
@@ -943,6 +954,10 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
             type,
         ]
     );
+
+    useEffect(() => {
+        performSaveRef.current = performSave;
+    }, [performSave]);
 
     // Delete handler
     const handleDelete = () => {
@@ -1124,13 +1139,30 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
 
                     {/* Excerpt */}
                     <div className="space-y-2">
-                        <Label htmlFor="excerpt">Excerpt</Label>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <Label htmlFor="excerpt">Excerpt</Label>
+                            <label
+                                htmlFor="manual-excerpt"
+                                className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer"
+                            >
+                                <Checkbox
+                                    id="manual-excerpt"
+                                    checked={manualExcerpt}
+                                    onCheckedChange={(checked) => {
+                                        setManualExcerpt(checked === true);
+                                        setHasUnsavedChanges(true);
+                                    }}
+                                />
+                                Manual excerpt (keep my text, don&apos;t generate from body)
+                            </label>
+                        </div>
                         <textarea
                             id="excerpt"
                             placeholder="Write a short summary..."
                             value={excerpt}
                             onChange={(e) => {
                                 setExcerpt(e.target.value);
+                                setManualExcerpt(true);
                                 setHasUnsavedChanges(true);
                             }}
                             rows={3}

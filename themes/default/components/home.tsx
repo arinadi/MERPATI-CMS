@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { format } from "date-fns";
-import { enUS } from "date-fns/locale";
+import { formatDate } from "@/lib/utils/date";
 import { Calendar, ArrowRight, Image as ImageIcon } from "lucide-react";
 import type { ArchiveProps } from "@/lib/themes";
 import { PostCard } from "./post-card";
@@ -53,7 +52,7 @@ export default function Home({ posts }: ArchiveProps) {
                             <div className="flex items-center gap-6 mt-auto">
                                 <span className="flex items-center gap-2 text-sm font-medium text-gray-500">
                                     <Calendar className="w-4 h-4" />
-                                    {format(new Date(featuredPost.createdAt || new Date()), "d MMM yyyy HH:mm", { locale: enUS })}
+                                    {formatDate(featuredPost.createdAt || new Date())}
                                 </span>
                                 <Link href={`/${featuredPost.slug}`} className="hidden sm:flex items-center gap-2 text-blue-400 font-bold ml-auto hover:text-white transition-colors group">
                                     Read More
@@ -93,7 +92,7 @@ export default function Home({ posts }: ArchiveProps) {
                                         {post.excerpt}
                                     </p>
                                     <div className="flex items-center gap-3 text-sm font-medium text-gray-500 mt-auto">
-                                        {format(new Date(post.createdAt || new Date()), "d MMM yyyy HH:mm", { locale: enUS })}
+                                        {formatDate(post.createdAt || new Date())}
                                     </div>
                                 </div>
                             </Link>

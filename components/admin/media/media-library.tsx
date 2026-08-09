@@ -89,8 +89,8 @@ export default function MediaLibrary({ onSelect, selectable = false, showTabs = 
     };
 
     return (
-        <div className="flex flex-col h-full">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col">
+        <div className="flex flex-col h-full min-h-0">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1 flex flex-col min-h-0">
                 {showTabs && (
                     <div className="flex items-center justify-between mb-6 pb-4 border-b">
                         <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
@@ -112,20 +112,20 @@ export default function MediaLibrary({ onSelect, selectable = false, showTabs = 
                     </div>
                 )}
 
-                <TabsContent value="upload" className="mt-0 flex-1">
+                <TabsContent value="upload" className="mt-0 flex-1 min-h-0 overflow-y-auto">
                     <div className="max-w-2xl mx-auto pt-8">
                         <MediaUploader onUploadSuccess={handleUploadSuccess} />
                     </div>
                 </TabsContent>
 
-                <TabsContent value="library" className="mt-0 flex-1 flex flex-col space-y-4">
+                <TabsContent value="library" className="mt-0 flex-1 flex flex-col space-y-4 min-h-0">
                     {error && (
                         <div className="p-4 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20">
                             {error}
                         </div>
                     )}
 
-                    <div className="flex-1 overflow-y-auto pr-2 pb-4">
+                    <div className="flex-1 min-h-0 overflow-y-auto pr-2 pb-4">
                         {isLoading && mediaItems.length === 0 ? (
                             <div className="flex items-center justify-center h-64">
                                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

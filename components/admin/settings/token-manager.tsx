@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { createToken, revokeToken } from "@/lib/actions/tokens";
 import { Key, Trash2, Copy, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { formatDate, formatDateTime } from "@/lib/utils/date";
 
 interface Token {
     id: string;
@@ -151,10 +152,10 @@ export default function TokenManager({ initialTokens }: { initialTokens: Token[]
                                     <TableRow key={token.id}>
                                         <TableCell className="font-medium">{token.name}</TableCell>
                                         <TableCell className="text-sm text-muted-foreground">
-                                            {token.lastUsedAt ? new Date(token.lastUsedAt).toLocaleString() : "Never"}
+                                            {token.lastUsedAt ? formatDateTime(token.lastUsedAt, "en") : "Never"}
                                         </TableCell>
                                         <TableCell className="text-sm text-muted-foreground">
-                                            {new Date(token.createdAt).toLocaleString()}
+                                            {formatDate(token.createdAt, "en")}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Button 

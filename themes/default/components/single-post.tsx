@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import { formatDate, formatDateFull } from "@/lib/utils/date";
 import { FeaturedMedia } from "./featured-media";
 import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
 import { ShareButtons } from "./share-buttons";
@@ -79,7 +78,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                                 <div className="flex flex-col">
                                     <span className="font-bold text-white text-sm">{post.author?.name || "Anonymous"}</span>
                                     <span className="text-xs text-gray-500 font-medium">
-                                        {format(publishDate, "EEEE, dd MMMM yyyy HH:mm", { locale: id })}
+                                        {formatDateFull(publishDate)}
                                     </span>
                                 </div>
                             </div>
@@ -135,7 +134,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                                                     {rp.title}
                                                 </h4>
                                                 <span className="text-[10px] uppercase tracking-widest font-bold text-gray-500 mt-auto">
-                                                    {format(new Date(rp.createdAt || new Date()), "dd MMM yyyy HH:mm", { locale: id })}
+                                                    {formatDate(rp.createdAt || new Date())}
                                                 </span>
                                             </div>
                                         </Link>

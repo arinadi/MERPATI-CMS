@@ -5,7 +5,7 @@
   "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "next dev",
-    "dev:proot": "NODE_OPTIONS='--require ./fix-interfaces.js' next dev --webpack --hostname 127.0.0.1",
+    "dev:proot": "NODE_OPTIONS='--require ./scripts/fix-interfaces.js' next dev --webpack --hostname 127.0.0.1",
     "build": "next build",
     "start": "next start",
     "lint": "eslint && tsc --noEmit",

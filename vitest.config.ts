@@ -8,6 +8,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     globals: true,
+    // Playwright owns tests/e2e — running those specs under vitest fails on the
+    // missing @playwright/test fixtures. Use `pnpm e2e` for them.
+    exclude: ['node_modules/**', 'tests/e2e/**'],
     alias: {
       '@': path.resolve(__dirname, './'),
     },

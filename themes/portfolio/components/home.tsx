@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { format } from "date-fns";
+import { formatDateNumeric } from "@/lib/utils/date";
 import { FeaturedMedia } from "./featured-media";
 import { ArrowRight, Cpu, Terminal, Radio, Network, Database } from "lucide-react";
 import type { ArchiveProps, PostCardData } from "@/lib/themes";
@@ -197,7 +197,7 @@ export default async function Home({ posts }: ArchiveProps) {
                                 </div>
                                 <div className="flex items-center gap-8 md:gap-16 text-sm font-mono text-gray-500">
                                     <span className="hidden md:block w-32 truncate">{post.categories?.[0]?.name || "Uncategorized"}</span>
-                                    <span className="w-24 text-right">{format(new Date(post.createdAt || new Date()), "yyyy-MM-dd HH:mm")}</span>
+                                    <span className="w-24 text-right">{formatDateNumeric(post.createdAt || new Date())}</span>
                                     <span className="w-16 text-right hidden sm:block">5 min</span>
                                 </div>
                             </Link>

@@ -34,17 +34,8 @@ import {
 } from "@/components/ui/select";
 import { Pencil, Trash2, ArrowUpRight, ArrowUpDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, ListChecks } from "lucide-react";
 import { bulkActionPosts, deletePost } from "@/lib/actions/posts";
+import { formatDate } from "@/lib/utils/date";
 import { toast } from "sonner"; // Assuming Sonner is used for toasts, standard in modern setups
-
-function formatDate(date: Date | string) {
-    return new Intl.DateTimeFormat("id-ID", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    }).format(new Date(date));
-}
 
 // Simple useDebounce hook
 function useDebounce<T>(value: T, delay: number): T {
@@ -341,7 +332,7 @@ export function PostsDataTable({ items, type, page, totalPages, total }: PostsDa
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-muted-foreground text-sm">
-                                            {formatDate(post.createdAt)}
+                                            {formatDate(post.createdAt, "en")}
                                         </TableCell>
                                         <TableCell className="text-right pr-4">
                                             <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
@@ -434,7 +425,7 @@ export function PostsDataTable({ items, type, page, totalPages, total }: PostsDa
                                 <div className="flex flex-wrap items-center gap-2 mb-4 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1 font-medium">{post.authorName ?? "—"}</span>
                                     <span>•</span>
-                                    <time>{formatDate(post.createdAt)}</time>
+                                    <time>{formatDate(post.createdAt, "en")}</time>
                                     <Badge variant="outline" className={post.status === "published" ? "text-green-600 border-green-200" : "text-amber-600 border-amber-200"}>
                                         {post.status === "published" ? "Published" : "Draft"}
                                     </Badge>
