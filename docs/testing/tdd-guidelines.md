@@ -4,13 +4,14 @@ This document outlines the testing standards and workflows for Merpati CMS. We f
 
 ## The TDD Lifecycle
 
-While the classic TDD flow is **Red -> Green -> Refactor**, in this project we follow a structured "Feature-to-Test" flow:
+Tests come first. A test that was written after the code only describes the code, so it cannot catch a wrong design or a wrong query.
 
-1.  **Define Requirement:** Understand the business logic or bug fix needed.
-2.  **Implementation (The "Act"):** Write the code (Server Action, Utility, or Component).
-3.  **Test Creation/Update (The "Validate"):** Immediately create or update the corresponding `.test.ts` file.
-4.  **Verification:** Run `npm test` to ensure the new code works and no regressions were introduced.
-5.  **Refactor:** Clean up the code knowing you have a safety net.
+1.  **Define Requirement:** Write the behavior in the module doc (`docs/modules/`) first.
+2.  **Red:** Write one test from that doc and run it. It must fail because the feature is missing (not because of a typo or a bad import). A test that passes on the first run proves nothing.
+3.  **Green:** Write the smallest code that makes the test pass.
+4.  **Refactor:** Clean up while all tests stay green. Do not edit the tests to make them pass.
+
+Exception: tests added for behavior that already exists cannot be Red. Prove they can fail by breaking the code on purpose (in a scratch copy) and check that the test goes red.
 
 ---
 
@@ -23,9 +24,9 @@ While the classic TDD flow is **Red -> Green -> Refactor**, in this project we f
 - **Component Tests:** `tests/components/.../[filename].test.tsx`
 
 ### 2. Mocking Strategy
-To keep tests fast and isolated, we **NEVER** use a real database or network in unit/integration tests.
+Mock only what we do not own: the network, the clock, auth, and external services. Query logic (filters, sorting, pagination, deletes) must be tested against a real Postgres (PGlite, in memory), because a mocked `db` answers the same whatever the SQL is. Never use the production database or a real network in tests.
 
-- **Database (Drizzle):** Use the global `dbMock` from `@/tests/mocks/db`.
+- **Database (Drizzle):** Existing tests use the global `dbMock` from `@/tests/mocks/db`. It only checks that a call happened, not that the query is right, so do not use it for new query-logic tests.
     ```typescript
     import { dbMock } from '@/tests/mocks/db';
     dbMock._setResolvedValue([{ id: 1, title: 'Mocked Post' }]);
