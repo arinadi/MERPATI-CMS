@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatDateLong, formatDateNumeric } from "@/lib/utils/date";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { PostCredits } from "@/components/post-credits";
 import type { SinglePostProps } from "@/lib/themes";
 import { FeaturedMedia } from "./featured-media";
 import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
@@ -44,6 +45,12 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                     <span>{"//"}</span>
                     <span>By {post.author?.name || "SystemAdmin"}</span>
                     <span>{"//"}</span>
+                    {(post.reporter?.name || post.editor?.name) && (
+                        <>
+                            <PostCredits reporter={post.reporter} editor={post.editor} className="flex gap-6" />
+                            <span>{"//"}</span>
+                        </>
+                    )}
                     <span>5 min read</span>
                 </div>
 

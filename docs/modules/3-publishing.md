@@ -18,6 +18,14 @@ Implement the core content creation engine. Provide a WP-like Classic Editor (HT
 *   **Data Fetching:** Server actions to fetch paginated posts, fetch single post by ID (including its relations). An API endpoint or server action to search published posts for the "Related Posts" dropdown.
 *   **Mutations:** Server actions for `createPost`, `updatePost`, `deletePost`. Implementation of an autosave mechanism (debounced client-side calls to `updatePost`). Updating a post must also sync its related posts relationships.
 
+## Credits (Reporter & Editor)
+*   **What:** A post can name one **Reporter** and one **Editor** (both optional), picked from the active users. They are credits for the byline; they give no extra permissions.
+*   **UI:** Two selects, "Reporter" and "Editor", in the post editor sidebar (posts only, not pages). Empty option = no credit.
+*   **Storage (no schema change):** `options` rows with keys `post_reporter:<postId>` and `post_editor:<postId>`, value = user id, `autoload = false`. Clearing a credit deletes its row. Deleting a post (single or bulk) deletes its credit rows.
+*   **Mutations:** `createPost` and `updatePost` accept `reporterId` and `editorId` (`null` clears). An id that is not an existing user is rejected and nothing is saved. Omitting the field leaves the credit as it is.
+*   **Reading:** `getPostById` and `getPostBySlug` return `reporterId` and `editorId`. The public post query returns `reporter` and `editor` as `{ name }` (or `null`).
+*   **Public output:** Each theme's single post shows "Reporter: …" and "Editor: …" in the byline when set. JSON-LD `author` is the reporter when set (else the post author) and `editor` is added when set.
+
 ## Technical Implementation
 *   **Editor Choice:** TipTap (or similar headless editor) initialized with StarterKit. Custom extensions for image insertion (tied to our future Media Library) and standard formatting.
 *   **Sanitization (CRITICAL):** Use `isomorphic-dompurify` on the server action *before* inserting or updating `content` in the database to prevent XSS. Strip out `<script>` and potentially dangerous attributes.

@@ -69,6 +69,8 @@ export interface PostData {
     createdAt: Date;
     updatedAt: Date | null;
     author: { name: string | null; image: string | null } | null;
+    reporter?: { name: string | null } | null;
+    editor?: { name: string | null } | null;
     categories: { id: string; name: string; slug: string }[];
     tags: { id: string; name: string; slug: string }[];
 }

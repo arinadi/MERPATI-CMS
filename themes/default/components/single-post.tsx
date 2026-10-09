@@ -4,6 +4,7 @@ import { FeaturedMedia } from "./featured-media";
 import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
 import { ShareButtons } from "./share-buttons";
 import { SafeImage } from "@/components/ui/safe-image";
+import { PostCredits } from "@/components/post-credits";
 import type { SinglePostProps } from "@/lib/themes";
 
 export default function SinglePost({ post, relatedPosts, sharingPlatforms }: SinglePostProps) {
@@ -80,6 +81,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                                     <span className="text-xs text-gray-500 font-medium">
                                         {formatDateFull(publishDate)}
                                     </span>
+                                    <PostCredits reporter={post.reporter} editor={post.editor} className="flex flex-wrap gap-x-3 text-xs text-gray-500" />
                                 </div>
                             </div>
 

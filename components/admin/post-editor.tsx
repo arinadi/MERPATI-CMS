@@ -41,6 +41,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PostCreditsFields, type CreditUser } from "@/components/admin/post-credits-fields";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -90,6 +91,8 @@ interface PostData {
     relatedPosts: RelatedPost[];
     categories?: { id: string }[];
     tags?: { id: string }[];
+    reporterId?: string | null;
+    editorId?: string | null;
 }
 
 interface Term {
@@ -106,6 +109,7 @@ interface PostEditorProps {
     post?: PostData | null;
     availableCategories?: Term[];
     availableTags?: Term[];
+    availableUsers?: CreditUser[];
 }
 
 // ─── Toolbar Button ─────────────────────────────────────────────────────────
@@ -413,7 +417,7 @@ function RelatedPostsSelector({
 
 // ─── Main Editor Component ──────────────────────────────────────────────────
 
-export function PostEditor({ type, post, availableCategories = [], availableTags = [] }: PostEditorProps) {
+export function PostEditor({ type, post, availableCategories = [], availableTags = [], availableUsers = [] }: PostEditorProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
@@ -441,6 +445,10 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
         post?.tags?.map((t) => t.id) ?? []
     );
     const [postId, setPostId] = useState<string | undefined>(post?.id);
+    const [credits, setCredits] = useState<{ reporterId: string | null; editorId: string | null }>({
+        reporterId: post?.reporterId ?? null,
+        editorId: post?.editorId ?? null,
+    });
 
     // Editor UI State
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
@@ -730,6 +738,22 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                     />
                 </div>
             )}
+
+            {/* Credits (only for posts, not pages) */}
+            {type === "post" && (
+                <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
+                    <h3 className="font-semibold text-sm">Credits</h3>
+                    <PostCreditsFields
+                        users={availableUsers}
+                        reporterId={credits.reporterId}
+                        editorId={credits.editorId}
+                        onChange={(next) => {
+                            setCredits(next);
+                            setHasUnsavedChanges(true);
+                        }}
+                    />
+                </div>
+            )}
         </div>
     );
 
@@ -864,6 +888,8 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                         featuredImage: featuredImage ? serializeFeaturedImage(featuredImage, featuredImageAlt) : undefined,
                         relatedPostIds: relatedPosts.map((p) => p.id),
                         termIds: [...categoryIds, ...tagIds],
+                        // Pages have no credits; undefined leaves them untouched.
+                        ...(type === "post" && credits),
                     });
 
                     if (result.error) {
@@ -902,6 +928,8 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
                         featuredImage: featuredImage ? serializeFeaturedImage(featuredImage, featuredImageAlt) : undefined,
                         relatedPostIds: relatedPosts.map((p) => p.id),
                         termIds: [...categoryIds, ...tagIds],
+                        // Pages have no credits; undefined leaves them untouched.
+                        ...(type === "post" && credits),
                     });
 
                     if (result.error) {
@@ -951,6 +979,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
             relatedPosts,
             categoryIds,
             tagIds,
+            credits,
             type,
         ]
     );

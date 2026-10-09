@@ -266,7 +266,7 @@ describe('Post Actions', () => {
       vi.mocked(auth as any).mockResolvedValueOnce({ user: { id: 'user-1' }, expires: '' });
       dbMock.then.mockRestore(); // Clear queue
       dbMock.then.mockImplementation((onfulfilled: any) => Promise.resolve([]).then(onfulfilled));
-      dbMock._setResolvedValue({ success: true });
+      dbMock._setResolvedValue([{ id: '1' }, { id: '2' }]);
 
       const result = await bulkActionPosts(['1', '2'], 'delete');
       expect(result).toEqual({ success: true });
