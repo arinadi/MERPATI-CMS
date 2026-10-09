@@ -8,6 +8,7 @@ import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
 import sanitize from "sanitize-html";
+import { findInvalidCredit, getPostCredits, setPostCredits, deletePostCredits } from "@/lib/post-credits";
 
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
@@ -191,6 +192,7 @@ export async function getPostById(id: string) {
         return {
             post: {
                 ...post,
+                ...(await getPostCredits(id)),
                 relatedPosts: related,
                 categories,
                 tags,
@@ -249,6 +251,7 @@ export async function getPostBySlug(slugString: string) {
         return {
             post: {
                 ...post,
+                ...(await getPostCredits(id)),
                 relatedPosts: related,
                 categories,
                 tags,
@@ -298,6 +301,8 @@ export async function createPost(data: {
     featuredImage?: string | null;
     relatedPostIds?: string[];
     termIds?: string[];
+    reporterId?: string | null;
+    editorId?: string | null;
 }) {
     const session = await auth();
     if (!session?.user?.id) {
@@ -315,6 +320,11 @@ export async function createPost(data: {
 
     if (!parsed.success) {
         return { error: parsed.error.issues[0]?.message ?? "Validation failed" };
+    }
+
+    const invalidCredit = await findInvalidCredit(data);
+    if (invalidCredit) {
+        return { error: invalidCredit };
     }
 
     // Check slug uniqueness
@@ -358,6 +368,10 @@ export async function createPost(data: {
         await syncPostTerms(newPost.id, data.termIds);
     }
 
+    if (newPost) {
+        await setPostCredits(newPost.id, data);
+    }
+
     // Trigger Telegram Alert for new published post
     if (parsed.data.status === "published") {
         const { getOption } = await import("@/lib/actions/options");
@@ -390,6 +404,8 @@ export async function updatePost(
         featuredImage?: string | null;
         relatedPostIds?: string[];
         termIds?: string[];
+        reporterId?: string | null;
+        editorId?: string | null;
     }
 ) {
     const session = await auth();
@@ -411,6 +427,11 @@ export async function updatePost(
 
     if (!existing) {
         return { error: "Post not found" };
+    }
+
+    const invalidCredit = await findInvalidCredit(data);
+    if (invalidCredit) {
+        return { error: invalidCredit };
     }
 
     // Build update values using properly typed object
@@ -469,6 +490,8 @@ export async function updatePost(
         await syncPostTerms(id, data.termIds);
     }
 
+    await setPostCredits(id, data);
+
     const basePath = existing.type === "page" ? "/admin/pages" : "/admin/posts";
 
     // Trigger Telegram Alert for new published post or status change to published
@@ -513,6 +536,7 @@ export async function deletePost(id: string) {
     }
 
     await db.delete(posts).where(eq(posts.id, id));
+    await deletePostCredits([id]);
 
     const basePath = existing.type === "page" ? "/admin/pages" : "/admin/posts";
     revalidatePath(basePath);
@@ -536,12 +560,14 @@ export async function bulkActionPosts(
 
     try {
         if (action === "delete") {
-            await db.delete(posts).where(
+            // `returning` gives the ids that really matched the type, so only their credits go.
+            const deleted = await db.delete(posts).where(
                 and(
                     inArray(posts.id, ids),
                     eq(posts.type, type)
                 )
-            );
+            ).returning({ id: posts.id });
+            await deletePostCredits(deleted.map((p) => p.id));
         } else if (action === "publish" || action === "draft") {
             const newStatus = action === "publish" ? "published" : "draft";
             await db.update(posts)

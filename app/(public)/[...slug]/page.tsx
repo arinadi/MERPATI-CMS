@@ -191,11 +191,15 @@ export default async function PublicPage(props: PublicPageProps) {
                 inLanguage: "id-ID",
                 articleSection: result.post.categories?.map(c => c.name) || [],
                 keywords: result.post.tags?.map(t => t.name) || [],
+                // The credited reporter is the byline author; fall back to whoever created the post.
                 author: [{
                     "@type": "Person",
-                    name: result.post.author?.name || "Editor",
+                    name: result.post.reporter?.name || result.post.author?.name || "Editor",
                     url: baseUrl
                 }],
+                ...(result.post.editor?.name && {
+                    editor: { "@type": "Person", name: result.post.editor.name },
+                }),
                 publisher: {
                     "@type": "Organization",
                     name: await getCachedOption("site_title") || "MERPATI CMS",

@@ -3,6 +3,7 @@ import { posts, users, terms, termRelationships, postRelationships } from "@/db/
 import { eq, and, desc, inArray, count, ilike, or } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import type { PostCardData } from "@/lib/themes";
+import { getPostCreditNames } from "@/lib/post-credits";
 
 /**
  * ─── HELPER: Hydrate Posts with Categories ────────────────────────────────
@@ -105,7 +106,9 @@ export const getCachedPost = unstable_cache(
             relatedPosts = await hydratePosts(related);
         }
 
-        return { post: { ...post, categories, tags }, relatedPosts };
+        const { reporter, editor } = await getPostCreditNames(post.id);
+
+        return { post: { ...post, categories, tags, reporter, editor }, relatedPosts };
     },
     ["single-post"],
     { revalidate: 3600, tags: ["posts"] }

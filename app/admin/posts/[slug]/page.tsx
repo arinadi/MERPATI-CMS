@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPostBySlug } from "@/lib/actions/posts";
 import { getTerms } from "@/lib/actions/terms";
+import { getUsers } from "@/lib/actions/users";
 import { PostEditor } from "@/components/admin/post-editor";
 
 export default async function EditPostPage({
@@ -15,9 +16,10 @@ export default async function EditPostPage({
         notFound();
     }
 
-    const [{ terms: categories }, { terms: tags }] = await Promise.all([
+    const [{ terms: categories }, { terms: tags }, users] = await Promise.all([
         getTerms("category"),
         getTerms("tag"),
+        getUsers(),
     ]);
 
     return (
@@ -26,6 +28,7 @@ export default async function EditPostPage({
             post={post.post}
             availableCategories={categories || []}
             availableTags={tags || []}
+            availableUsers={users.filter((u) => u.status === "active")}
         />
     );
 }
