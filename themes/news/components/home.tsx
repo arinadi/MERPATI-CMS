@@ -31,6 +31,7 @@ const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] 
               src={featured.featuredImage || ""} 
               alt={featured.title} 
               fill
+              sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 50vw, 100vw"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute bottom-3 left-3 text-white px-2 py-1 text-[10px] font-bold" style={{ backgroundColor: 'var(--news-accent)', color: 'var(--news-primary)' }}>
@@ -60,6 +61,7 @@ const CategoryBlock = ({ title, posts }: { title: string, posts: PostCardData[] 
                   src={post.featuredImage || ""} 
                   alt={post.title} 
                   fill
+                  sizes="112px"
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
@@ -140,6 +142,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                   src={heroPost.featuredImage || ""} 
                   alt={heroPost.title} 
                   fill
+                  sizes="(min-width: 1024px) 66vw, 100vw"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   priority
                 />
@@ -173,6 +176,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                         src={adImage} 
                         alt="Advertisement" 
                         fill
+                        sizes="(min-width: 1024px) 33vw, 100vw"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                    </div>
@@ -203,6 +207,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                       src={post.featuredImage || ""} 
                       alt={post.title} 
                       fill
+                      sizes="112px"
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
@@ -237,6 +242,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                       src={post.featuredImage || ""} 
                       alt={post.title} 
                       fill
+                      sizes="300px"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute bottom-3 left-3 px-2 py-1 text-xs font-bold tracking-wider uppercase" style={{ backgroundColor: 'var(--news-accent)', color: 'var(--news-primary)' }}>
@@ -285,6 +291,7 @@ export default async function Home({ themeOptions }: HomeProps) {
                     src={post.featuredImage || ""} 
                     alt={post.title}
                     fill 
+                    sizes="(min-width: 768px) 50vw, 100vw"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors"></div>
