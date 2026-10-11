@@ -41,7 +41,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PostCreditsFields, type CreditUser } from "@/components/admin/post-credits-fields";
+import { PostCreditsPicker } from "@/components/admin/post-credits-picker";
+import type { CreditPerson } from "@/lib/post-credits";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -91,8 +92,8 @@ interface PostData {
     relatedPosts: RelatedPost[];
     categories?: { id: string }[];
     tags?: { id: string }[];
-    reporterId?: string | null;
-    editorId?: string | null;
+    reporterIds?: string[];
+    editorIds?: string[];
 }
 
 interface Term {
@@ -109,7 +110,7 @@ interface PostEditorProps {
     post?: PostData | null;
     availableCategories?: Term[];
     availableTags?: Term[];
-    availableUsers?: CreditUser[];
+    availablePeople?: CreditPerson[];
 }
 
 // ─── Toolbar Button ─────────────────────────────────────────────────────────
@@ -417,7 +418,7 @@ function RelatedPostsSelector({
 
 // ─── Main Editor Component ──────────────────────────────────────────────────
 
-export function PostEditor({ type, post, availableCategories = [], availableTags = [], availableUsers = [] }: PostEditorProps) {
+export function PostEditor({ type, post, availableCategories = [], availableTags = [], availablePeople = [] }: PostEditorProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
@@ -445,9 +446,9 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
         post?.tags?.map((t) => t.id) ?? []
     );
     const [postId, setPostId] = useState<string | undefined>(post?.id);
-    const [credits, setCredits] = useState<{ reporterId: string | null; editorId: string | null }>({
-        reporterId: post?.reporterId ?? null,
-        editorId: post?.editorId ?? null,
+    const [credits, setCredits] = useState<{ reporterIds: string[]; editorIds: string[] }>({
+        reporterIds: post?.reporterIds ?? [],
+        editorIds: post?.editorIds ?? [],
     });
 
     // Editor UI State
@@ -743,10 +744,10 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
             {type === "post" && (
                 <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
                     <h3 className="font-semibold text-sm">Credits</h3>
-                    <PostCreditsFields
-                        users={availableUsers}
-                        reporterId={credits.reporterId}
-                        editorId={credits.editorId}
+                    <PostCreditsPicker
+                        people={availablePeople}
+                        reporterIds={credits.reporterIds}
+                        editorIds={credits.editorIds}
                         onChange={(next) => {
                             setCredits(next);
                             setHasUnsavedChanges(true);

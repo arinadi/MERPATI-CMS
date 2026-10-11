@@ -96,7 +96,7 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
                   <span aria-hidden="true">·</span>
                   <span>{readingTime} menit baca</span>
                 </div>
-                <PostCredits reporter={post.reporter} editor={post.editor} className="mt-1 flex flex-wrap gap-x-3 text-[10px] uppercase font-bold text-gray-400" />
+                <PostCredits reporters={post.reporters} editors={post.editors} className="mt-1 flex flex-wrap gap-x-3 text-[10px] uppercase font-bold text-gray-400" />
               </div>
             </div>
             <div className="flex items-center md:hidden">

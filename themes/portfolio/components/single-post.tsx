@@ -45,12 +45,12 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                     <span>{"//"}</span>
                     <span>By {post.author?.name || "SystemAdmin"}</span>
                     <span>{"//"}</span>
-                    {(post.reporter?.name || post.editor?.name) && (
+                    {(post.reporters?.length || post.editors?.length) ? (
                         <>
-                            <PostCredits reporter={post.reporter} editor={post.editor} className="flex gap-6" />
+                            <PostCredits reporters={post.reporters} editors={post.editors} className="flex gap-6" />
                             <span>{"//"}</span>
                         </>
-                    )}
+                    ) : null}
                     <span>5 min read</span>
                 </div>
 

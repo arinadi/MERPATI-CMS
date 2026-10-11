@@ -301,8 +301,8 @@ export async function createPost(data: {
     featuredImage?: string | null;
     relatedPostIds?: string[];
     termIds?: string[];
-    reporterId?: string | null;
-    editorId?: string | null;
+    reporterIds?: string[];
+    editorIds?: string[];
 }) {
     const session = await auth();
     if (!session?.user?.id) {
@@ -404,8 +404,8 @@ export async function updatePost(
         featuredImage?: string | null;
         relatedPostIds?: string[];
         termIds?: string[];
-        reporterId?: string | null;
-        editorId?: string | null;
+        reporterIds?: string[];
+        editorIds?: string[];
     }
 ) {
     const session = await auth();

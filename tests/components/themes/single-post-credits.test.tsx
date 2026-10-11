@@ -30,16 +30,16 @@ const themes = [
 
 describe.each(themes)('theme %s: single post credits', (_name, SinglePost) => {
   it('shows the reporter and the editor of the post', () => {
-    const credited = { ...post, reporter: { name: 'Rina Reporter' }, editor: { name: 'Edo Editor' } };
+    const credited = { ...post, reporters: [{ name: 'Rina Reporter' }, { name: 'Budi Kontributor' }], editors: [{ name: 'Edo Editor' }] };
 
     render(<SinglePost post={credited as never} relatedPosts={[]} />);
 
-    expect(screen.getAllByText('Reporter: Rina Reporter').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Reporter: Rina Reporter, Budi Kontributor').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Editor: Edo Editor').length).toBeGreaterThan(0);
   });
 
   it('shows no credit line when the post has none', () => {
-    const plain = { ...post, reporter: null, editor: null };
+    const plain = { ...post, reporters: [], editors: [] };
 
     render(<SinglePost post={plain as never} relatedPosts={[]} />);
 
@@ -50,16 +50,16 @@ describe.each(themes)('theme %s: single post credits', (_name, SinglePost) => {
 
 describe('theme news: single post credits', () => {
   it('shows the reporter and the editor of the post', async () => {
-    const credited = { ...post, reporter: { name: 'Rina Reporter' }, editor: { name: 'Edo Editor' } };
+    const credited = { ...post, reporters: [{ name: 'Rina Reporter' }, { name: 'Budi Kontributor' }], editors: [{ name: 'Edo Editor' }] };
 
     render(await NewsSinglePost({ post: credited as never, relatedPosts: [] }));
 
-    expect(screen.getAllByText('Reporter: Rina Reporter').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Reporter: Rina Reporter, Budi Kontributor').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Editor: Edo Editor').length).toBeGreaterThan(0);
   });
 
   it('shows no credit line when the post has none', async () => {
-    const plain = { ...post, reporter: null, editor: null };
+    const plain = { ...post, reporters: [], editors: [] };
 
     render(await NewsSinglePost({ post: plain as never, relatedPosts: [] }));
 

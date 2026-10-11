@@ -1,12 +1,12 @@
 import { PostEditor } from "@/components/admin/post-editor";
 import { getTerms } from "@/lib/actions/terms";
-import { getUsers } from "@/lib/actions/users";
+import { getCreditPeople } from "@/lib/actions/people";
 
 export default async function NewPostPage() {
-    const [{ terms: categories }, { terms: tags }, users] = await Promise.all([
+    const [{ terms: categories }, { terms: tags }, { people }] = await Promise.all([
         getTerms("category"),
         getTerms("tag"),
-        getUsers(),
+        getCreditPeople(),
     ]);
 
     return (
@@ -14,7 +14,7 @@ export default async function NewPostPage() {
             type="post"
             availableCategories={categories || []}
             availableTags={tags || []}
-            availableUsers={users.filter((u) => u.status === "active")}
+            availablePeople={people ?? []}
         />
     );
 }
