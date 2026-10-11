@@ -64,6 +64,8 @@ export function SafeImage({ src, alt, ...props }: ImageProps) {
                 src={finalSrc}
                 alt={finalAlt}
                 className={props.className}
+                // next/image is lazy by default; a plain <img> is eager unless told otherwise.
+                loading={props.priority ? undefined : "lazy"}
                 onError={() => setIsLoadError(true)}
                 style={props.fill ? { position: "absolute", height: "100%", width: "100%", inset: 0, objectFit: "cover" } : props.style}
             />

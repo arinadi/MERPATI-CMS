@@ -251,6 +251,15 @@ import { SafeImage } from "@/components/ui/safe-image";
 <SafeImage src={post.featuredImage} alt={post.title} className="..." />
 ```
 
+### 2b. Featured Media (images and video links)
+
+A post's featured media can be an image or a YouTube, TikTok or Instagram link. Render it with the shared `FeaturedMedia` from `@/components/featured-media` (each theme's `components/featured-media.tsx` is a thin wrapper that sets the theme's default aspect ratio and placeholder style). Do not write your own iframe markup.
+
+- **Cards that are a link (home, archive, related posts):** pass `interactive={false}`. A YouTube link then renders as its thumbnail (`https://i.ytimg.com/vi/<id>/hqdefault.jpg`) and the player is **not** loaded. A full player costs about 1 MB of scripts per video and cannot be played inside a link anyway. A card that deliberately plays video in place (the video branch of the default and portfolio `post-card.tsx`) keeps the default `interactive`; its iframe is lazy.
+- **Single post/page:** keep the default `interactive`. The player is an `<iframe loading="lazy">`. TikTok and Instagram iframes are lazy too (they have no thumbnail URL).
+- **Sizes:** images that fill a box (`fill`) should pass `sizes` that match the rendered width (for example `sizes="112px"` for a 112px thumbnail). Without it `next/image` assumes the full viewport width and downloads a much larger file than needed.
+- **Above the fold:** use `priority` on the one hero image only.
+
 ### 3. Typography & Content Styling (TipTap)
 
 The MERPATI CMS classic WYSIWYG editor (TipTap) generates raw HTML elements (`<p>`, `<h1>`, `<ul>`, etc.). Theme developers MUST rely on Tailwind's Typography plugin (`@tailwindcss/typography`) to automatically format this injected content.

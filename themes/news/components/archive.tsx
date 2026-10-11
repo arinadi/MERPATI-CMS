@@ -66,6 +66,7 @@ export default async function Archive({ title, description, posts, pagination }:
                       src={primaryImage} 
                       alt={post.title} 
                       fill
+                      sizes="(min-width: 768px) 256px, 100vw"
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
                     <div className="absolute top-3 left-3 text-white px-2 py-1 text-xs font-bold" style={{ backgroundColor: 'var(--news-accent)', color: 'var(--news-primary)' }}>
@@ -142,6 +143,7 @@ export default async function Archive({ title, description, posts, pagination }:
                       src={post.featuredImage || ""} 
                       alt={post.title} 
                       fill
+                      sizes="96px"
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>

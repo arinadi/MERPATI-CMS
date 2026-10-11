@@ -27,7 +27,7 @@ export default function Home({ posts }: ArchiveProps) {
                         <div className="w-full md:w-1/2 aspect-video md:aspect-auto relative order-1 md:order-2">
                             {featuredPost.featuredImage ? (
                                 <Link href={`/${featuredPost.slug}`}>
-                                    <FeaturedMedia src={featuredPost.featuredImage} alt={featuredPost.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" priority />
+                                    <FeaturedMedia interactive={false} src={featuredPost.featuredImage} alt={featuredPost.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" priority />
                                 </Link>
                             ) : (
                                 <div className="w-full h-full bg-[#0F172A] flex items-center justify-center text-white/10">
@@ -72,7 +72,7 @@ export default function Home({ posts }: ArchiveProps) {
                             <Link key={post.id} href={`/${post.slug}`} className="group flex flex-col md:flex-row items-center md:items-start gap-6 lg:gap-12 transition-all">
                                 <div className="w-full md:w-[45%] lg:w-[40%] aspect-[16/10] shrink-0 rounded-2xl overflow-hidden relative shadow-lg">
                                     {post.featuredImage ? (
-                                        <FeaturedMedia src={post.featuredImage} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                        <FeaturedMedia interactive={false} src={post.featuredImage} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                     ) : (
                                         <div className="w-full h-full bg-[#0F172A] flex items-center justify-center text-white/5">
                                             <ImageIcon className="w-12 h-12" />
