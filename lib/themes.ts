@@ -1,4 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
+import type { PostDisplaySettings } from "@/lib/post-display";
 
 // ─── Theme Component Interfaces ────────────────────────────────────────────
 
@@ -23,6 +24,8 @@ export interface SinglePostProps {
     post: PostData;
     relatedPosts?: PostCardData[];
     sharingPlatforms?: string;
+    // Which parts of the post to show; a theme shows every part when this is not passed.
+    postDisplay?: PostDisplaySettings;
 }
 
 export interface SinglePageProps {
