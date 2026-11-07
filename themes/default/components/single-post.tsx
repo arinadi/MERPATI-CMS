@@ -81,7 +81,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                                     <span className="text-xs text-gray-500 font-medium">
                                         {formatDateFull(publishDate)}
                                     </span>
-                                    <PostCredits reporter={post.reporter} editor={post.editor} className="flex flex-wrap gap-x-3 text-xs text-gray-500" />
+                                    <PostCredits reporters={post.reporters} editors={post.editors} className="flex flex-wrap gap-x-3 text-xs text-gray-500" />
                                 </div>
                             </div>
 

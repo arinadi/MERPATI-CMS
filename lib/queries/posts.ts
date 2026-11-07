@@ -106,9 +106,9 @@ export const getCachedPost = unstable_cache(
             relatedPosts = await hydratePosts(related);
         }
 
-        const { reporter, editor } = await getPostCreditNames(post.id);
+        const { reporters, editors } = await getPostCreditNames(post.id);
 
-        return { post: { ...post, categories, tags, reporter, editor }, relatedPosts };
+        return { post: { ...post, categories, tags, reporters, editors }, relatedPosts };
     },
     ["single-post"],
     { revalidate: 3600, tags: ["posts"] }

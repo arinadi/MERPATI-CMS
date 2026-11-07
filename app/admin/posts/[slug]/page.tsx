@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPostBySlug } from "@/lib/actions/posts";
 import { getTerms } from "@/lib/actions/terms";
-import { getUsers } from "@/lib/actions/users";
+import { getCreditPeople } from "@/lib/actions/people";
 import { PostEditor } from "@/components/admin/post-editor";
 
 export default async function EditPostPage({
@@ -16,11 +16,13 @@ export default async function EditPostPage({
         notFound();
     }
 
-    const [{ terms: categories }, { terms: tags }, users] = await Promise.all([
+    const [{ terms: categories }, { terms: tags }, { people }] = await Promise.all([
         getTerms("category"),
         getTerms("tag"),
-        getUsers(),
+        getCreditPeople(),
     ]);
+    // The writer is the stored author; a deleted or suspended author has no entry here and shows a dash.
+    const writerName = people?.find((p) => p.userId === post.post.authorId)?.name ?? null;
 
     return (
         <PostEditor
@@ -28,7 +30,8 @@ export default async function EditPostPage({
             post={post.post}
             availableCategories={categories || []}
             availableTags={tags || []}
-            availableUsers={users.filter((u) => u.status === "active")}
+            availablePeople={people ?? []}
+            writerName={writerName}
         />
     );
 }

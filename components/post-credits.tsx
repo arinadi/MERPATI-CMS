@@ -1,10 +1,9 @@
-type Credit = { name: string | null } | null | undefined;
+type Person = { name: string };
 
-// A credit without a name (user never set one) is skipped instead of printing "Reporter: null".
-export function PostCredits({ reporter, editor, className }: { reporter?: Credit; editor?: Credit; className?: string }) {
+export function PostCredits({ reporters, editors, className }: { reporters?: Person[]; editors?: Person[]; className?: string }) {
     const lines = [
-        reporter?.name ? `Reporter: ${reporter.name}` : null,
-        editor?.name ? `Editor: ${editor.name}` : null,
+        reporters?.length ? `Reporter: ${reporters.map((p) => p.name).join(", ")}` : null,
+        editors?.length ? `Editor: ${editors.map((p) => p.name).join(", ")}` : null,
     ].filter((line): line is string => line !== null);
 
     if (lines.length === 0) return null;

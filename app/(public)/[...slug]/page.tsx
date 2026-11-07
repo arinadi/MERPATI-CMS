@@ -12,6 +12,7 @@ import {
 import { dbGuard } from "@/lib/db-guard";
 import { getBaseUrl } from "@/lib/get-base-url";
 import { notFound } from "next/navigation";
+import { creditsJsonLd } from "@/lib/utils/credits-jsonld";
 
 const SinglePost = activeTheme.SinglePost;
 const SinglePage = activeTheme.SinglePage;
@@ -191,14 +192,11 @@ export default async function PublicPage(props: PublicPageProps) {
                 inLanguage: "id-ID",
                 articleSection: result.post.categories?.map(c => c.name) || [],
                 keywords: result.post.tags?.map(t => t.name) || [],
-                // The credited reporter is the byline author; fall back to whoever created the post.
-                author: [{
-                    "@type": "Person",
-                    name: result.post.reporter?.name || result.post.author?.name || "Editor",
-                    url: baseUrl
-                }],
-                ...(result.post.editor?.name && {
-                    editor: { "@type": "Person", name: result.post.editor.name },
+                ...creditsJsonLd({
+                    reporters: result.post.reporters,
+                    editors: result.post.editors,
+                    postAuthorName: result.post.author?.name,
+                    baseUrl,
                 }),
                 publisher: {
                     "@type": "Organization",
