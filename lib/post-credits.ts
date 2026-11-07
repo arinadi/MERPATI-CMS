@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { options, users } from "@/db/schema";
 import { eq, inArray, like } from "drizzle-orm";
+import { createHash } from "node:crypto";
 
 // Credits live in the options table so adding them needs no schema change.
 // A person is either an account ("user:<userId>", name read live from users) or a plain-text name
@@ -29,6 +30,10 @@ const sameName = (a: string, b: string) => normalizePersonName(a).toLowerCase() 
 
 // An account without a name is listed under NO_NAME_LABEL, so a typed "(no name)" must not select it.
 const isNamelessAccount = (person: CreditPerson) => person.userId !== null && person.name === NO_NAME_LABEL;
+
+// Same normalization as sameName, so one name always maps to one key whatever the spacing or case typed.
+const personKeyFor = (name: string) =>
+    `${PERSON_ROW}${createHash("sha256").update(normalizePersonName(name).toLowerCase()).digest("hex")}`;
 
 const isPersonPayload = (value: unknown): value is { name: string } =>
     typeof value === "object" && value !== null && typeof (value as { name?: unknown }).name === "string";
@@ -109,9 +114,12 @@ export async function addCreditPerson(rawName: string): Promise<CreditPerson | n
     const existing = (await listCreditPeople()).find((p) => !isNamelessAccount(p) && sameName(p.name, name));
     if (existing) return existing;
 
-    const uuid = crypto.randomUUID();
-    await db.insert(options).values({ key: `${PERSON_ROW}${uuid}`, value: JSON.stringify({ name }), autoload: false });
-    return { id: `${PERSON_PREFIX}${uuid}`, name, userId: null };
+    // The key is derived from the name, not random: two concurrent adds of one name hit the same primary key,
+    // so only the first insert stores a row and both calls read back the same person.
+    const key = personKeyFor(name);
+    await db.insert(options).values({ key, value: JSON.stringify({ name }), autoload: false }).onConflictDoNothing({ target: options.key });
+    const [row] = await db.select({ key: options.key, value: options.value }).from(options).where(eq(options.key, key));
+    return row ? rowToPerson(row.key, row.value) : null;
 }
 
 export async function getPostCredits(postId: string) {
