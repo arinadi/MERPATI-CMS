@@ -42,6 +42,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PostCreditsPicker } from "@/components/admin/post-credits-picker";
+import { PostWriter } from "@/components/admin/post-writer";
 import type { CreditPerson } from "@/lib/post-credits";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -111,6 +112,8 @@ interface PostEditorProps {
     availableCategories?: Term[];
     availableTags?: Term[];
     availablePeople?: CreditPerson[];
+    // The writer is the post's author; the page resolves the name, the editor only shows it.
+    writerName?: string | null;
 }
 
 // ─── Toolbar Button ─────────────────────────────────────────────────────────
@@ -418,7 +421,7 @@ function RelatedPostsSelector({
 
 // ─── Main Editor Component ──────────────────────────────────────────────────
 
-export function PostEditor({ type, post, availableCategories = [], availableTags = [], availablePeople = [] }: PostEditorProps) {
+export function PostEditor({ type, post, availableCategories = [], availableTags = [], availablePeople = [], writerName = null }: PostEditorProps) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
@@ -744,6 +747,7 @@ export function PostEditor({ type, post, availableCategories = [], availableTags
             {type === "post" && (
                 <div className="rounded-xl border bg-card p-4 shadow-sm space-y-2">
                     <h3 className="font-semibold text-sm">Credits</h3>
+                    <PostWriter name={writerName} />
                     <PostCreditsPicker
                         people={availablePeople}
                         reporterIds={credits.reporterIds}

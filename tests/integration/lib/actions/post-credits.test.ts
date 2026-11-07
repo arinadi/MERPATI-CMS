@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { sql } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { posts, users, options } from '@/db/schema';
 import { createTestDb } from '@/tests/helpers/pglite-db';
@@ -58,19 +59,27 @@ afterEach(async () => {
 });
 
 describe('post credits', () => {
-  it('saves several reporters and editors, accounts and plain-text names, in the order given', async () => {
+  it('saves one reporter and one editor, each a plain-text name or an account', async () => {
     const budi = await addPerson('Budi Kontributor');
 
     const created = await createPost({
       title: 'Story',
-      reporterIds: [budi, 'user:rina'],
+      reporterIds: [budi],
       editorIds: ['user:edo'],
     });
 
     expect(await creditsOf(created.id!)).toEqual({
-      reporterIds: [budi, 'user:rina'],
+      reporterIds: [budi],
       editorIds: ['user:edo'],
     });
+  });
+
+  it('refuses a second reporter on create and stores nothing', async () => {
+    const result = await createPost({ title: 'Story', reporterIds: ['user:rina', 'user:edo'] });
+
+    expect(result.error).toBeDefined();
+    expect(await testDb.db.select().from(posts)).toHaveLength(0);
+    expect(await creditKeys()).toEqual([]);
   });
 
   it('has no credits when none were chosen', async () => {
@@ -80,12 +89,23 @@ describe('post credits', () => {
     expect(await creditKeys()).toEqual([]);
   });
 
-  it('replaces the whole list when the post is updated', async () => {
-    const created = await createPost({ title: 'Story', reporterIds: ['user:rina', 'user:edo'] });
+  it('replaces the reporter when the post is updated', async () => {
+    const created = await createPost({ title: 'Story', reporterIds: ['user:rina'] });
 
     await updatePost(created.id!, { reporterIds: ['user:edo'] });
 
     expect((await creditsOf(created.id!)).reporterIds).toEqual(['user:edo']);
+  });
+
+  it('refuses a second editor on update and changes nothing', async () => {
+    const created = await createPost({ title: 'Story', editorIds: ['user:edo'] });
+
+    const result = await updatePost(created.id!, { title: 'Changed', editorIds: ['user:edo', 'user:rina'] });
+
+    expect(result.error).toBeDefined();
+    const { post } = await getPostById(created.id!);
+    expect(post?.title).toBe('Story');
+    expect(await creditsOf(created.id!)).toEqual({ reporterIds: [], editorIds: ['user:edo'] });
   });
 
   it('clears a list when an empty array is sent and removes its row', async () => {
@@ -178,6 +198,27 @@ describe('post credits', () => {
   });
 });
 
+describe('a credit save that the database refuses', () => {
+  it('keeps the previous reporter, because the new row is written before the old one is removed', async () => {
+    await testDb.db.insert(posts).values({ id: 'old', title: 'Old', slug: 'old', authorId: 'writer' });
+    await testDb.db.insert(options).values({ key: 'post_reporter:old', value: 'rina', autoload: false });
+    // The database refuses the new list row, as it would on a write error in the middle of a save.
+    await testDb.db.execute(sql.raw(`
+      CREATE FUNCTION refuse_reporter_list() RETURNS trigger AS $$
+      BEGIN RAISE EXCEPTION 'write refused'; END;
+      $$ LANGUAGE plpgsql
+    `));
+    await testDb.db.execute(sql.raw(`
+      CREATE TRIGGER refuse_reporter_list BEFORE INSERT ON options
+        FOR EACH ROW WHEN (NEW.key LIKE 'post_reporters:%') EXECUTE FUNCTION refuse_reporter_list()
+    `));
+
+    await expect(updatePost('old', { reporterIds: ['user:edo'] })).rejects.toThrow();
+
+    expect(await creditsOf('old')).toEqual({ reporterIds: ['user:rina'], editorIds: [] });
+  });
+});
+
 describe('credits saved by the first version', () => {
   async function seedLegacyPost() {
     await testDb.db.insert(posts).values({ id: 'old', title: 'Old', slug: 'old', authorId: 'writer' });
@@ -196,9 +237,9 @@ describe('credits saved by the first version', () => {
   it('are replaced by the new rows the next time the credits are saved', async () => {
     await seedLegacyPost();
 
-    await updatePost('old', { reporterIds: ['user:rina', 'user:edo'] });
+    await updatePost('old', { reporterIds: ['user:rina'] });
 
-    expect(await creditsOf('old')).toEqual({ reporterIds: ['user:rina', 'user:edo'], editorIds: ['user:edo'] });
+    expect(await creditsOf('old')).toEqual({ reporterIds: ['user:rina'], editorIds: ['user:edo'] });
     expect(await creditKeys()).toEqual(['post_editor:old', 'post_reporters:old']);
   });
 

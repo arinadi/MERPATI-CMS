@@ -90,11 +90,17 @@ describe('getCreditPeople', () => {
     const { people } = await getCreditPeople();
 
     expect(people!.map((p) => [p.id.split(':')[0], p.name])).toEqual([
-      ['user', 'anon@example.com'],
+      ['user', '(no name)'],
       ['p', 'Budi Kontributor'],
       ['user', 'Rina Reporter'],
       ['user', 'Wati Writer'],
     ]);
+  });
+
+  it('never shows the email of an account that has no name', async () => {
+    const { people } = await getCreditPeople();
+
+    expect(JSON.stringify(people)).not.toContain('anon@example.com');
   });
 
   it('does not offer suspended accounts', async () => {

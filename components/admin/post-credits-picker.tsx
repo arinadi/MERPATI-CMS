@@ -39,8 +39,9 @@ function CreditCombobox({ label, people, selectedIds, onChange, onCreated }: Cre
 
     const selected = selectedIds.flatMap((id) => people.find((p) => p.id === id) ?? []);
 
-    const toggle = (id: string) =>
-        onChange(selectedIds.includes(id) ? selectedIds.filter((s) => s !== id) : [...selectedIds, id]);
+    // One person per role: choosing a person replaces the current one, and choosing the same one clears it.
+    // The server refuses a second person too, so this rule is not only a visual one.
+    const toggle = (id: string) => onChange(selectedIds.includes(id) ? [] : [id]);
 
     const handleAdd = async () => {
         const wanted = normalize(inputValue);
@@ -49,7 +50,7 @@ function CreditCombobox({ label, people, selectedIds, onChange, onCreated }: Cre
 
         const existing = people.find((p) => normalize(p.name) === wanted);
         if (existing) {
-            if (!selectedIds.includes(existing.id)) onChange([...selectedIds, existing.id]);
+            if (!selectedIds.includes(existing.id)) onChange([existing.id]);
             setInputValue("");
             return;
         }
@@ -59,7 +60,7 @@ function CreditCombobox({ label, people, selectedIds, onChange, onCreated }: Cre
         setIsAdding(false);
         if (result.person) {
             onCreated(result.person);
-            onChange([...selectedIds, result.person.id]);
+            onChange([result.person.id]);
             setInputValue("");
         } else {
             setError(result.error ?? "Could not add this name.");

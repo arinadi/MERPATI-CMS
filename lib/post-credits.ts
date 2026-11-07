@@ -9,6 +9,10 @@ const USER_PREFIX = "user:";
 const PERSON_PREFIX = "p:";
 const PERSON_ROW = "credit_person:";
 
+// Shown in the admin picker for an account with no name. The email is never used as a name:
+// it would be visible to every logged-in user in the picker.
+const NO_NAME_LABEL = "(no name)";
+
 type Role = "reporter" | "editor";
 const listKey = (role: Role, postId: string) => `post_${role}s:${postId}`;
 // Version 1 stored one user id per role under this key; it is still read and removed on the next save.
@@ -23,11 +27,33 @@ export function normalizePersonName(name: string) {
 
 const sameName = (a: string, b: string) => normalizePersonName(a).toLowerCase() === normalizePersonName(b).toLowerCase();
 
-const rowToPerson = (key: string, value: string): CreditPerson => ({
-    id: `${PERSON_PREFIX}${key.slice(PERSON_ROW.length)}`,
-    name: (JSON.parse(value) as { name: string }).name,
-    userId: null,
-});
+// An account without a name is listed under NO_NAME_LABEL, so a typed "(no name)" must not select it.
+const isNamelessAccount = (person: CreditPerson) => person.userId !== null && person.name === NO_NAME_LABEL;
+
+const isPersonPayload = (value: unknown): value is { name: string } =>
+    typeof value === "object" && value !== null && typeof (value as { name?: unknown }).name === "string";
+
+const isIdList = (value: unknown): value is string[] =>
+    Array.isArray(value) && value.every((id) => typeof id === "string");
+
+// One bad row must not take the public post down, so it is logged with its key and skipped.
+function readRow<T>(key: string, value: string, isValid: (parsed: unknown) => parsed is T): T | null {
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(value);
+    } catch {
+        console.error(`Credit row ${key} is not valid JSON; it is skipped.`);
+        return null;
+    }
+    if (isValid(parsed)) return parsed;
+    console.error(`Credit row ${key} has an unexpected shape; it is skipped.`);
+    return null;
+}
+
+const rowToPerson = (key: string, value: string): CreditPerson | null => {
+    const payload = readRow(key, value, isPersonPayload);
+    return payload ? { id: `${PERSON_PREFIX}${key.slice(PERSON_ROW.length)}`, name: payload.name, userId: null } : null;
+};
 
 /** Accounts that exist, and plain-text people whose row exists, among `ids`. */
 async function findKnownIds(ids: string[]): Promise<Set<string>> {
@@ -44,12 +70,14 @@ async function findKnownIds(ids: string[]): Promise<Set<string>> {
 }
 
 /**
- * Returns an error message when a credit points to an account or person that does not exist.
- * `undefined` and `[]` mean "no credit" and are always valid.
+ * Returns an error message when a role has more than one person, or when a credit points to an
+ * account or person that does not exist. `undefined` and `[]` mean "no credit" and are always valid.
+ * One person per role is enforced here, so both create and update refuse a second one.
  */
 export async function findInvalidCredit({ reporterIds, editorIds }: CreditInput): Promise<string | null> {
     const known = await findKnownIds([...(reporterIds ?? []), ...(editorIds ?? [])]);
     for (const [label, ids] of [["Reporter", reporterIds], ["Editor", editorIds]] as const) {
+        if (ids && ids.length > 1) return `${label}: only one person can be chosen`;
         if (ids?.some((id) => !known.has(id))) return `${label} not found`;
     }
     return null;
@@ -58,14 +86,17 @@ export async function findInvalidCredit({ reporterIds, editorIds }: CreditInput)
 /** Everyone who can be credited: active accounts plus every plain-text person, sorted by name. */
 export async function listCreditPeople(): Promise<CreditPerson[]> {
     const [accounts, rows] = await Promise.all([
-        db.select({ id: users.id, name: users.name, email: users.email, status: users.status }).from(users),
+        db.select({ id: users.id, name: users.name, status: users.status }).from(users),
         db.select({ key: options.key, value: options.value }).from(options).where(like(options.key, `${PERSON_ROW}%`)),
     ]);
     const people: CreditPerson[] = [
         ...accounts
             .filter((u) => u.status === "active")
-            .map((u) => ({ id: `${USER_PREFIX}${u.id}`, name: u.name || u.email, userId: u.id })),
-        ...rows.map((r) => rowToPerson(r.key, r.value)),
+            .map((u) => ({ id: `${USER_PREFIX}${u.id}`, name: u.name || NO_NAME_LABEL, userId: u.id })),
+        ...rows.flatMap((r) => {
+            const person = rowToPerson(r.key, r.value);
+            return person ? [person] : [];
+        }),
     ];
     return people.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 }
@@ -75,12 +106,12 @@ export async function addCreditPerson(rawName: string): Promise<CreditPerson | n
     const name = normalizePersonName(rawName);
     if (!name) return null;
 
-    const existing = (await listCreditPeople()).find((p) => sameName(p.name, name));
+    const existing = (await listCreditPeople()).find((p) => !isNamelessAccount(p) && sameName(p.name, name));
     if (existing) return existing;
 
-    const row = `${PERSON_ROW}${crypto.randomUUID()}`;
-    await db.insert(options).values({ key: row, value: JSON.stringify({ name }), autoload: false });
-    return rowToPerson(row, JSON.stringify({ name }));
+    const uuid = crypto.randomUUID();
+    await db.insert(options).values({ key: `${PERSON_ROW}${uuid}`, value: JSON.stringify({ name }), autoload: false });
+    return { id: `${PERSON_PREFIX}${uuid}`, name, userId: null };
 }
 
 export async function getPostCredits(postId: string) {
@@ -89,7 +120,7 @@ export async function getPostCredits(postId: string) {
     const valueOf = (key: string) => rows.find((r) => r.key === key)?.value;
     const idsOf = (role: Role): string[] => {
         const list = valueOf(listKey(role, postId));
-        if (list !== undefined) return JSON.parse(list);
+        if (list !== undefined) return readRow(listKey(role, postId), list, isIdList) ?? [];
         const legacy = valueOf(legacyKey(role, postId));
         return legacy ? [`${USER_PREFIX}${legacy}`] : [];
     };
@@ -98,6 +129,8 @@ export async function getPostCredits(postId: string) {
 
 /** `undefined` keeps the current list, `[]` removes it, otherwise the list is replaced. */
 export async function setPostCredits(postId: string, { reporterIds, editorIds }: CreditInput) {
+    // The new list row is written before the legacy row is removed. If the write fails in between,
+    // the previous credit is still readable from the legacy row instead of being lost.
     for (const [role, ids] of [["reporter", reporterIds], ["editor", editorIds]] as const) {
         if (ids === undefined) continue;
         if (ids.length === 0) {
@@ -135,7 +168,10 @@ export async function getPostCreditNames(postId: string) {
     ]);
     const names = new Map<string, string | null>([
         ...accounts.map((u) => [`${USER_PREFIX}${u.id}`, u.name] as const),
-        ...rows.map((r) => { const p = rowToPerson(r.key, r.value); return [p.id, p.name] as const; }),
+        ...rows.flatMap((r) => {
+            const person = rowToPerson(r.key, r.value);
+            return person ? [[person.id, person.name] as const] : [];
+        }),
     ]);
     const namesOf = (list: string[]) =>
         list.flatMap((id) => { const name = names.get(id); return name ? [{ name }] : []; });

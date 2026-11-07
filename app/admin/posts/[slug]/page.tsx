@@ -21,6 +21,8 @@ export default async function EditPostPage({
         getTerms("tag"),
         getCreditPeople(),
     ]);
+    // The writer is the stored author; a deleted or suspended author has no entry here and shows a dash.
+    const writerName = people?.find((p) => p.userId === post.post.authorId)?.name ?? null;
 
     return (
         <PostEditor
@@ -29,6 +31,7 @@ export default async function EditPostPage({
             availableCategories={categories || []}
             availableTags={tags || []}
             availablePeople={people ?? []}
+            writerName={writerName}
         />
     );
 }

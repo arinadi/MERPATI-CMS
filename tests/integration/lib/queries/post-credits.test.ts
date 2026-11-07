@@ -40,13 +40,13 @@ afterEach(async () => {
 });
 
 describe('public post credits', () => {
-  it('names every reporter and editor, accounts and plain-text names, in order', async () => {
-    await setCredits('post_reporters:p1', ['p:b1', 'user:rina']);
+  it('names the reporter and the editor, a plain-text name or an account', async () => {
+    await setCredits('post_reporters:p1', ['p:b1']);
     await setCredits('post_editors:p1', ['user:edo']);
 
     const result = await getCachedPost('story');
 
-    expect(result?.post.reporters).toEqual([{ name: 'Budi Kontributor' }, { name: 'Rina Reporter' }]);
+    expect(result?.post.reporters).toEqual([{ name: 'Budi Kontributor' }]);
     expect(result?.post.editors).toEqual([{ name: 'Edo Editor' }]);
   });
 
@@ -99,6 +99,16 @@ describe('public post credits', () => {
     const result = await getCachedPost('story');
 
     expect(result?.post.reporters).toEqual([{ name: 'Rina Reporter' }]);
+    expect(result?.post.editors).toEqual([{ name: 'Edo Editor' }]);
+  });
+
+  it('still shows the post and the other role when one credit row is corrupted', async () => {
+    await testDb.db.insert(options).values({ key: 'post_reporters:p1', value: 'not json', autoload: false });
+    await setCredits('post_editors:p1', ['user:edo']);
+
+    const result = await getCachedPost('story');
+
+    expect(result?.post.title).toBe('Story');
     expect(result?.post.editors).toEqual([{ name: 'Edo Editor' }]);
   });
 

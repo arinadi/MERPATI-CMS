@@ -38,21 +38,21 @@ describe('PostCreditsPicker', () => {
     expect(screen.getAllByText(/Nobody chosen/i)).toHaveLength(1);
   });
 
-  it('removes a person when its badge is clicked, keeping the others and the other role', async () => {
-    const { onChange } = setup({ reporterIds: ['p:b1', 'user:rina'], editorIds: ['user:edo'] });
+  it('removes a person when its badge is clicked, keeping the other role', async () => {
+    const { onChange } = setup({ reporterIds: ['p:b1'], editorIds: ['user:edo'] });
 
     await userEvent.click(screen.getByRole('button', { name: 'Remove Budi Kontributor' }));
 
-    expect(onChange).toHaveBeenCalledWith({ reporterIds: ['user:rina'], editorIds: ['user:edo'] });
+    expect(onChange).toHaveBeenCalledWith({ reporterIds: [], editorIds: ['user:edo'] });
   });
 
-  it('adds a person from the list after the ones already chosen', async () => {
+  it('chooses a person for the reporter in place of the one chosen before', async () => {
     const { onChange } = setup({ reporterIds: ['user:rina'] });
 
     await userEvent.click(screen.getByRole('combobox', { name: 'Add reporter' }));
     await userEvent.click(await screen.findByRole('option', { name: /Budi Kontributor/ }));
 
-    expect(onChange).toHaveBeenCalledWith({ reporterIds: ['user:rina', 'p:b1'], editorIds: [] });
+    expect(onChange).toHaveBeenCalledWith({ reporterIds: ['p:b1'], editorIds: [] });
   });
 
   it('adds a new plain-text name when it is typed and Enter is pressed', async () => {
