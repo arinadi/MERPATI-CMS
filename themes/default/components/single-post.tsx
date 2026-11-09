@@ -6,8 +6,10 @@ import { ShareButtons } from "./share-buttons";
 import { SafeImage } from "@/components/ui/safe-image";
 import { PostCredits } from "@/components/post-credits";
 import type { SinglePostProps } from "@/lib/themes";
+import { parsePostDisplay } from "@/lib/post-display";
 
-export default function SinglePost({ post, relatedPosts, sharingPlatforms }: SinglePostProps) {
+// Every part is shown unless Settings > Post Display switches it off.
+export default function SinglePost({ post, relatedPosts, sharingPlatforms, postDisplay = parsePostDisplay({}) }: SinglePostProps) {
     const publishDate = post.createdAt ? new Date(post.createdAt) : new Date();
 
     return (
@@ -40,7 +42,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                             aspectRatio={(post.featuredImage.includes("tiktok.com") || post.featuredImage.includes("instagram.com")) ? "aspect-[9/16]" : "aspect-video"}
                         />
                         {/* Category Badge Overlay */}
-                        {post.categories && post.categories.length > 0 && (
+                        {postDisplay.terms && post.categories && post.categories.length > 0 && (
                             <div className="absolute top-4 left-4 md:top-6 md:left-6">
                                 <Link 
                                     href={`/category/${post.categories[0].slug}`} 
@@ -67,28 +69,36 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 md:py-4 border-y border-white/10 mb-6 md:mb-10">
                             {/* Author Info */}
                             <div className="flex items-center gap-3 w-full md:w-auto">
-                                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-800 shrink-0 ring-2 ring-white/10 relative">
-                                    {post.author?.image ? (
-                                        <SafeImage src={post.author.image} alt={post.author.name || "Author"} fill className="object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                                            {post.author?.name?.[0]?.toUpperCase() || "A"}
-                                        </div>
-                                    )}
-                                </div>
+                                {postDisplay.writer && (
+                                    <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-800 shrink-0 ring-2 ring-white/10 relative">
+                                        {post.author?.image ? (
+                                            <SafeImage src={post.author.image} alt={post.author.name || "Author"} fill className="object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                                                {post.author?.name?.[0]?.toUpperCase() || "A"}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                                 <div className="flex flex-col">
-                                    <span className="font-bold text-white text-sm">{post.author?.name || "Anonymous"}</span>
-                                    <span className="text-xs text-gray-500 font-medium">
-                                        {formatDateFull(publishDate)}
-                                    </span>
-                                    <PostCredits reporters={post.reporters} editors={post.editors} className="flex flex-wrap gap-x-3 text-xs text-gray-500" />
+                                    {postDisplay.writer && <span className="font-bold text-white text-sm">{post.author?.name || "Anonymous"}</span>}
+                                    {postDisplay.date_reading && (
+                                        <span className="text-xs text-gray-500 font-medium">
+                                            {formatDateFull(publishDate)}
+                                        </span>
+                                    )}
+                                    {postDisplay.credits && (
+                                        <PostCredits reporters={post.reporters} editors={post.editors} className="flex flex-wrap gap-x-3 text-xs text-gray-500" />
+                                    )}
                                 </div>
                             </div>
 
                             {/* Share Buttons */}
-                            <div className="w-full md:w-auto flex justify-end">
-                                <ShareButtons title={post.title} excerpt={post.excerpt || ""} sharingPlatforms={sharingPlatforms} />
-                            </div>
+                            {postDisplay.share && (
+                                <div className="w-full md:w-auto flex justify-end">
+                                    <ShareButtons title={post.title} excerpt={post.excerpt || ""} sharingPlatforms={sharingPlatforms} />
+                                </div>
+                            )}
                         </div>
 
                         {/* 3. Article Body */}
@@ -98,7 +108,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                         />
 
                         {/* Tags */}
-                        {post.tags && post.tags.length > 0 && (
+                        {postDisplay.terms && post.tags && post.tags.length > 0 && (
                             <div className="mt-16 pt-8 border-t border-white/10">
                                 <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6">Tag Artikel</h3>
                                 <div className="flex flex-wrap gap-2">

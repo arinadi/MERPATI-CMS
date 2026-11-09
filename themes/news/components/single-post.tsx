@@ -10,8 +10,10 @@ import { formatDate, formatDateLong } from "@/lib/utils/date";
 import type { SinglePostProps, PostCardData } from "@/lib/themes";
 import { getCachedTaxonomyPosts, getLatestPosts } from "@/lib/queries/posts";
 import { getCachedOptions } from "@/lib/queries/options";
+import { parsePostDisplay } from "@/lib/post-display";
 
-export default async function SinglePost({ post, relatedPosts }: SinglePostProps) {
+// Every part is shown unless Settings > Post Display switches it off.
+export default async function SinglePost({ post, relatedPosts, sharingPlatforms, postDisplay = parsePostDisplay({}) }: SinglePostProps) {
   let popularPosts: PostCardData[] = [];
   try {
     const optionsRaw = await getCachedOptions(["theme_news_featured_cat"]);
@@ -45,8 +47,12 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
           {/* Breadcrumbs */}
           <div className="text-xs text-gray-500 mb-4 flex items-center gap-2 font-bold uppercase tracking-wider">
             <Link href="/" className="hover:text-[var(--news-accent)]">BERANDA</Link>
-            <span>›</span>
-            <Link href={`/category/${primaryCat.slug}`} className="hover:text-[var(--news-accent)]">{primaryCat.name}</Link>
+            {postDisplay.terms && (
+              <>
+                <span>›</span>
+                <Link href={`/category/${primaryCat.slug}`} className="hover:text-[var(--news-accent)]">{primaryCat.name}</Link>
+              </>
+            )}
           </div>
 
           {/* Title */}
@@ -82,41 +88,55 @@ export default async function SinglePost({ post, relatedPosts }: SinglePostProps
           {/* Meta & Share Row (Default style) */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-10 py-4 border-y border-gray-100">
             <div className="flex items-center gap-4">
-              <SafeImage 
-                src={authorImage} 
-                alt="Author" 
-                width={44}
-                height={44}
-                className="w-11 h-11 rounded-full object-cover"
-              />
+              {postDisplay.writer && (
+                <SafeImage
+                  src={authorImage}
+                  alt="Author"
+                  width={44}
+                  height={44}
+                  className="w-11 h-11 rounded-full object-cover"
+                />
+              )}
               <div className="text-sm text-gray-500 flex flex-col justify-center">
-                <div className="font-bold uppercase tracking-wider text-xs" style={{ color: 'var(--news-accent)' }}>{authorName}</div>
-                <div className="text-[10px] uppercase font-bold text-gray-400 mt-0.5 flex items-center gap-1.5">
-                  <span>{formattedDate}</span>
-                  <span aria-hidden="true">·</span>
-                  <span>{readingTime} menit baca</span>
-                </div>
-                <PostCredits reporters={post.reporters} editors={post.editors} className="mt-1 flex flex-wrap gap-x-3 text-[10px] uppercase font-bold text-gray-400" />
+                {postDisplay.writer && (
+                  <div className="font-bold uppercase tracking-wider text-xs" style={{ color: 'var(--news-accent)' }}>{authorName}</div>
+                )}
+                {postDisplay.date_reading && (
+                  <div className="text-[10px] uppercase font-bold text-gray-400 mt-0.5 flex items-center gap-1.5">
+                    <span>{formattedDate}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{readingTime} menit baca</span>
+                  </div>
+                )}
+                {postDisplay.credits && (
+                  <PostCredits reporters={post.reporters} editors={post.editors} className="mt-1 flex flex-wrap gap-x-3 text-[10px] uppercase font-bold text-gray-400" />
+                )}
               </div>
             </div>
-            <div className="flex items-center md:hidden">
-              <ShareButtons 
-                title={post.title} 
-                excerpt={post.excerpt || ""} 
-              />
-            </div>
+            {postDisplay.share && (
+              <div className="flex items-center md:hidden">
+                <ShareButtons
+                  title={post.title}
+                  excerpt={post.excerpt || ""}
+                  sharingPlatforms={sharingPlatforms}
+                />
+              </div>
+            )}
           </div>
 
           {/* Content & Share */}
           <div className="flex flex-col md:flex-row gap-6 relative">
             {/* Sticky Share Buttons */}
-            <div className="hidden md:flex flex-col gap-2 sticky top-[140px] h-max z-30">
-              <ShareButtons 
-                title={post.title} 
-                excerpt={post.excerpt || ""} 
-                orientation="vertical"
-              />
-            </div>
+            {postDisplay.share && (
+              <div className="hidden md:flex flex-col gap-2 sticky top-[140px] h-max z-30">
+                <ShareButtons
+                  title={post.title}
+                  excerpt={post.excerpt || ""}
+                  sharingPlatforms={sharingPlatforms}
+                  orientation="vertical"
+                />
+              </div>
+            )}
 
             {/* Prose Content */}
             <div 

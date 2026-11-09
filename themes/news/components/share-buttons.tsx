@@ -41,6 +41,8 @@ export interface ShareButtonsProps {
   title: string;
   excerpt?: string;
   platforms?: Record<string, boolean>;
+  // JSON string of the admin's sharing setting, the same format the other themes read. Empty = every platform.
+  sharingPlatforms?: string;
   orientation?: "horizontal" | "vertical";
   className?: string;
 }
@@ -49,6 +51,7 @@ export function ShareButtons({
   title,
   excerpt = "",
   platforms,
+  sharingPlatforms = "",
   orientation = "horizontal",
   className = "",
 }: ShareButtonsProps) {
@@ -62,7 +65,9 @@ export function ShareButtons({
 
   if (!url) return null;
 
-  const shareLinks = getSocialShareLinks(title, url, excerpt, platforms);
+  const enabledPlatforms: Record<string, boolean> | null =
+    platforms ?? (sharingPlatforms ? JSON.parse(sharingPlatforms) : null);
+  const shareLinks = getSocialShareLinks(title, url, excerpt, enabledPlatforms);
 
   const iconMap: Record<string, React.ElementType> = {
     whatsapp: WhatsAppIcon,

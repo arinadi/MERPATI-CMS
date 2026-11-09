@@ -8,6 +8,7 @@ Implement global key-value settings management and the Telegram Bot notification
     *   **General Tab:** Site Title, Tagline.
     *   **Contacts Tab:** A dynamic list of contact links (CRUD and drag-to-reorder) managing a JSON array. Each item has: Title, Icon ID (string, e.g., 'facebook', 'twitter', 'mail'), and URL.
     *   **Notifications Tab:** Telegram Bot Token, Telegram Chat ID, Toggle for "Notify on New Post", Toggle for "Notify on New User".
+    *   **Post Display Tab (`/admin/settings/post-display`):** One switch per part of a public post: Credits (reporter and editor), Writer (author name), Date and reading time, Share buttons, Categories and tags. All switches start ON. Switching a part OFF hides it on the public post in every theme. The admin post editor always shows every part. A part the active theme does not render is still listed, with the note "not shown in this theme"; its switch saves normally.
     *   Save changes button.
 
 ## Data & API

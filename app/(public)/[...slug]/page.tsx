@@ -1,6 +1,7 @@
 import { getFeaturedImageUrl } from "@/lib/utils/featured-image";
 import { activeTheme } from "@/lib/themes";
-import { getCachedOption } from "@/lib/queries/options";
+import { getCachedOption, getCachedOptions } from "@/lib/queries/options";
+import { parsePostDisplay, POST_DISPLAY_KEYS } from "@/lib/post-display";
 import { 
     getCachedPost, 
     getCachedPage, 
@@ -159,7 +160,8 @@ export default async function PublicPage(props: PublicPageProps) {
         const postData = await getCachedPost(fullSlug);
         if (postData) {
             const sharingPlatforms = await getCachedOption("sharing_platforms");
-            return { type: "post" as const, post: postData.post, relatedPosts: postData.relatedPosts, sharingPlatforms: sharingPlatforms || "" };
+            const postDisplay = parsePostDisplay(await getCachedOptions(POST_DISPLAY_KEYS));
+            return { type: "post" as const, post: postData.post, relatedPosts: postData.relatedPosts, sharingPlatforms: sharingPlatforms || "", postDisplay };
         }
 
         // ── Try to find a Page
@@ -213,7 +215,7 @@ export default async function PublicPage(props: PublicPageProps) {
                         type="application/ld+json"
                         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
                     />
-                    <SinglePost post={result.post} relatedPosts={result.relatedPosts} sharingPlatforms={result.sharingPlatforms} />
+                    <SinglePost post={result.post} relatedPosts={result.relatedPosts} sharingPlatforms={result.sharingPlatforms} postDisplay={result.postDisplay} />
                 </>
             );
         }

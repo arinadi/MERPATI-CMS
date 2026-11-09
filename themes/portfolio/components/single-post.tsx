@@ -6,8 +6,11 @@ import type { SinglePostProps } from "@/lib/themes";
 import { FeaturedMedia } from "./featured-media";
 import { getFeaturedImageAlt } from "@/lib/utils/featured-image";
 import { ShareButtons } from "./share-buttons";
+import { Fragment } from "react";
+import { parsePostDisplay } from "@/lib/post-display";
 
-export default function SinglePost({ post, relatedPosts, sharingPlatforms }: SinglePostProps) {
+// Every part is shown unless Settings > Post Display switches it off.
+export default function SinglePost({ post, relatedPosts, sharingPlatforms, postDisplay = parsePostDisplay({}) }: SinglePostProps) {
     if (!post) {
         return (
             <div className="container mx-auto px-4 py-32 text-center text-zinc-500 font-mono">
@@ -15,6 +18,15 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
             </div>
         );
     }
+
+    const metaItems = [
+        postDisplay.date_reading && <span key="date">{formatDateLong(post.createdAt || new Date())}</span>,
+        postDisplay.writer && <span key="writer">By {post.author?.name || "SystemAdmin"}</span>,
+        postDisplay.credits && (post.reporters?.length || post.editors?.length) ? (
+            <PostCredits key="credits" reporters={post.reporters} editors={post.editors} className="flex gap-6" />
+        ) : null,
+        postDisplay.date_reading && <span key="reading">5 min read</span>,
+    ].filter((item) => Boolean(item));
 
     return (
         <div className="bg-zinc-950 min-h-screen text-slate-100 font-sans pb-32 pt-20">
@@ -27,7 +39,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                 </Link>
 
                 {/* Header Subtitle */}
-                {post.categories && post.categories.length > 0 && (
+                {postDisplay.terms && post.categories && post.categories.length > 0 && (
                     <div className="flex items-center gap-3 mb-6 font-mono text-sm tracking-widest uppercase">
                         <span className="w-2 h-2 rounded-full bg-[#00e5b7]" />
                         <span className="text-[#00e5b7]">{post.categories[0].name}</span>
@@ -39,19 +51,14 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                     {post.title}
                 </h1>
 
-                {/* Meta */}
+                {/* Meta: only the parts that are switched on, separated by "//" */}
                 <div className="flex items-center gap-6 font-mono text-sm text-zinc-500 border-b border-zinc-800 pb-10 mb-10">
-                    <span>{formatDateLong(post.createdAt || new Date())}</span>
-                    <span>{"//"}</span>
-                    <span>By {post.author?.name || "SystemAdmin"}</span>
-                    <span>{"//"}</span>
-                    {(post.reporters?.length || post.editors?.length) ? (
-                        <>
-                            <PostCredits reporters={post.reporters} editors={post.editors} className="flex gap-6" />
-                            <span>{"//"}</span>
-                        </>
-                    ) : null}
-                    <span>5 min read</span>
+                    {metaItems.map((item, index) => (
+                        <Fragment key={index}>
+                            {index > 0 && <span>{"//"}</span>}
+                            {item}
+                        </Fragment>
+                    ))}
                 </div>
 
                 {/* Featured Image */}
@@ -82,7 +89,7 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                 />
 
                 {/* Tags */}
-                {post.tags && post.tags.length > 0 && (
+                {postDisplay.terms && post.tags && post.tags.length > 0 && (
                     <div className="mt-16 pt-8 border-t border-zinc-800 flex items-center gap-4 flex-wrap">
                         <span className="text-zinc-500 font-mono text-sm">Indexed Tags:</span>
                         {post.tags.map(tag => (
@@ -94,9 +101,11 @@ export default function SinglePost({ post, relatedPosts, sharingPlatforms }: Sin
                 )}
 
                 {/* Share Buttons */}
-                <div className="mt-10 pt-8 border-t border-zinc-800">
-                    <ShareButtons title={post.title} excerpt={post.excerpt || ""} sharingPlatforms={sharingPlatforms} />
-                </div>
+                {postDisplay.share && (
+                    <div className="mt-10 pt-8 border-t border-zinc-800">
+                        <ShareButtons title={post.title} excerpt={post.excerpt || ""} sharingPlatforms={sharingPlatforms} />
+                    </div>
+                )}
             </article>
 
             {/* Related Posts */}
